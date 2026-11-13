@@ -198,7 +198,6 @@ function resolveMcpServerConfig(
   };
 
   // zcode_official 允许 http 与 stdio，sse 出现即禁用该 MCP，不静默忽略——静默会让配置作者以为鉴权已生效。
-  //
   // stdio 之所以能放开：请求由插件进程自己发出，身份头随每条出站协议消息的 _meta 下发
   // （见 adapters/src/mcp/index.ts）。sse 没有对应通道，继续拒绝。
   const officialAuth = parseZCodeOfficialAuth(server.auth, identity.mcpKey);

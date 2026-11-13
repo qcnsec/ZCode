@@ -149,7 +149,6 @@ type ActorPlan =
   // 整条线经真实工具层跑一遍（apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「Amend-resume」）。
   | { kind: "write"; path: string; content: string }
   // 挂起，但**理会取消**：turn 随 abort 信号 reject，与真实 provider 一样。
-  //
   // 与 `hang` 的区别不是细节而是分水岭：`hang` 模拟的是一个连 AbortSignal 都不看的 provider，
   // 它的 turn 永远落不了地，于是那个会话「写完了没有」永远答不上来（driver 的静默账因此
   // 拒绝接续它的在飞 ask，见 workflow-driver-quiescence.ts）。本种类才是正常形状。
@@ -1444,12 +1443,10 @@ describe("dynamic workflow run service — retuneConcurrency", () => {
 // docs/dynamic-workflow/launch.md「Changing only the parallelism of a live run」。上面那一组
 // 直接对 service 断言，core 那一侧的用例又把端口换成了 stub——两条缝之间没有任何东西证明它们
 // 真的对得上。这一组把工具执行器、resolveInput 的路由、handler、端口、引擎与 journal 串成一条。
-//
 // **哪些是真的**：工具注册表与执行器、AmendWorkflow 的 resolveInput / 权限步 / handler、
 // `createDynamicWorkflowRunService`、引擎与调度器、driver、journal 行与事件流、进度载荷。
 // **哪些是替身**：actor 的模型适配器（`hangActors`：generateText 永不 resolve，于是三个 ask
 // 稳定停在在飞状态），以及并发探测（固定 10 核 → 默认并发 8）。
-//
 // **这里不证停驻**：让子代理真的发出「下一个 turn step」需要一个可外部拨动的假模型，本 harness
 // 的脚本化 adapter 给不了那个控制点。座位闸门那一半由 workflow-driver-seat-gate.test.ts 用真
 // 治理器 + 真 driver 证（压低 4→1 停驻、FIFO 放行、工具侧不停驻、取消不腾座位）；本组证的是
@@ -1651,7 +1648,6 @@ describe("dynamic workflow run service — AmendWorkflow 就地 retune（端到�
 // `subagent_model` 只描述**子代理**跑在哪个模型上，主代理照旧在会话模型上。这一组把
 // 「请求 → 归一成规范串 → 记进 journal 事件 run-launched → 两条读面 → run-started 载荷 →
 // actor runtime 工厂」整条路钉住。缺席即子代理跑在会话模型上，且每一处的键都真的不出现。
-//
 // 落点是**事件而不是列**（用户裁决不做迁移）：与发起锚点、阶段表同住 `run-launched`，
 // 只在建 run 那一世写一次，宿主从事件头读回。
 describe("dynamic workflow run service — 本 run 的子代理模型", () => {
@@ -2682,7 +2678,6 @@ describe("dynamic workflow run service — 产物存储的接线", () => {
 // ── 用户面产物的读面（docs/dynamic-workflow/authoring.md「How the user sees them」）──────────────
 // ⚠ 术语：artifact = 脚本经 `artifact.*` 发布给**用户**看的产出，不是端口上的 `output`
 // （脚本顶层返回值，引擎内部对它的同名叫法）。
-//
 // 三个端口方法：listArtifacts（清单）/ listArtifactItems（看板取数）/ readArtifact（字节）。
 // readArtifact 的授权链是本节的重点：run 属于本会话 ∧ journal 有该版本的 completed 行 ⇒
 // 才拿**行上的** uri 去 store 读。每一条负例都断言 store **一次都没被碰过**。
@@ -3489,7 +3484,6 @@ describe("dynamic workflow run service — observation", () => {
   });
 
   // ── 终态快照携带渐进产物（完成通知的数据源）──
-  //
   // 条目取自 journal 的 kind="report" 行，而不是 memory-only 的 workflowRuns 投影：那是这些
   // 条目的持久家，重启后依然在。通知因此在 failed / cancelled 上也能捞回半途的产物。
 
@@ -4650,7 +4644,6 @@ describe("dynamic workflow run service — getRunDetail 组合", () => {
   // ── 产物截面（docs/dynamic-workflow/authoring.md 的 `GetWorkflowRun` 行）─────────────
   // ⚠ 术语：artifact = 脚本经 `artifact.*` 发布给**用户**看的产出，不是详情里的 `result`
   // （脚本顶层返回值，引擎内部对它的同名叫法）。两者在同一个返回对象上并列，所以这里必须写明。
-  //
   // getRunDetail 有**两条**返回分支，两条都要带产物：journal 行分支（常态）与注册表间隙分支
   // （run 已提交、dwf_run 行还没落）。漏掉任一条的症状都是「模型看不见这个 run 产出了什么」，
   // 而间隙那条最容易漏——它读起来像个纯兜底。
@@ -7623,11 +7616,9 @@ describe("dynamic workflow run service — 升级问答（escalation）", () => 
 
 // ————————————————————————————————————————————————
 // 升级问答的端到端闭环（Slice 4）。
-//
 // 上面那组用例由测试自己持端口扮演模型；这一组把两端都交给真东西：actor 的**模型**发一次
 // `escalate` 工具调用，主会话的**模型**发一次 `ResolveWorkflowQuestion` 工具调用，两条路各自
 // 经真实工具层（注册门 → 权限 → handler → 端口）落到同一张停驻表上。
-//
 // 只有在这一层才证明得了、而端口层用例结构上看不见的三件事：
 //   1. `escalate` 真的出现在 actor 那一轮的工具面上（端口在场 → includeEscalate → 注册表）。
 //      中间任何一环漏掉，端口层的断言仍然全绿，而 actor 撞上坏门时手里根本没有这个工具；

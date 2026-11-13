@@ -669,16 +669,13 @@ export const v4ConversationWorkflowRunEventsResultSchema = z
   })
   .strict();
 // **刻意不带 `atSeq` / `atLogEpoch`**，尽管同族的 rows/range 与 plans 都带。
-//
 // 那两个字段在同族里是**陈旧读防护**：它们读的是 conversation projection，而 projection 的
 // `rowId` 只在一个 log epoch 内有意义（重建 / fork / rewind 会重新编号），所以读端的契约是
 // "atLogEpoch ≠ store 当前 epoch → 整个结果丢弃"。
-//
 // 本 query 读的是 **journal**（`dwf_event`），它与 conversation log 无关，且 cursor 永不失效：
 // journal 的 JournalStorePort 契约要求 sequence 只追加、
 // 跨 resume 从既有最大值继续、既不重置也不复用，既有条目的编号不变。也就是说一个
 // `(runId, sequence)` cursor 永远有效——没有任何"陈旧"可供防护。
-//
 // 更要紧的是：带上 `atLogEpoch` 不是无害的对称。按同族的读端契约，一次与 run 完全无关的
 // 会话 rewind（epoch 变化）会让详情页把**合法的** journal 页整页丢掉。宁可少一个字段，
 // 也不要携带一个在这里定义不出正确语义的字段。

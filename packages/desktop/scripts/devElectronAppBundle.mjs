@@ -84,10 +84,8 @@ export async function prepareDevElectronAppBundle({
   // 修复原因：这里原本把两个 Electron 可执行文件（各 ~100MB+）整份读进内存做 equals，
   // 每次 dev 启动都要付一次全量读盘。源二进制由 npm 包解压产出，记录它的 size+mtime
   // 即可判定是否需要重拷，语义等价而开销是常数级。
-  //
   // 不直接比较「源与副本」的 mtime：cp 即使开 preserveTimestamps 也会把 mtime
   // 四舍五入到毫秒，源的亚毫秒精度必然丢失，两边永远不相等 —— 那等于没有缓存。
-  //
   // format 字段记录副本的布局版本：布局修复（例如符号链接策略变更）时递增，
   // 让已存在的旧副本在源二进制没变的情况下也能被判定为需要重拷。
   const sourceStats = await stat(sourceExecutablePath).catch(() => undefined);

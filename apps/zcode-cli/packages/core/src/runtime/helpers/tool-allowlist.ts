@@ -43,7 +43,6 @@ const WORKFLOW_CHILD_DISALLOWED_TOOLS = [
   // 升级问答的语义是「actor 提问，创建这条工作流的那一方作答」。
   // 让一个 child 顺手作答，等于把「把判断权交回给能改掉那道门的人」悄悄退化成 actor 之间的
   // 互相说服——而一个同样被挡在门内的 actor 恰恰是最没有资格拍板的那个。
-  //
   // 与 bootstrap 的 `ACTOR_DISALLOWED_TOOLS` **刻意重复**（CreateWorkflow 已有同样的双列
   // 先例）：那一份是 driver 侧 persona 工具面的减法；这一份按 taskType 覆盖全部 workflow
   // child，不依赖 driver 记得写。

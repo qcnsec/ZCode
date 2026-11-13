@@ -87,7 +87,7 @@ afterEach(() => {
 });
 
 describe("virtual project CLI session facts", () => {
-  it("升级本分支旧 ID 时先执行上游迁移，保留正文、软删除与结果且不重跑", async () => {
+  it("升级本分支旧 ID 时先执行 迁移，保留正文、软删除与结果且不重跑", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-merge-old-id-"));
     const dbPath = join(root, "session.sqlite");
     const db = new DatabaseSync(dbPath);

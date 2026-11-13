@@ -37,12 +37,12 @@ export async function waitForUpstreamNetworkCapture(expectedText: string) {
       },
       {
         timeout: 60000,
-        timeoutMsg: "没有捕获到 上游 请求",
+        timeoutMsg: "没有捕获到 请求",
       },
     );
   } catch (error) {
     throw new Error(
-      `没有捕获到 上游 请求\n${JSON.stringify(
+      `没有捕获到 请求\n${JSON.stringify(
         summarizeCaptureArtifact(latestArtifact),
         null,
         2,
@@ -53,7 +53,7 @@ export async function waitForUpstreamNetworkCapture(expectedText: string) {
 
   const record = findUpstreamRequestRecord(latestArtifact, expectedText);
   if (!record) {
-    throw new Error("上游 请求捕获记录在等待完成后仍不存在");
+    throw new Error(" 请求捕获记录在等待完成后仍不存在");
   }
   return record;
 }
@@ -69,12 +69,12 @@ export async function waitForUpstreamNetworkRequestStarted(expectedText: string)
       },
       {
         timeout: 60000,
-        timeoutMsg: "没有捕获到 上游 请求开始",
+        timeoutMsg: "没有捕获到 请求开始",
       },
     );
   } catch (error) {
     throw new Error(
-      `没有捕获到 上游 请求开始\n${JSON.stringify(
+      `没有捕获到 请求开始\n${JSON.stringify(
         summarizeCaptureArtifact(latestArtifact),
         null,
         2,
@@ -85,7 +85,7 @@ export async function waitForUpstreamNetworkRequestStarted(expectedText: string)
 
   const record = findUpstreamRequestRecord(latestArtifact, expectedText);
   if (!record) {
-    throw new Error("上游 请求开始记录在等待后仍不存在");
+    throw new Error(" 请求开始记录在等待后仍不存在");
   }
   return record;
 }
@@ -108,7 +108,7 @@ export function assertUpstreamRequestCapture(
   ).toBe(true);
   if (!record.statusCode || record.statusCode < 200 || record.statusCode >= 300) {
     throw new Error(
-      `上游 请求没有返回 2xx\n${JSON.stringify(summarizeCaptureRecord(record), null, 2)}`,
+      ` 请求没有返回 2xx\n${JSON.stringify(summarizeCaptureRecord(record), null, 2)}`,
     );
   }
   expect(readModelFromCapture(record.requestJson)).toBe(assertion.model);
@@ -150,7 +150,7 @@ export function readUpstreamUsageFromCapture(
   const usage = parseLatestSseUsage(record.responseTextPreview ?? "");
   if (!usage) {
     throw new Error(
-      `上游 响应里没有解析到 usage\n${JSON.stringify(summarizeCaptureRecord(record), null, 2)}`,
+      ` 响应里没有解析到 usage\n${JSON.stringify(summarizeCaptureRecord(record), null, 2)}`,
     );
   }
 
@@ -163,7 +163,7 @@ export function readUpstreamUsageFromCapture(
   const cacheWriteTokens = numberValue(
     usage.cache_creation_input_tokens ?? usage.cacheWriteTokens ?? usage.cache_write_tokens,
   );
-  // 修复原因：上游 Anthropic-compatible 响应会把 prompt token 和 cache token 拆开返回；
+  // 修复原因： Anthropic-compatible 响应会把 prompt token 和 cache token 拆开返回；
   // runtime context meter 展示的是本次请求实际占用的上下文总量，抓包断言必须同口径相加。
   const inputTokens =
     (providerInputTokens ?? 0) + (cacheReadTokens ?? 0) + (cacheWriteTokens ?? 0);
@@ -192,7 +192,7 @@ export async function waitForContextUsageFromCapture(usage: UpstreamUsageSnapsho
   const trigger = $(sel(TID_CHAT_CONTEXT_USAGE_TRIGGER));
   await trigger.waitForDisplayed({
     timeout: 45000,
-    timeoutMsg: "上游 请求返回 usage 后，工具栏没有显示 context 消耗",
+    timeoutMsg: " 请求返回 usage 后，工具栏没有显示 context 消耗",
   });
 
   const expectedContextTokens = readExpectedContextUsageTokens(usage);
@@ -203,7 +203,7 @@ export async function waitForContextUsageFromCapture(usage: UpstreamUsageSnapsho
       latestLabel = await readContextUsageLabel();
       const numbers = numbersFromLabel(latestLabel);
       latestUsedTokens = numbers[0] ?? 0;
-      // Bugfix: Provider SSE usage 是上游请求口径，UI context meter 会叠加本地会话
+      // Bugfix: Provider SSE usage 是 请求口径，UI context meter 会叠加本地会话
       // 估算和少量系统开销；回放验证只需要确认 usage 已进入 UI 且没有大幅偏离。
       return (
         latestUsedTokens >= expectedContextTokens &&
@@ -212,14 +212,14 @@ export async function waitForContextUsageFromCapture(usage: UpstreamUsageSnapsho
     },
     {
       timeout: 30000,
-      timeoutMsg: `context 消耗没有匹配 上游 usage=${expectedContextTokens}±${CONTEXT_USAGE_CAPTURE_TOLERANCE_TOKENS}，latest=${latestLabel} used=${latestUsedTokens}`,
+      timeoutMsg: `context 消耗没有匹配 usage=${expectedContextTokens}±${CONTEXT_USAGE_CAPTURE_TOLERANCE_TOKENS}，latest=${latestLabel} used=${latestUsedTokens}`,
     },
   );
 }
 
 function readExpectedContextUsageTokens(usage: UpstreamUsageSnapshot) {
   // 修复原因：运行结束后的 context meter 展示的是当前对话上下文已用量，
-  // 包含本轮 assistant 输出；上游 usage 把 input/cache/output 拆开返回，
+  // 包含本轮 assistant 输出； usage 把 input/cache/output 拆开返回，
   // 旧断言只比 inputTokens 会把正确 UI 误报成失败。
   return usage.totalTokens ?? usage.inputTokens + (usage.outputTokens ?? 0);
 }

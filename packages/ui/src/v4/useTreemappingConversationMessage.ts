@@ -2,7 +2,6 @@
 // Treemapping 只消费「一轮 assistant 输出的 toolCalls + 是否仍在流式」，这里把
 // snapshot rows 里最后一个 assistant 轮的 ToolCallRow 适配回旧 TaskChatMessage 形态，
 // 复用 treemappingActivity 的既有解析规则，不复活 zcodeChatMessages。
-//
 // TreemappingPane 挂在 side pane（V4ConversationProvider 之外），因此自持一条
 // SessionDataLayer；pane 当前默认从侧边栏隐藏（workspaceSidePane sanitize 过滤
 // treemapping tab），该订阅只在 pane 真实挂载时才会建立。

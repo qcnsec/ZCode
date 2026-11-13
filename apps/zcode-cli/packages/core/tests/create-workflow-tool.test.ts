@@ -1319,7 +1319,7 @@ describe("CreateWorkflow resolveInput — subagent_model", () => {
 });
 
 // 裁剪层是**自卫**的，不是信任生产者的：这些图直接喂给 boundCausalityGraph，因为分析器
-// 按构造产不出它们。「认领的阶段都已声明」是上游的语料性质，不是本层的输入契约——阶段 id
+// 按构造产不出它们。「认领的阶段都已声明」是 的语料性质，不是本层的输入契约——阶段 id
 // 是自由字符串，悬空引用 .strict() 抓不到，只能在这里挡住。
 describe("boundCausalityGraph — 对损坏输入的引用完整性", () => {
   const step = (id: string, phase: string) => ({

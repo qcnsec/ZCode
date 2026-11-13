@@ -9,6 +9,10 @@ export interface ProviderDraftValues {
   apiFormat: ProviderApiType;
   baseUrlValue: string;
   apiKeyValue: string;
+  // 自定义请求路径 / 查询参数 / 额外请求头（供应商设置增强）。
+  customPathValue: string;
+  customQueryValue: string;
+  customHeadersValue: string;
 }
 
 function normalizeConfiguredBaseUrl(value: string): string {
@@ -44,6 +48,10 @@ export function resolvePendingProviderDraftSave({
 }): ProviderSettingsFormProvider | null {
   const label = draft.nameValue.trim();
   const baseURL = normalizeConfiguredBaseUrl(draft.baseUrlValue);
+  // 自定义请求增强字段：草稿做 trim 归一（空串记为 undefined），与 ProviderApiConfig 存储口径一致。
+  const customPath = draft.customPathValue.trim() || undefined;
+  const customQuery = draft.customQueryValue.trim() || undefined;
+  const customHeaders = draft.customHeadersValue.trim() || undefined;
   // ID 和默认协议只用于空配置的表单展示，不是用户覆盖；脏检查与表单初始化必须同源。
   // 名称只在 Enter/失焦确认；连接的闲时保存、测试和卸载不能夹带未确认的名称。
   const labelChanged = nameConfirmed && label !== getProviderFormLabel(provider);
@@ -53,16 +61,37 @@ export function resolvePendingProviderDraftSave({
   const keyChanged =
     isApiKeyAccess(provider.config.access) &&
     draft.apiKeyValue !== (provider.config.access.apiKey ?? "");
-  if (!labelChanged && !typeChanged && !urlChanged && !keyChanged) return null;
+  const pathChanged =
+    !readOnlyEndpoints && customPath !== (provider.config.api?.customPath ?? undefined);
+  const queryChanged =
+    !readOnlyEndpoints && customQuery !== (provider.config.api?.customQuery ?? undefined);
+  const headersChanged =
+    !readOnlyEndpoints && customHeaders !== (provider.config.api?.customHeaders ?? undefined);
+  if (
+    !labelChanged &&
+    !typeChanged &&
+    !urlChanged &&
+    !keyChanged &&
+    !pathChanged &&
+    !queryChanged &&
+    !headersChanged
+  )
+    return null;
 
   // 表单只拥有名称、连接类型、地址和 Key；重建整个 api 会删除隐藏 headers，
   // 保存 Effective 对象又会把继承字段物化。分别在各自基线上只应用修改过的叶子。
   const apiChanges = {
     ...(typeChanged || (urlChanged && !provider.config.api?.type) ? { type: draft.apiFormat } : {}),
     ...(urlChanged ? { baseUrl: baseURL || undefined } : {}),
+    ...(pathChanged ? { customPath } : {}),
+    ...(queryChanged ? { customQuery } : {}),
+    ...(headersChanged ? { customHeaders } : {}),
   };
-  const api =
-    typeChanged || urlChanged ? { ...provider.config.api, ...apiChanges } : provider.config.api;
+  const apiLeafChanged =
+    typeChanged || urlChanged || pathChanged || queryChanged || headersChanged;
+  const api = apiLeafChanged
+    ? { ...provider.config.api, ...apiChanges }
+    : provider.config.api;
   const access =
     keyChanged && isApiKeyAccess(provider.config.access)
       ? { ...provider.config.access, apiKey: draft.apiKeyValue }
@@ -84,9 +113,7 @@ export function resolvePendingProviderDraftSave({
           },
         }
       : {}),
-    ...(typeChanged || urlChanged
-      ? { api: { ...provider.personalConfig.api, ...apiChanges } }
-      : {}),
+    ...(apiLeafChanged ? { api: { ...provider.personalConfig.api, ...apiChanges } } : {}),
   };
 
   if (!labelChanged && JSON.stringify(config) === JSON.stringify(provider.config)) {

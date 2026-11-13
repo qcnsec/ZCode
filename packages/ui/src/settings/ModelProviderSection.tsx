@@ -63,6 +63,7 @@ import { useSettings } from "@/hooks/useSettingService.js";
 import { resolveLogoutProviderFamilyDomain } from "@/lib/providerFamilyDomainSettings.js";
 import {
   addPendingSettingsSectionListener,
+  consumePendingSettingsAddProvider,
   consumePendingSettingsModelProviderTarget,
   type SettingsModelProviderTarget,
 } from "@/lib/settingsNavigation.js";
@@ -314,6 +315,14 @@ export function ModelProviderSection({
   const [pendingCreatedProviderId, setPendingCreatedProviderId] = useState<string | null>(null);
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
   const [creatingProvider, setCreatingProvider] = useState(false);
+
+  // 欢迎页「使用 API Key」入口不再弹填写表单，而是携带一次性意图跳过登录后直达这里。
+  // 用挂载 effect 消费（sessionStorage 幂等），避免 StrictMode 下 lazy state 双调用误判。
+  useEffect(() => {
+    if (consumePendingSettingsAddProvider()) {
+      setTemplatePickerOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (

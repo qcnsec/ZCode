@@ -513,7 +513,7 @@ const SESSION_SEND_OPTIONAL_COMPAT_FIELDS = new Set<SessionSendCompatField>([
   "botDeliveryTarget",
   "toolDenylist",
 ]);
-// onDynamicSessionEvent 建立上游订阅时若 getClient / sessionSubscribe 瞬时失败
+// onDynamicSessionEvent 建立 订阅时若 getClient / sessionSubscribe 瞬时失败
 // （agent 进程刚启动、runtime 抛 "Session is not active" 竞态、transport 抖动），
 // 直接 .catch(() => {}) 静默吞掉且不重试的话，调用方（含 syncer shadow 订阅）会把
 // emitter.event 当作"订阅成功"缓存，永不重建——这条 session 的终态事件再也到不了，
@@ -1264,7 +1264,7 @@ export const OFF_PEAK_INTERNAL_ERROR_MESSAGE = "Internal off-peak service error"
 
 /**
  * offPeak/create、offPeak/list 的兜底 catch 不得把跨层异常文本（SQLite/文件路径/
- * 上游响应片段）原样回传协议——它会进入 CLI 日志与模型可见错误。原始错误只进服务端日志，
+ * 响应片段）原样回传协议——它会进入 CLI 日志与模型可见错误。原始错误只进服务端日志，
  * 对外固定稳定错误码 + 通用文案；业务失败分类仍走 respond({ok:false}) 不经此处。
  */
 async function respondOffPeakInternalError(

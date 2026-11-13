@@ -1,10 +1,8 @@
 // 附件读取/探测的结构化错误码（share 预检与发布的分类依据）。
-//
 // share 预检曾用 `error.message` 正则区分「附件不存在 / 未授权 / 其他」。
 // 一旦 RPC 层包装、本地化或替换消息（例如 schema 校验失败抛 ZodError），分类立即失效
 // 并把确定性问题降级成 deferred。仓库纪律（AGENTS.md「不依赖错误文本做流程判断」）
 // 要求用稳定错误码，本模块即该契约的单一来源。
-//
 // 传输路径：CLI 侧抛出的 Error 带 `code` 字段，`toProtocolError` 会把 string code
 // 透传到 JSON-RPC `error.data.code`；客户端读回时用 readZCodeAttachmentFaultCode。
 

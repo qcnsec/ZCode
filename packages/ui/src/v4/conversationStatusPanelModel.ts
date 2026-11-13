@@ -353,10 +353,9 @@ export function buildConversationStatusPanelModel(
       // "workflow"（workflow run）曾与 bash 同列在 Terminals 下，那是保住停止入口的已记录错标；
       // 现在它有自己的 Workflows 分区，于是**只**按 workId ≡ runId 进 workflow 联接表。
       // 留在 runningBashWorks 里就是让同一个 run 在两个分区各出现一次。
-      //
       // 这一支**收在 running 闸门之前**：题名与启动时刻对已结束的 work 依然有效（见
       // buildRunningWorkflowRuns 的分簇说明），status 的判断留到那里按字段做。workId 是
-      // 主键，重复即上游损坏，不做消歧。
+      // 主键，重复即 损坏，不做消歧。
       workflowWorkByWorkId.set(work.workId, work);
       continue;
     }

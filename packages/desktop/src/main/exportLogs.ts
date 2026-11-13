@@ -1168,9 +1168,39 @@ export async function createFeedbackLogArchiveFromExportLogs(
   });
 }
 
-export async function exportLogs(
+type ExportLogsResult = { success: boolean; path?: string; error?: string };
+
+/**
+ * 同一时刻只允许一次日志导出。托盘、原生应用菜单、帮助菜单三个入口最终都汇聚到
+ * 这里的 main 进程 exportLogs()，因此把 in-flight 锁放在最内层即可覆盖全部路径，
+ * 避免重复打包（多个 zip / 多次打开系统文件管理器）与磁盘、CPU 的无谓开销。
+ */
+let inFlightExportLogs: Promise<ExportLogsResult> | null = null;
+
+/** 是否已有日志导出正在进行（供命令层提前短路）。 */
+export function isExportLogsInFlight(): boolean {
+  return inFlightExportLogs !== null;
+}
+
+export function exportLogs(
   dependencies: ExportLogsDependencies = {},
-): Promise<{ success: boolean; path?: string; error?: string }> {
+): Promise<ExportLogsResult> {
+  if (inFlightExportLogs) {
+    logger.info("[export-logs] 已有导出任务进行中，复用当前任务结果", {
+      source: "duplicate-request",
+    });
+    return inFlightExportLogs;
+  }
+  const task = runExportLogs(dependencies).finally(() => {
+    inFlightExportLogs = null;
+  });
+  inFlightExportLogs = task;
+  return task;
+}
+
+async function runExportLogs(
+  dependencies: ExportLogsDependencies = {},
+): Promise<ExportLogsResult> {
   try {
     const now = dependencies.now ?? (() => new Date());
     const getSourceDir = dependencies.getZCodeDataDir ?? getZCodeDataDir;

@@ -4,7 +4,6 @@
 // dynamic-workflow-run-observation.ts 顶到 oxlint max-lines 上限（400 行），把整段
 // 产物归并（{@link artifactsOf} 与它的私有解码器）拆到本文件。观察面仍原样再导出它，四个
 // 调用点（快照 / getRunDetail / listArtifacts / saved-workflows 中枢）因此一行都不用改。
-//
 // ⚠ 术语：这里的 artifact 是脚本经 `artifact.*` **发布给用户看的产出**（journal
 // `kind = "artifact"` 的行），不是引擎内部的 `RunSettlement.artifact`（脚本顶层返回值，端口上
 // 叫 `output` / `result`）。同一个词两个义。

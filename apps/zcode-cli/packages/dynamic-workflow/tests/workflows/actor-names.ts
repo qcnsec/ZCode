@@ -2,7 +2,6 @@
 // (docs/execution-engine.md). This file must compile clean — it is the
 // false-positive guard for the duplicate-name diagnostic (9005), whose violations are
 // asserted in tests/actor-names.test.ts (the fixture suite here only typechecks).
-//
 // Distinct literal names, any number of anonymous actors, and dynamic names built in a
 // loop are all fine. Uniqueness of the dynamic ones is checked at run time by the
 // engine's createActor — a name only a running script knows cannot be checked here.

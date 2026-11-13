@@ -1,5 +1,4 @@
 // FillWorkflowHole 的常驻描述（docs/dynamic-workflow/launch.md「What the model is told」）。
-//
 // 与 AmendWorkflow 同一条收短原则：facade、留白的三种写法与写作规则都在 `dynamic-workflows` 技能里，
 // 由技能门保证读过。这里只留决定「要不要调这个工具、怎么写函数体」的那几句：函数体只写语句、在
 // 留白处编译、看得见它之前的绑定、要返回留白的类型、先在 EvalWorkflowSnippet 里排练固定逻辑、

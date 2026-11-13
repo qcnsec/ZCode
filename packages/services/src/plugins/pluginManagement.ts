@@ -1,5 +1,4 @@
 // 平台能力面收敛：设置页「插件管理」的薄服务接口。
-//
 // 背景：pluginManagementStore / usePluginUninstall 过去直接注入 IZCodeAgentService，
 // UI 层因此散布 13 个 plugins/* 旧协议词的消费点。收敛为独立薄 service 后，UI 只依赖
 // 本接口；plugins/* 词表的 host 侧消费点收拢到 pluginManagementService 一处（插件的

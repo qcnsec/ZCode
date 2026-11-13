@@ -1,5 +1,4 @@
 // task list 行的引用稳定化（跨 lane 共享）。
-//
 // sessions-index / Controller tasks-index 每个内容帧都会全量重建 ZCodeTaskMeta[]，
 // 即使内容完全没变（例如只改了列表不消费的 activity 时间戳）。下游把「全新数组引用」当成新数据：
 // grouped 视图整树 refresh、虚拟器重测量、workspace 行缓存被 invalidate——表现为

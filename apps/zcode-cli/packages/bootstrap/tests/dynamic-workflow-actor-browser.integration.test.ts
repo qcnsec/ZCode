@@ -3,12 +3,10 @@
 // ============================================================
 // 契约见 apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「Subagent sessions」与
 // docs/zcode-protocol-model-backed-control-requests.md 契约 4。
-//
 // Bug 根因（2026-09-30，run dwfrun-becabf58）：actor 的 `mcp__node_repl__js` 带着自己的
 // `sess_dwf-…` 到达协议 broker，`requireSession` 只认客户端会话，每个 `agent.browsers.*` 都以
 // `Session is not active` 失败。单测钉住了各个接缝；这一格钉住装配：create-app 把父会话的端口交给
 // actor 工厂、run dispose 真的关掉 actor 的 Browser session。
-//
 // 生产里 node_repl MCP 进程经 broker socket 把 actor 的 session_id 原样交给进程级 broker 实例
 // （zcode-protocol-entrypoint.ts 的 `server.browserControlPort`）；这里由 actor 的罐头模型直接调用
 // 同一 context 上的第二个 broker 实例来代替那一跳——socket 只做 token 校验与转发，不碰 session。

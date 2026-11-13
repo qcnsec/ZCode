@@ -98,7 +98,7 @@ export function resolveExecutionFallbackCandidates(input: {
  * 纯匹配：本次模型请求失败是否命中执行 Selection 的退回声明（docs/highspeed/highspeed-card-spec.md §2.2）。
  * - 只看本轮 step 实际使用的模型 provider 是否就是声明 provider；失败必须明确归因到该 provider/network 边界。
  * - 用户取消与上下文超窗不参与退回：取消按取消收口，超窗交给 reactive compact（退回同模型同窗口只会再超一次）。
- * - 规则按声明顺序匹配，缺省 providerErrorCode 的规则匹配任意上游请求失败；core 不自行解释 provider 错误码，
+ * - 规则按声明顺序匹配，缺省 providerErrorCode 的规则匹配任意 请求失败；core 不自行解释 provider 错误码，
  *   也不按 provider id 前缀、模型名或错误文案硬编码。
  */
 export function matchExecutionSelectionFallback(input: {

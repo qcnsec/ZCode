@@ -3,17 +3,15 @@ import {
   ZCODE_HTTP_PROXY_ENV_KEY,
   ZCODE_NO_PROXY_ENV_KEY,
   ZCODE_WORKSPACE_IDENTITY_ENV,
+  normalizeProxyScheme,
 } from "@zcode/shared";
 
 // 把设置页的 HTTP 代理、No Proxy 和自定义 CA 翻译成 agent 子进程的环境变量补丁。
 // agent 是子进程，继承宿主 process.env；这里在 spawn 时把代理与证书注入进去，所以「下次启动 agent」生效。
-//
 // 代理：设置大写标准三件套保证设置页优先于继承来的同名 shell 变量（model registry 按 HTTPS_PROXY →
 // HTTP_PROXY → … 先匹配大写）；额外设 ZCODE_HTTP_PROXY 让 Bash 工具子进程经 subprocess-env 拿到最高优先级。
-//
 // No Proxy：只接受设置页显式填写的绕过规则。额外设 ZCODE_NO_PROXY 让 provider/http adapter
 // 能在不读取用户 shell NO_PROXY 的前提下复用同一套规则。
-//
 // 自定义证书：只接受设置页显式填写的 PEM 路径。注入 NODE_EXTRA_CA_CERTS 让 agent（含模型 provider 请求）
 // 在 Node 启动时信任它，同时用 ZCODE_AGENT_CA_CERT 给 adapter 和工具子进程补齐跨运行时 CA 变量。
 
@@ -64,7 +62,7 @@ export function buildAgentNoProxyEnv(noProxy: string | undefined): Record<string
 
 /**
  * spawn agent 时一次性解析的运行时 env 补丁：代理 + No Proxy + 自定义 CA。
- * 这些值都只来自 AppSettings 显式配置；用户 shell 里的标准代理/证书变量已经在上游清洗。
+ * 这些值都只来自 AppSettings 显式配置；用户 shell 里的标准代理/证书变量已经在 清洗。
  */
 export function buildAgentRuntimeEnv(input: {
   httpProxy: string | undefined;
@@ -126,10 +124,19 @@ function normalizeProxyValue(value: string | undefined): string | undefined {
     return undefined;
   }
   // 已带 scheme（http://、socks5:// 等）原样保留；裸 host:port 补 http://。
-  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
-    return trimmed;
+  const candidate = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
+  try {
+    const url = new URL(candidate);
+    // Node fetch/undici 的 EnvHttpProxyAgent 与 axios 只认 http/https/socks4/socks5；
+    // socks5h/socks4a/socks 原样进入 env 会静默失效，归一化后再下发，与 Chromium 会话代理一致。
+    const scheme = normalizeProxyScheme(url.protocol.toLowerCase());
+    const auth = url.username
+      ? `${url.username}${url.password ? `:${url.password}` : ""}@`
+      : "";
+    return `${scheme}//${auth}${url.host}`;
+  } catch {
+    return undefined;
   }
-  return `http://${trimmed}`;
 }
 
 function normalizeNoProxyValue(value: string | undefined): string | undefined {

@@ -4,7 +4,7 @@
  *
  * 通过 useOAuth hook 驱动 OAuth 流程。
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { Loader2Icon, LoaderIcon, TriangleAlertIcon } from "lucide-react";
 import { type OAuthProviderMeta, BIGMODEL_PROVIDER_ID, ZAI_PROVIDER_ID } from "@zcode/shared";
 import {
@@ -20,7 +20,7 @@ import { Button } from "./components/ui/button.js";
 import { ZCodeAboutLogo } from "@/components/ui/ZCodeAboutLogo.js";
 import { useOAuth } from "./hooks/useOAuth.js";
 import { useZCodeIntl } from "./i18n/IntlProvider.js";
-import { LoginApiKeyForm } from "./login/LoginApiKeyForm.js";
+import { setPendingSettingsAddProvider } from "@/lib/settingsNavigation.js";
 import { renderOAuthProviderIcon } from "./lib/oauthProviderIcon.js";
 import { ThemeHeroVisual } from "./openWorkspacePageThemeHero.js";
 import { useZCodeStore } from "./store/StoreProvider.js";
@@ -93,7 +93,6 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
   const loginEntryRequest = useZCodeStore((s) => s.loginEntryRequest);
   const clearLoginEntryRequest = useZCodeStore((s) => s.clearLoginEntryRequest);
   const markLoginEntryAttemptStatus = useZCodeStore((s) => s.markLoginEntryAttemptStatus);
-  const [loginMode, setLoginMode] = useState<"providers" | "apiKey">("providers");
   const wasActiveRef = useRef(active);
   const consumedLoginRequestRef = useRef<number | null>(null);
   const observedOAuthSuccessSeqRef = useRef(oauthSuccessSeq);
@@ -247,10 +246,6 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
     status,
   ]);
 
-  const resetApiKeyForm = useCallback(() => {
-    setLoginMode("providers");
-  }, []);
-
   const handleCopyLoginLink = useCallback(async () => {
     if (!authorizeUrl || typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
       toast(intl.formatMessage({ id: "login.oauth.copyLinkFailed" }));
@@ -283,7 +278,6 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
     reset();
     setOAuthError(null);
     clearLoginEntryRequest();
-    resetApiKeyForm();
   }, [
     active,
     cancel,
@@ -291,7 +285,6 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
     finishActiveLoginEntryAttempt,
     pendingProvider,
     reset,
-    resetApiKeyForm,
     setOAuthError,
     status,
   ]);
@@ -309,7 +302,7 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
         {/* Bugfix: Root 层写入 oauthError（轮询/回调失败）后 effect 会把 useOAuth reset 回 idle，
             若只判断 status==="idle" 会让失败块和渠道按钮列表同屏、状态纠缠。
             失败期间统一由下方失败块接管（重新登录/取消），渠道列表等错误清掉后再回来。 */}
-        {status === "idle" && !oauthError && loginMode === "providers" && (
+        {status === "idle" && !oauthError && (
           <div className="space-y-4">
             {loadingProviders ? (
               <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-6 text-ui-base text-foreground-subtle">
@@ -362,7 +355,10 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
                   size="lg"
                   data-testid={TID_LOGIN_USE_API_KEY_BUTTON}
                   onClick={() => {
-                    setLoginMode("apiKey");
+                    // 改版后「添加供应商」才是真正填写 API Key 的入口，这里不再弹填写表单，
+                    // 直接跳过登录；Root 检测该意图后打开「设置 - 模型设置 - 添加供应商」页。
+                    setPendingSettingsAddProvider();
+                    void onComplete("skip");
                   }}
                 >
                   {intl.formatMessage({ id: "login.useApiKey" })}
@@ -371,20 +367,6 @@ export function LoginPanel({ active, onComplete }: LoginPanelProps) {
             ) : null}
           </div>
         )}
-
-        {status === "idle" && loginMode === "apiKey" ? (
-          <LoginApiKeyForm
-            onCancel={() => setLoginMode("providers")}
-            onSaved={() => {
-              resetApiKeyForm();
-              return onComplete("apiKey");
-            }}
-            onSkipped={() => {
-              resetApiKeyForm();
-              return onComplete("skip");
-            }}
-          />
-        ) : null}
 
         {status === "waiting" && (
           <div className="space-y-4">

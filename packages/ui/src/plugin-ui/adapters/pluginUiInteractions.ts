@@ -47,7 +47,7 @@ function scopeMarker(scope: PluginUiScopeRef): string {
 /**
  * 第二、三批宿主回调：
  * - sendFollowUpMessage：有用户手势直接以用户身份发送；无手势弹可编辑确认框，取消回 -32000。
- *   ：structuredContent 以 ```json 块拼在文本后面；来源只进 metadata `source`。
+ *   structuredContent 以 ```json 块拼在文本后面；来源只进 metadata `source`。
  * - updateModelContext：投递到当前会话 composer 的插件上下文块；没有 composer 接住回 -32601。
  * widgetState 由窗口页面管理器唯一写入。
  */

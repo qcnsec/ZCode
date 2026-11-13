@@ -63,7 +63,6 @@ export class InMemoryHookRunner implements HookRunner {
     // skipLifecycle 的 hook 不发事件，不能计入客户端等待完成的 hookCount。
     // 修复：先解析全部 matchingHooks 的 admission，把 skipLifecycle 的从参与列表
     // 剔除后再计算 clientVisibleHookCount，保证 hookCount === 实际会发事件的 hook 数。
-    //
     // 注意：这里的 admission 结果只用于 skipLifecycle 剔除与 hookCount 计算——
     // 二者取决于「配置是否启用」这一稳定属性。allowed 授权决定绝不能沿用本阶段的
     // 缓存：一次事件匹配多个顺序执行的 Hook 时，前序 Hook 运行期间发生的

@@ -3,7 +3,6 @@
 // ============================================================
 // 住在归约主文件之外，与 workflow-runs-actor-status.ts 同一个理由（主文件的 max-lines 门），
 // 也同一条纪律：纯函数、无时钟、无 I/O。
-//
 // 为什么 sessionId 会动（docs/dynamic-workflow/presentation.md「Subagent transcripts」）：
 // `actor-created` 给的是 run service 为本 run 铸的会话，而修订 run 里一个答案全部来自导入命中的
 // 子代理从没建过这条会话——命中不建会话，那些交换只活在前驱的会话里。transcript 面板照

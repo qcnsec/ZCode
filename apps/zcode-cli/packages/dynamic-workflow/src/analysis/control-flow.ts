@@ -61,7 +61,6 @@ export function handleForOf(ev: Evaluator, node: ts.ForOfStatement, ctx: EvalCon
   // merge the element's FIELD effects (collapsed) into the collection place — a later
   // `b[k].note` read smears them out. Mirrors the array-method fan-out write-back. Without
   // this write-back, for-of element writes would be invisible to the collection.
-  //
   // The write-back used to scan only THIS pass's fresh `element` clone, but
   // body writes land on the loop variable's persistent env slot — bindSymbol ADOPTS the pass-1
   // object and later passes merely merge the fresh clone INTO it. A clone of the collapsed

@@ -118,7 +118,7 @@ async function createOffPeakTask() {
   await setInputValueByTestIdDom(TID_OFFPEAK_FORM_TITLE, `E2E_OFFPEAK_TEAM_${Date.now()}`);
   await setInputValueByTestIdDom(
     TID_OFFPEAK_FORM_INSTRUCTIONS,
-    // 复用网关固定文本分支，只验证 Team headers/票据，不触发子代理脚本或真实上游。
+    // 复用网关固定文本分支，只验证 Team headers/票据，不触发子代理脚本或真实 。
     "E2E_OFFPEAK_SUBAGENT_CHILD_INHERIT: reply exactly E2E_OFFPEAK_SUBAGENT_CHILD_INHERIT_OK.",
   );
   await clickTestIdByDom(TID_OFFPEAK_EDIT_SUBMIT, { timeoutMsg: "闲时任务提交按钮不可用" });

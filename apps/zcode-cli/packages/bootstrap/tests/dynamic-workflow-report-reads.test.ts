@@ -1,6 +1,5 @@
 // 宿主侧读 journal 的形状（docs/execution-engine.md「Reading the journal」）：report item 只在
 // 要显示时才离开存储层，而且只取显示得下的那么多。
-//
 // - 冷回放：本 run 第 64 条之后的 report 事件不带 item 读回，归约结果与读全量逐字节相同
 //   （docs/dynamic-workflow/presentation.md「Cold replay」）；
 // - 修订导入：一条 report 行都不读，前驱报没报过、报了多少，导入表都一样；

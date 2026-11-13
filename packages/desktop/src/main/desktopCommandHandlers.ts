@@ -7,14 +7,13 @@ import {
   DesktopCommandIds,
   REWARDS_PARTITION,
   TEST_ZCODE_ENDPOINT_ORIGIN,
-  getCommunityUrlFromConfigs,
   getFeedbackUrlFromConfig,
+  ZCODE_GITHUB_DISCUSSIONS_URL,
   normalizeZCodeEndpointOrigin,
   PlatformChannels,
   resolveHelpAppConfig,
   resolveZCodeEndpointOrigin,
   ZCODE_ENV,
-  ZCODE_PRODUCT_FLAVOR,
   type AppSettings,
   type DesktopCommandId,
   type Locale,
@@ -36,7 +35,7 @@ import {
   resolveDesktopZoomFactorForLevel,
   resolveDesktopZoomLevelFromFactor,
 } from "./desktopZoom.js";
-import { exportLogs } from "./exportLogs.js";
+import { exportLogs, isExportLogsInFlight } from "./exportLogs.js";
 import { openResourceManager } from "./resourceManagerWindow.js";
 
 export const HELP_TOGGLE_DEV_TOOLS_MENU_ID = "help.toggle-dev-tools";
@@ -222,7 +221,7 @@ export async function resolveFeedbackUrl(options: {
   });
 }
 
-export async function resolveCommunityUrl(options: {
+export async function resolveCommunityUrl(_options: {
   locale: Locale;
   fetchRemoteConfig?: () => Promise<unknown>;
   readLocalConfig?: () => unknown;
@@ -230,21 +229,8 @@ export async function resolveCommunityUrl(options: {
     warn: (...args: unknown[]) => void;
   };
 }): Promise<string | undefined> {
-  let remoteConfig: unknown;
-  try {
-    remoteConfig = await fetchRemoteAppConfig(options.fetchRemoteConfig);
-  } catch (error) {
-    options.logger.warn("[community] failed to fetch remote config:", error);
-  }
-
-  let localConfig: unknown;
-  try {
-    localConfig = await readLocalAppConfig(options.readLocalConfig);
-  } catch (error) {
-    options.logger.warn("[community] failed to read local config:", error);
-  }
-
-  return getCommunityUrlFromConfigs(remoteConfig, localConfig, options.locale);
+  // Fork 后「用户社群」固定指向 GitHub Discussions，不再依赖 z.ai 远端帮助配置。
+  return ZCODE_GITHUB_DISCUSSIONS_URL;
 }
 
 async function openFeedback(
@@ -595,12 +581,8 @@ export async function executeDesktopCommand(options: {
       );
       return;
     case DesktopCommandIds.CheckForUpdates:
-      // 按产品身份而不是后端环境放行：生产后端的 Preview 同样没有更新器。
-      if (ZCODE_PRODUCT_FLAVOR === "production") {
-        checkForUpdateMenuClick(targetWindow);
-      } else {
-        options.logger.info("[auto-update] Preview 已禁用手动更新检查");
-      }
+      // Fork 只有一条 GitHub Releases 线，所有打包身份都允许手动检查更新。
+      checkForUpdateMenuClick(targetWindow);
       return;
     case DesktopCommandIds.RelaunchApp:
       await options.onRelaunchApp();
@@ -615,9 +597,36 @@ export async function executeDesktopCommand(options: {
         options.fetchHelpConfig,
       );
       return;
-    case DesktopCommandIds.ExportLogs:
-      await exportLogs();
+    case DesktopCommandIds.ExportLogs: {
+      // 已有导出在跑（帮助菜单、其它窗口或上一次托盘点击）时直接忽略，
+      // 否则重复的 start/end 广播会提前结束第一次的提示与 busy 状态。
+      // exportLogs() 内部还有 in-flight 锁做最终兜底。
+      if (isExportLogsInFlight()) {
+        options.logger.info("[desktop-command] 日志导出已在进行，忽略重复请求");
+        return;
+      }
+      // 托盘与原生应用菜单由主进程直接导出，renderer 无从感知进度。
+      // 广播开始/结束事件，让 renderer 显示与帮助菜单一致的「正在导出日志中」提示。
+      // 提示是纯 UI 增强：即使窗口尚未加载完成丢失事件，导出本身仍照常执行。
+      const notify = (payload: import("@zcode/shared").ExportLogsProgressPayload) => {
+        if (targetWindow && !targetWindow.isDestroyed()) {
+          targetWindow.webContents.send(PlatformChannels.ExportLogsProgress, payload);
+        }
+      };
+      notify({ phase: "start" });
+      try {
+        const result = await exportLogs();
+        notify({ phase: "end", success: result.success, error: result.error });
+      } catch (error) {
+        notify({
+          phase: "end",
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
       return;
+    }
     case DesktopCommandIds.PullMobileLogs:
       await options.pullMobileLogs?.(targetWindow?.id);
       return;

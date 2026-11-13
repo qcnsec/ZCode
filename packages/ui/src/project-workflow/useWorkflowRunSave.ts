@@ -1,6 +1,5 @@
 // 完成卡与 run 侧板共用的「保存 / 再次运行」控制器（docs/dynamic-workflow/transcript-and-notifications.md
 // 「Saving the run, and running it again」）。
-//
 // 一个 hook 而不是两份接线：同一个 run 在卡上与侧板上必须说同一句话、走同一条命令。它负责
 //   1. 这次 run 对应哪个已保存工作流（推导，缓存在 workflowRunSavedStore）；
 //   2. 「直接保存」= `workflows/save`（按 runId 取脚本，无模型回合）；

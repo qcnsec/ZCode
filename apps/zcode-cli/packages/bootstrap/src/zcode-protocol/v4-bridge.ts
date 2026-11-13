@@ -10,7 +10,6 @@ import { readBackgroundBashOutputFromOwner } from "./background-work-owner.js";
 // - 过渡钩子（ensureModelReady / afterLegacyStateMutation / deleteSession /
 //   createSessionRecord / child record registration / resumePersistedSession）在此注入旧实现，
 //   死期 = M5 波次 2（随旧协议一同删除）。
-//
 // 不做桥接：依赖方向只允许 旧目录 → v4 目录。
 // 本文件在旧目录，import v4 executor 合法；v4 目录禁止反向 import 本目录任何模块。
 import {

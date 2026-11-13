@@ -12,7 +12,7 @@ export async function migrate(
   migrations: readonly SqliteMigration[],
   options: MigrationOptions,
 ): Promise<MigrationResult> {
-  // 合并上游迁移时曾漏填清单，运行成功却没有备份；必须在任何 SQL 写入前拒绝。
+  // 合并 迁移时曾漏填清单，运行成功却没有备份；必须在任何 SQL 写入前拒绝。
   for (const migration of migrations) {
     if (
       !Array.isArray(migration.touchedTables) ||

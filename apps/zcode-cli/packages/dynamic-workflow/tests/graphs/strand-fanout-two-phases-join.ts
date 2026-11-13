@@ -1,13 +1,11 @@
 // The reference shape of the strands refactor. Two phases each fan out `async` work and
 // neither awaits it, so B's marker is reached while A's subagents are still running; one
 // barrier then joins both fan-outs, and C fans out over their answers. A ∥ B → C.
-//
 // Under the old single settled set the `await` inside A's callback settled ask#1 for the
 // WHOLE script, so `ask#1 -> ask#2 seq` appeared and the control flow threaded A → B → C on
 // one line — byte-identical to strand-fanout-awaited-per-phase, which really is sequential.
 // A fan-out with an `async` literal callback is a strand: its awaits suspend the element's
 // activation, not the spawner.
-//
 // Expected:
 //   core — `region fanout#1 … strand` and `region fanout#2 … strand`; each callback's own
 //     `settle ask#N in=seq#1>fanout#N`; and ONE certain barrier on the main line,

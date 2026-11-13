@@ -13,7 +13,6 @@ import {
 // V4 conversation 网关（host 通道层 CLI 侧）。
 // 职责：per-session ConversationTopicPublisher 注册表 + flushWindowMs 定时调度
 // + v4/command → CommandInbox → 宿主 executor 的收口。
-//
 // 分层纪律：
 // - 本类不做网络 IO：物理帧经 host.emitWireFrame 交给宿主（stdio notification / 测试收集器）。
 // - 命令副作用不在本类实现：inbox 裁决通过后经 host.executeCommand 调宿主操作

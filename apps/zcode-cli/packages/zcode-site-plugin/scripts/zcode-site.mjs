@@ -2,10 +2,8 @@
 // zcode-site：ZCode Sites 的命令行客户端（技术方案 4.2、4.3、5.3）。
 // deploy 的输入是 Agent 准备好的 stage 目录，打包与契约检查、以及本地命令 check 在 stage.mjs；其余只和云端交互，不探测项目。
 // 命令、参数、输出和错误码的完整说明只写在 HELP 里（`zcode-site help`），site-deploy skill 引用它，不再重复。
-//
 // 输出契约：成功时 stdout 输出 JSON，退出码 0；deploy 过程中每个阶段和每条日志各输出一行 JSON（--quiet 只输出终态）。
 // 失败时 stderr 输出一行 {"error":{code,message,hint}}，退出码 1=参数或本地文件错误、2=未登录、3=超出额度或限额、4=部署失败或服务端错误。
-//
 // 鉴权（技术方案 5.8）：CLI 不持有任何登录凭证。请求发给 ZCode agent 侧的官方命令端点，端点按
 // session token 认出会话，补上 ZCode 身份头和 X-ZCode-App-Version 后转发给 zcode-server。
 // 端点地址和 token 由 ZCode 注入当前会话的 Bash，在普通终端里运行会按未登录退出：

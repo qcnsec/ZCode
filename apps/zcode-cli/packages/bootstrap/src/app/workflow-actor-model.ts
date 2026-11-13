@@ -1,16 +1,13 @@
 // ============================================================
 // workflow actor 的模型面（run 选择 / journal pin → AgentRuntime 模型配置）
 // ============================================================
-//
 // persona 的模型档位（`model?: "main" | "lite"`）已退场。宿主在 provider 重构后没有 lite 模型来源，
 // "lite" 与 "main" 早已同路——继承父会话当前模型。
-//
 // 于是本模块只回答一个问题：**这个 actor 的会话该跑在哪个模型上**。四个来源按优先级排：
 // persona 点名的模型（脚本里的 `agent(…, { model })`，经 run-launched 的绑定表解析；
 // docs/dynamic-workflow/authoring.md「Choosing a model per subagent」）> 本 run 的 `subagentModel`
 // （`CreateWorkflow` / `AmendWorkflow` 的 `subagent_model`，docs/dynamic-workflow/launch.md）>
 // resume pin（journal 里上一次实际跑的模型）> 父会话当前模型。
-//
 // 2026-09-26 追记：persona 的模型回来了，但不是退场的那个档位——脚本写的是具体模型名，launch 时已
 // 对着模型目录解析成绑定表，这里只查表（{@link resolveActorPersonaModel}）。
 // 与 workflow-actor-tools.ts 是同一个接缝上的姊妹模块：一个给出工具面，一个给出模型面，

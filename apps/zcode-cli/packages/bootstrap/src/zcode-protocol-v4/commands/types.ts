@@ -1,5 +1,4 @@
 // v4 原生命令层的 core 能力契约（原生重做版）。
-//
 // 分层纪律（不做桥接）：
 // - 本目录是命令的原生实现：决策逻辑（steer 分流 / draft 提升 / abort 生命周期 /
 //   goal-pause barrier）在 handler 里直驱 core（ZCodeApp / runtime），不经旧协议 op。

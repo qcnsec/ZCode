@@ -4,10 +4,8 @@
 // 两句话，句中的值就是控件：「子代理运行在 [模型 ▾] [思考 高 ▾]」「最多 [− 4 +] 个子代理同时运行 · 默认 13」。
 // 脚本给某些子代理点名了模型时第一句改口「子代理默认运行在」，那些名字本身不列（作者模型的选择）。
 // 没动过的值安静地待在句子里；改过的那一行值加粗，句尾跟一截「· 原为 X ↺」。
-//
 // 块缺席（旧 agent 不回填 `adjustable_settings`）时画 `WorkflowAskPlainSettings`（WorkflowAskSettingsParts.tsx）：
 // 只有调用设了的字段、纯文本、不可调——agent 不会应用的改动，窗里就不提供。
-//
 // 草稿住在这里，改动经 `onContentChange` 事件式地交给 PermissionDialog（它在 Allow 时把它放进应答的
 // `content`）；换请求靠父组件按 requestId 给 key 重挂，不靠 effect 追。唯一的 effect 是「所选模型
 // 不可用」：它取决于异步读回的模型清单，不是用户的一次操作，只能在清单到达后回报给父组件。

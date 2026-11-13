@@ -1,5 +1,4 @@
 // dwf 运行态镜像的 TUI 控制器（与 useSidebarController / useInputHistory 同一 hook 惯例）。
-//
 // 只管状态与派生：镜像本体、卡片联接表、展开集合。会话事件的接线留在 app.tsx
 // （订阅要拿到 applySessionEvent，而后者反过来要拿本 hook 的 setter，放一起会绕成环）。
 import React from "react";

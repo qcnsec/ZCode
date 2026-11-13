@@ -99,7 +99,7 @@ export interface ProviderSettingsMutationTarget {
     membership?: ProviderModelMembership,
   ): Promise<unknown>;
   refresh(reason: string): Promise<ProviderRegistryServiceSnapshot>;
-  /** 主动重读上游事实后再刷新 Registry。 */
+  /** 主动重读 事实后再刷新 Registry。 */
   refreshSources?(reason: string): Promise<ProviderRegistryServiceSnapshot>;
 }
 

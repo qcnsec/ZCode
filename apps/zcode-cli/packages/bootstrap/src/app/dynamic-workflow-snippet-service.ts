@@ -3,7 +3,6 @@
 // ============================================================
 // EvalWorkflowSnippet 的执行侧：对 scratch facade
 // 编译一次 → 同一条 lowering / 沙箱 / world-read 执行面 → 内存 journal → 同步结算。
-//
 // 三条不变式：
 //   1. **同一执行面**。编译走 createWorkflowProgram（scratch facade 以同一个
 //      FACADE_FILE_NAME 注入——facade 身份按声明文件名判定，换名字会让站点收集静默变空）；

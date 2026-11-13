@@ -17,7 +17,7 @@ interface ProviderBusinessCodeMapping {
   retryable: boolean;
 }
 
-// 部分 OpenAI-compatible provider 会把可恢复的上游网络故障包装成业务码。
+// 部分 OpenAI-compatible provider 会把可恢复的 网络故障包装成业务码。
 const PROVIDER_NETWORK_BUSINESS_CODES = new Set(["1234"]);
 const PROVIDER_INTERNAL_NETWORK_MESSAGES = new Set([
   "500 internal network error",

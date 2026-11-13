@@ -5,7 +5,6 @@
 // 本文件成自由函数，与隔壁的升级桥接（workflow-driver-escalation.ts 的 `makeSessionEscalatePort`）
 // 逐条对称——两者本就是同一副形状的两条时序（mid-turn 阻塞 → 上报 → 引擎回裁决 → 解开 deferred）。
 // 公开面不变，driver 类上只剩一处调用。
-//
 // 对 driver 状态的全部触碰都经 {@link SubmitBridgeHost} 显式递进来（会话表 + 向上回报面），
 // 本文件不持有任何自己的状态——原方法体逐字保留，只把 `this.` 换成 `host.`。
 

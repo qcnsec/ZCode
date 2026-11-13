@@ -1,6 +1,5 @@
 // dwf run 进度的**出回合追加**（out-of-turn append）：run 事件到达时父会话可能正在跑一个
 // 回合，也可能完全空闲，两种都必须落地。见 docs/dynamic-workflow/presentation.md「The run state the pane draws」。
-//
 // 为什么需要 runtime 上的一个公共方法：BackgroundTask* 走的是 core 内部
 // （tool executor 的 deps.emitEvent → runtime.appendEvent），而 dwf 的事件源在 bootstrap 的
 // run service 里，那一层拿不到 AgentRuntimeInternal。既有的同形先例是 recordTargetChanged
@@ -76,7 +75,6 @@ describe("recordDynamicWorkflowRunProgress", () => {
 
 // ————————————————————————————————————————————————
 // run 中的升级通知（apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「How progress and completion reach the app and the main agent」）。
-//
 // 这是主代理**唯一**会主动收到的「有人在等你」的信号：actor 停驻在自己那次 escalate 调用上，
 // 没有超时会替它兜底。所以三件事被钉死：恰好一条通知、载有 qid 与逐字的下一步、
 // escalation-resolved 不再发第二条（作答方就是主代理自己，回执已经是那次工具调用的结果）。

@@ -29,7 +29,6 @@ const args = [
   // 之前这里写死 --base=/cn/share/，Vite 就只服务该前缀，访问 /share/<code> 会被
   // dev server 直接拒掉（"server is configured with a public base URL of /cn/share/"），
   // 英文路由在本地根本没法验。base 用 / 让两个前缀都能落到 SPA。
-  //
   // 注意生产构建（package.json 的 build:web-share）仍是 --base=/cn/share/：那决定的是
   // 静态资源的绝对路径，要不要改取决于站点怎么托管，不能只看本地。
   "--base=/",

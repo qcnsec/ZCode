@@ -841,7 +841,7 @@ export function UnifiedBrowserView({
       }
 
       // 外部请求若只能排队给尚未就绪的 guest，必须等 dom-ready 真正接管 loadURL 后再回执；
-      // 地址栏/恢复导航没有上游消费确认，不需要等待该生命周期信号。
+      // 地址栏/恢复导航没有 消费确认，不需要等待该生命周期信号。
       const navigationTakenOver =
         source === "request" && (!webview || !browserState.isReady)
           ? waitForGuestNavigationTakeover(nextUrl)

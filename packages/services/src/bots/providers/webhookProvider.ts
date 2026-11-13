@@ -275,7 +275,7 @@ export function createWebhookBotProvider(
             chatId:
               typeof payload.chatId === "string" ? payload.chatId : undefined,
             // Bugfix: webhook 回调也需要携带消息 id 进入通用幂等层。
-            // 否则上游重试同一条消息时，Bot 会重复创建/发送任务。
+            // 否则 重试同一条消息时，Bot 会重复创建/发送任务。
             providerMessageId:
               typeof payload.messageId === "string"
                 ? payload.messageId

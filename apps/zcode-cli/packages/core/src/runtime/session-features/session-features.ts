@@ -4,7 +4,6 @@
 // 标签回答「本会话用过哪些能力」，只增不减：compact、rewind、冷恢复都不撤销。runtime 的
 // sessionFeatures 是唯一事实源；打点只经 recordSessionFeature，出站请求由 runtime 模型句柄在
 // 每次调用时读取快照，adapter 写成 `x-zcode-session-features`。
-//
 // 状态放在 runtime 字段而不是 config：workflow 子 actor 会展开父 runtime 的整份 config，
 // 放进 config 会把父会话的标签带给子会话。
 

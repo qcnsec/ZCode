@@ -55,11 +55,19 @@ export function extractPrebuiltArchive({ archivePath, archiveExt, extractDir, cw
   }
 
   const tarCwd = cwd ?? process.cwd();
-  runCommand(
-    "tar",
-    ["-xzf", resolveTarArchiveArg(archivePath, tarCwd), "-C", toTarPosixPath(extractDir)],
-    { cwd: tarCwd },
-  );
+  // Windows GNU tar 会把盘符冒号（C:）误判为远程主机，导致 "Cannot connect to C: resolve failed"
+  // 且读不到本地归档。--force-local 强制把含冒号的归档路径当作本地文件处理。
+  const tarArgs =
+    process.platform === "win32"
+      ? [
+          "--force-local",
+          "-xzf",
+          resolveTarArchiveArg(archivePath, tarCwd),
+          "-C",
+          toTarPosixPath(extractDir),
+        ]
+      : ["-xzf", resolveTarArchiveArg(archivePath, tarCwd), "-C", toTarPosixPath(extractDir)];
+  runCommand("tar", tarArgs, { cwd: tarCwd });
 }
 
 export function findPrebuiltBinary(rootDir, binaryName) {

@@ -64,7 +64,7 @@ async function main() {
           `${manifest.name}: ${item.severity} ${item.filename} ${item.code}: ${item.message}`,
         );
       if (groups.accepted.length)
-        console.log(`${manifest.name}: 接纳 ${groups.accepted.length} 项原样上游 max-lines 存量`);
+        console.log(`${manifest.name}: 接纳 ${groups.accepted.length} 项原样 max-lines 存量`);
       errors += groups.errors.length;
       warnings += groups.warnings.length;
       accepted += groups.accepted.length;

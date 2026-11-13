@@ -11,14 +11,18 @@ import { recordModelHistoryRound, type RegularTurnLoopState } from "./turn-loop-
 
 // 越过 adapter 重试边界后，SSE stall 只能靠 core recovery 从安全锚点重开流；
 // 只恢复 1 次会让连续短暂抖动直接失败，和模型默认 10 次 retry 的用户预期差距过大。
-const STREAM_RECOVERY_MAX_RETRIES = 10;
+// 产物中该上限为 Yqo=1e5，
+// 与「普通失败最多 100000 次尝试、恒定 1 秒间隔」的重试策略保持一致。
+const STREAM_RECOVERY_MAX_RETRIES = 100_000;
 const PREVIOUS_MESSAGE_ANCHOR_SUFFIX = "previous-message-anchor";
 const START_PLAN_BUSY_PROVIDER_CODES = new Set(["3008", "3009", "3010"]);
 const START_PLAN_BUSY_RETRY_PROVIDER_IDS = new Set([
   "account:bigmodel-start-plan",
   "account:zai-start-plan",
 ]);
-const START_PLAN_BUSY_MAIN_TURN_ADMISSION_RETRY_DELAYS_MS = [1_000, 2_000] as const;
+// 产物中 e9o=[1e3,1e3]，两次准入重试间隔恒定 1 秒；
+// 官方为 [1000, 2000]，第二次等待更久会让体验套餐的偶发 405/3012 更容易超时失败。
+const START_PLAN_BUSY_MAIN_TURN_ADMISSION_RETRY_DELAYS_MS = [1_000, 1_000] as const;
 export const START_PLAN_BUSY_AUTO_RETRY_EXHAUSTED_MESSAGE =
   "Start Plan is busy and automatic model stream recovery reached the maximum retry count.";
 const TRANSIENT_ERROR_CODES = new Set([

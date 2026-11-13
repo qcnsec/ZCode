@@ -82,7 +82,7 @@ describe(`${CASE_MARKER}: 旧连接代际的回包/close 迟到不得覆盖新 s
     const core0 = await readRemoteCoreIdentity(direct, CASE_MARKER);
     facts.generation1 = { remoteSessionId: taskA.remoteSessionId, proxyPairs: proxy.stats().pairs };
 
-    // 旧代际上 running 一个慢回合，然后 hold 上游回包（旧 generation 的响应被扣住）。
+    // 旧代际上 running 一个慢回合，然后 hold 回包（旧 generation 的响应被扣住）。
     const slowStart = await getUpstreamRequestRecordCount();
     await sendV4Prompt(`${CASE_MARKER}_SLOW 慢慢回答`);
     await waitForV4TimelineContaining("R3_STALE_STREAMING", 60_000);
@@ -132,7 +132,7 @@ describe(`${CASE_MARKER}: 旧连接代际的回包/close 迟到不得覆盖新 s
         const stats = proxy!.stats();
         return stats.heldBytes + stats.retiredBytes > 0;
       },
-      { timeout: 15_000, timeoutMsg: `${CASE_MARKER}: 代理没有扣住真实上游字节` },
+      { timeout: 15_000, timeoutMsg: `${CASE_MARKER}: 代理没有扣住真实 字节` },
     );
     facts.sourceCompletedWhileOldConnectionHeld = true;
 

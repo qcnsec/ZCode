@@ -6,7 +6,6 @@
 // Resume / 配置、从中枢直接启动一个保存的工作流，或恢复一条记录里已有工作流的会话。激活只加不减：
 // 会话里一旦有了 run，模型此后一直需要 GetWorkflowRun 等工具去接通知——compaction 不关它
 // （对比技能门：那个问的是「模型此刻还看得见吗」，这个问的是「本会话有没有过工作流」）。
-//
 // 状态 owner 是 runtime（dynamicWorkflowToolsActivated），不是 config：AgentRuntime 构造时把
 // config 拷了一份，装配层闭包里那个 runtimeConfig 对象看不到运行期的翻转。
 

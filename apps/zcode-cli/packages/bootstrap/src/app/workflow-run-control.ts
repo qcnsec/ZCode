@@ -5,12 +5,10 @@
 // 层里——调度器在引擎（`@zcode/dynamic-workflow`），座位闸门在 driver 之下（本包）——而发命令的
 // 那一侧（run service 的 `retuneConcurrency`）两个都够不着：引擎是 harness 在子进程装配起来之后
 // 才存在的，闸门是 launch 造的。
-//
 // 所以 run service 先造一个**空的**句柄放进注册表条目，两边各自在自己出生的那一刻把自己接上去：
 // harness 拿到 `bind(engine)`（与 `signal` 同一条缝递进去），launch 拿到 `bindSeatGate(gate)`。
 // 句柄本身不判断任何事：存活判定、no-op 语义与落库全在引擎的 `setMaxConcurrency` 里，闸门只在
 // 引擎说"这次真的改了"之后才跟着换上界——两个执行点因此不可能各执一词。
-//
 // 顺序是载荷性的：**引擎先**。引擎的布尔值就是这次命令的裁决（已结算 / 值没变 ⇒ false，什么也
 // 没发生），闸门若抢在前面换了上界，一个已经结算的 run 就会留下一个与 journal 行不符的内存上界。
 

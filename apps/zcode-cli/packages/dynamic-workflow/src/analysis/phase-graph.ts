@@ -59,7 +59,7 @@ export interface PhaseSourceFact {
  * 故事——这是把两个消费者绑在一个函数上的全部理由。
  *
  * 交集在实践中等于 `toPhases` 自己（屏障事实的见证阶段必然是头站点的认领阶段），交集写出来
- * 是为了让「阶段被丢弃/收窄」这类上游变化不会把边挂到不存在的阶段上。
+ * 是为了让「阶段被丢弃/收窄」这类 变化不会把边挂到不存在的阶段上。
  */
 function headPhasesOf(claiming: readonly string[], toPhases: ReadonlySet<string> | undefined): string[] {
   if (toPhases === undefined) return [...claiming];
@@ -166,7 +166,6 @@ export function projectPhaseGraph(
   // 拷贝是 **both-run，不是候选**——不要顺手按 may-set 拷贝的类比改成 maybe。站点真的从
   // 两个调用方各自发出（共享 helper 在 preflight 与 gate 各跑一次），两份都会执行；每份的
   // certainty 只反映**它自己那个阶段**的认领有多确定，不表示「二者之一」。
-  //
   // `region` 与 `repeat` 是**站点级事实**（取自站点首次 issue），故意不按阶段重算：拷贝是
   // 对成品图的机械改写，重算区域归属要的是每阶段一份的 region 树，那是另一个决定。所以
   // gate 那份 bench 拷贝带着 preflight 首个 issue 的 `region` 和 `stack`——不要在没有决定

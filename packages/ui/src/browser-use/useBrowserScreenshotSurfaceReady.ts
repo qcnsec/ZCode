@@ -24,10 +24,8 @@ const SURFACE_SCALE_EPSILON = 0.001;
 // renderer 的 rAF，ready 永远发不出去，主进程握手只能固定在 1500ms 超时。用户日志里
 // 失败全是 1501/1502ms、成功全是 146~736ms，且 app-activate 之后 461ms 立刻成功，
 // 可以印证是"窗口不在前台 → rAF 不调度"而不是截图本身慢。
-//
 //   前台：prepare ──► rAF(帧1) ──► rAF(帧2) ──► ready ──► capture      ✅ ~150ms
 //   后台：prepare ──► rAF 冻结 ───────────────► (无 ready) ──► 1500ms timeout ❌
-//
 // 因此 timer 必须和 rAF 竞速调度同一次检查：窗口被遮挡时 timer 是唯一还在走的时钟。
 const SURFACE_VERIFY_FALLBACK_MS = 100;
 // viewport 尚未对齐时过去直接 return，而重启点只有 ResizeObserver 和 dom-ready；

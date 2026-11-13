@@ -1,6 +1,5 @@
 // 附件命令面（UI 侧）：ZCodePromptAttachment（composer 序列化产物）→ AttachmentRef
 // （v4 sendText/createSession attachments 引用模型）。
-//
 // 分派规则（与 CLI attachment-refs.ts 的映射对偶）：
 // - localPath（desktop 主流：native picker / 拖拽 getPathForFile / 长粘贴临时文件 /
 //   oversized 大图路径降级）→ ref 直接携带绝对路径，零上传；

@@ -456,7 +456,6 @@ describe("may-set lane expansion", () => {
     // is the whole premise of expansion — so they must draw the same certainty. This is the
     // argument that fixes the edge rule to endpoint inheritance re-applied: preserving an
     // `always` edge into a copy would make two identical programs disagree.
-    //
     // Edge KIND and region legitimately differ and are NOT part of the claim: the branch
     // form's guard yields `control` edges and its own `branch` regions, where the receiver
     // -selection form yields `data` out of the taint oracle inside one `seq` region.

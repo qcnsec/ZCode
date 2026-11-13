@@ -4,7 +4,6 @@
 // dynamic-workflow-run-service.ts 顶到 oxlint max-lines 上限（400 行），把 journal /
 // task link store 的结构性窄化与四组能力探测拆到本文件；公开面仍从 dynamic-workflow-run-service.ts
 // 导出。
-//
 // 这里的每一条探测都遵守同一条纪律：store 是端口、实现可替换，所以按能力探测而不是 instanceof；
 // 缺席即**可见降级**（对应读面不实现 / 回空 / 不构造），绝不静默退回内存实现。
 

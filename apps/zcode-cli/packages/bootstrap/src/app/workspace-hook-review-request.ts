@@ -64,7 +64,6 @@ export function buildWorkspaceHookReviewRequest(input: {
       // workspaceHookReviewRequestPayloadSchema 以「trustState ∈ {pending_trust,
       // revoked, stale_digest}」校验它，刻意不看 configuredEnabled——单边加过滤会
       // 直接违约。
-      //
       // 未启用的 Hook 也可随当前不可变审核快照一并信任，因此这里不按
       // configuredEnabled 过滤；开关只控制运行，信任只控制准入。
       pendingCount: items.filter((item) =>

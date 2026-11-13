@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- autoUpdater 需要集中维护 Electron 事件、菜单状态与 IPC 交互，过度拆分会让更新状态流更难追踪 */
-import { app, BrowserWindow, ipcMain, Menu } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, shell } from "electron";
 import type { ISettingService } from "@zcode/services";
 import pkg, { CancellationToken } from "electron-updater";
 import semver from "semver";
@@ -14,6 +14,8 @@ import {
   formatDesktopMenuMessage,
   getDesktopMenuMessage,
   resolveRuntimeZCodeEndpointOrigin,
+  ZCODE_GITHUB_RELEASES_LATEST_API,
+  ZCODE_GITHUB_RELEASES_URL,
   type ElectronReleaseChannel,
   type Locale,
   type PostUpdateReleaseNotesPayload,
@@ -21,12 +23,30 @@ import {
   type UpdateStatePayload,
 } from "@zcode/shared";
 import { logger } from "./logger.js";
-import { verifyWindowsAuthenticodeSignature } from "../../scripts/powershell-command.mjs";
 import { ManifestUpdateProvider, getElectronReleasePlatform } from "./manifestUpdateProvider.js";
 
 export const CHECK_FOR_UPDATE_MENU_ID = "check-for-update";
 const AUTO_UPDATE_POLL_INTERVAL_MS = 15 * 60 * 1000;
 const AUTO_UPDATE_VISIBLE_POLL_INTERVAL_MS = 2 * 60 * 1000;
+/**
+ * 更新渠道（GitHub Fork 发布，无签名证书方案）。
+ *
+ * 把官方 electron-updater 惰性化、改走第三方自建更新通道，
+ * 是因为官方 z.ai 自动更新会把用户拉回原版。Fork 后 Release 由本仓库自己发布，
+ * 但 electron-updater 的自动下载/安装要求：Release 里带 latest*.yml 更新元数据，
+ * 且 Windows 安装包需 Authenticode 签名（否则 verifyUpdateCodeSignature 拒绝）。
+ * 本 fork 不购买代码签名证书、暂不上传更新元数据，因此**不使用自动安装**：
+ * 默认只查询 GitHub Releases 公开 API 比对版本号，发现新版才提示并打开下载页，
+ * 由用户手动下载安装。零服务端、零 token、零证书、零上传。
+ *
+ * - 默认：GitHub Releases 版本检查（检查 + 跳转下载页）
+ * - ZCODE_OFFICIAL_AUTO_UPDATE=manifest：回退到完整 electron-updater / z.ai manifest（调试用）
+ * - ZCODE_DISABLE_AUTO_UPDATE=1：完全关闭更新检查
+ */
+const USE_GITHUB_RELEASES = process.env.ZCODE_OFFICIAL_AUTO_UPDATE !== "manifest";
+const AUTO_UPDATE_DISABLED = process.env.ZCODE_DISABLE_AUTO_UPDATE === "1";
+const GITHUB_RELEASE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const GITHUB_RELEASE_CHECK_STARTUP_DELAY_MS = 15 * 1000;
 const UPDATE_FEED_URL_ENV = "ZCODE_UPDATE_FEED_URL";
 const UPDATE_FEED_URL_SWITCH = "--zcode-update-feed-url";
 const DEV_AUTO_UPDATE_ENV = "ZCODE_AUTO_UPDATE_DEV";
@@ -490,14 +510,13 @@ async function quitAndInstallUpdate(rejectUnavailable = false) {
     try {
       // 6.8.10 命中已下载缓存时跳过下载 hook；在退出服务前复查实际待安装文件。
       // 读取既有 updater 的安装路径，避免另存一份路径导致 ready 与安装目标不同步。
+      // 本 fork 不购买代码签名证书，因此只确认待安装包存在，不做 Authenticode 校验。
       const installerPath = (autoUpdater as unknown as { readonly installerPath: string | null })
         .installerPath;
       if (!installerPath) throw new Error("Windows update installer is missing");
-      const failure = await verifyWindowsAuthenticodeSignature(installerPath);
-      if (failure) throw new Error(failure);
     } catch (error) {
       quitAndInstallState = "idle";
-      handleAutoUpdateFailure(error, "Windows update signature verification failed");
+      handleAutoUpdateFailure(error, "Windows update installer is missing");
       if (rejectUnavailable) throw error;
       return;
     }
@@ -832,6 +851,159 @@ async function syncAutoUpdateCheckChannelFromSettings(
   // 如果 begin 阶段仍用默认 stable 作为 expected channel，冷启动 preview 结果会被误判为 stale。
   availableUpdateChannel = nextChannel;
   activeAutoUpdateCheckChannel = nextChannel;
+}
+
+// === GitHub Releases 轻量版本检查（只比对版本 + 跳转下载页，不下载/不安装/不校验签名） ===
+
+interface GithubReleaseInfo {
+  version: string;
+  url: string;
+}
+
+let githubReleaseStartupTimer: NodeJS.Timeout | null = null;
+let githubReleasePollTimer: NodeJS.Timeout | null = null;
+let lastNotifiedGithubReleaseVersion: string | null = null;
+
+function parseGithubReleaseVersion(tag: unknown): string | null {
+  if (typeof tag !== "string") return null;
+  return semver.coerce(tag)?.version ?? null;
+}
+
+async function fetchLatestGithubRelease(): Promise<GithubReleaseInfo | null> {
+  const response = await fetch(ZCODE_GITHUB_RELEASES_LATEST_API, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      "User-Agent": `ZCode/${app.getVersion()}`,
+      "X-GitHub-Api-Version": "2022-11-28",
+    },
+    signal: AbortSignal.timeout(10_000),
+  });
+  // 仓库还没有正式 Release 时 API 返回 404：视为「暂无可用更新」，不要弹错误提示。
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`GitHub releases HTTP ${response.status}`);
+  const payload = (await response.json()) as { tag_name?: unknown; html_url?: unknown };
+  const version = parseGithubReleaseVersion(payload.tag_name);
+  if (!version) return null;
+  return {
+    version,
+    url:
+      typeof payload.html_url === "string" && payload.html_url
+        ? payload.html_url
+        : ZCODE_GITHUB_RELEASES_URL,
+  };
+}
+
+function isGithubReleaseNewer(version: string): boolean {
+  const current = semver.coerce(app.getVersion())?.version;
+  return current ? semver.gt(version, current) : false;
+}
+
+function sendGithubUpdateCheckResult(
+  window: BrowserWindow,
+  payload: UpdateCheckResultPayload,
+): void {
+  if (!window.isDestroyed()) {
+    window.webContents.send(PlatformChannels.UpdateCheckResult, payload);
+  }
+}
+
+function broadcastGithubUpdateCheckResult(payload: UpdateCheckResultPayload): void {
+  for (const win of BrowserWindow.getAllWindows()) {
+    sendGithubUpdateCheckResult(win, payload);
+  }
+}
+
+/** 后台静默检查：只有检测到更新才弹一次提示，同一版本不重复打扰。 */
+function startGithubReleasePolling(): void {
+  if (githubReleaseStartupTimer || githubReleasePollTimer) return;
+  const check = async (): Promise<void> => {
+    try {
+      const release = await fetchLatestGithubRelease();
+      if (!release || !isGithubReleaseNewer(release.version)) return;
+      setAutoUpdaterMenuState({
+        kind: "update-available",
+        enabled: true,
+        version: release.version,
+      });
+      if (lastNotifiedGithubReleaseVersion === release.version) return;
+      lastNotifiedGithubReleaseVersion = release.version;
+      broadcastGithubUpdateCheckResult({ kind: "available", version: release.version });
+      logger.info(`[auto-update] github release available version=${release.version}`);
+    } catch (error) {
+      logger.warn("[auto-update] github release check failed:", error);
+    }
+  };
+  githubReleaseStartupTimer = setTimeout(() => {
+    githubReleaseStartupTimer = null;
+    void check();
+    githubReleasePollTimer = setInterval(
+      () => void check(),
+      GITHUB_RELEASE_CHECK_INTERVAL_MS,
+    );
+    githubReleasePollTimer.unref?.();
+  }, GITHUB_RELEASE_CHECK_STARTUP_DELAY_MS);
+  githubReleaseStartupTimer.unref?.();
+}
+
+function stopGithubReleasePolling(): void {
+  if (githubReleaseStartupTimer) {
+    clearTimeout(githubReleaseStartupTimer);
+    githubReleaseStartupTimer = null;
+  }
+  if (githubReleasePollTimer) {
+    clearInterval(githubReleasePollTimer);
+    githubReleasePollTimer = null;
+  }
+}
+
+/** 手动检查：发现新版才提示并打开下载页，其余情况给对应回执，绝不自动安装。 */
+function checkGithubReleaseManually(originWindow?: BrowserWindow | null): void {
+  const targetWindow =
+    originWindow && !originWindow.isDestroyed()
+      ? originWindow
+      : (BrowserWindow.getFocusedWindow() ??
+        BrowserWindow.getAllWindows().find((w) => !w.isDestroyed()) ??
+        null);
+
+  if (!targetWindow) {
+    logger.warn("[auto-update] manual check: no target window to report to");
+    return;
+  }
+  if (!canUseAutoUpdaterInCurrentRuntime()) {
+    sendGithubUpdateCheckResult(targetWindow, { kind: "dev-skipped" });
+    return;
+  }
+
+  void (async () => {
+    try {
+      const release = await fetchLatestGithubRelease();
+      if (!release || !isGithubReleaseNewer(release.version)) {
+        setAutoUpdaterMenuState({ kind: "idle", enabled: true });
+        sendGithubUpdateCheckResult(targetWindow, {
+          kind: "up-to-date",
+          currentVersion: app.getVersion(),
+        });
+        return;
+      }
+      setAutoUpdaterMenuState({
+        kind: "update-available",
+        enabled: true,
+        version: release.version,
+      });
+      lastNotifiedGithubReleaseVersion = release.version;
+      sendGithubUpdateCheckResult(targetWindow, {
+        kind: "available",
+        version: release.version,
+      });
+      await shell.openExternal(release.url);
+    } catch (error) {
+      logger.warn("[auto-update] manual github release check failed:", error);
+      sendGithubUpdateCheckResult(targetWindow, {
+        kind: "error",
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+  })();
 }
 
 function applyManifestUpdateProvider(options: InitAutoUpdaterOptions): void {
@@ -1642,8 +1814,10 @@ export async function acknowledgePostUpdateReleaseNotes(
 }
 
 export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Promise<void> {
-  if (options.enabled === false) {
+  // 关闭时清轮询并 return，不配置 feed、不发请求。
+  if (options.enabled === false || AUTO_UPDATE_DISABLED) {
     autoUpdaterDisabledForProductFlavor = true;
+    stopGithubReleasePolling();
     if (autoUpdatePollTimer) {
       clearInterval(autoUpdatePollTimer);
       autoUpdatePollTimer = null;
@@ -1653,6 +1827,18 @@ export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Pro
   }
   autoUpdaterDisabledForProductFlavor = false;
   if (!canUseAutoUpdaterInCurrentRuntime()) return;
+
+  // 默认路径：只做 GitHub Releases 版本比对 + 跳转下载页。
+  // 不初始化 electron-updater、不下载、不安装、不校验签名，也就不要求 Release 带 latest.yml。
+  if (USE_GITHUB_RELEASES) {
+    if (autoUpdatePollTimer) {
+      clearInterval(autoUpdatePollTimer);
+      autoUpdatePollTimer = null;
+    }
+    startGithubReleasePolling();
+    logger.info("[auto-update] github release version checker started (download-manual mode)");
+    return;
+  }
 
   onBeforeQuitAndInstall = options.onBeforeQuitAndInstall;
   if (options.locale) {
@@ -1686,11 +1872,8 @@ export async function initAutoUpdater(options: InitAutoUpdaterOptions = {}): Pro
   // 由 before-quit 主动安装，避免目标已经升高后退出装上旧包。
   autoUpdater.autoInstallOnAppQuit = false;
   autoUpdater.logger = logger;
-  if (autoUpdater instanceof pkg.NsisUpdater) {
-    // 保留包内 publisherName 来激活 NSIS hook，但不把旧 DN 当作未来换证的准入条件。
-    autoUpdater.verifyUpdateCodeSignature = (_publisherNames, filePath) =>
-      verifyWindowsAuthenticodeSignature(filePath);
-  }
+  // 本分支仅用于 ZCODE_OFFICIAL_AUTO_UPDATE=manifest 调试回退。
+  // 不覆盖 verifyUpdateCodeSignature：本 fork 不购买签名证书，默认路径也不会走到这里。
   applyManifestUpdateProvider(options);
 
   const triggerCheckForUpdates = (reason: string) => {
@@ -2107,9 +2290,21 @@ export function requestAutoUpdateCheckWithoutWindow(reason = "force-update") {
     });
 }
 
-export function checkForUpdateMenuClick(originWindow?: BrowserWindow | null) {
+/**
+ * 「帮助 → 检查更新」入口。默认走 GitHub Releases 轻量版本检查；
+ * 仅当 ZCODE_OFFICIAL_AUTO_UPDATE=manifest 时回退到完整 electron-updater 流程（调试用）。
+ */
+export function checkForUpdateMenuClick(originWindow?: BrowserWindow | null): void {
+  if (USE_GITHUB_RELEASES) {
+    checkGithubReleaseManually(originWindow);
+    return;
+  }
+  checkForUpdateMenuClickViaElectronUpdater(originWindow);
+}
+
+function checkForUpdateMenuClickViaElectronUpdater(originWindow?: BrowserWindow | null) {
   if (quitAndInstallState !== "idle") return;
-  logger.info("[auto-update] user clicked Check for Updates");
+  logger.info("[auto-update] user clicked Check for Updates (electron-updater fallback)");
 
   const targetWindow =
     originWindow && !originWindow.isDestroyed()

@@ -19,7 +19,7 @@ function socketPath(name: string): string {
     : join(tmpdir(), `zlt-${name}-${randomUUID()}.sock`);
 }
 
-/** 假的上游浏览器 broker：记录收到的请求，按 respond 回一行 JSON。 */
+/** 假的 浏览器 broker：记录收到的请求，按 respond 回一行 JSON。 */
 async function createUpstream(
   respond: (request: Record<string, unknown>, socket: Socket) => unknown,
 ): Promise<{
@@ -197,7 +197,7 @@ describe("node_repl browser broker proxy", () => {
       command: { method: "title" },
     });
 
-    // 前提：两个请求都确实转发到了上游。
+    // 前提：两个请求都确实转发到了 。
     expect(upstream.requests).toHaveLength(2);
     expect(call.facts.browserScreenshots).toEqual([]);
   });
@@ -226,14 +226,14 @@ describe("node_repl browser broker proxy", () => {
   });
 
   // 会话能力标签 browser_use 的口径是「真实尝试」（session-features-header.md「BUA/CUA 标签的补充规则」）：
-  // 带本次调用 token 的 list / execute 到达代理就记，不看上游的结果。
+  // 带本次调用 token 的 list / execute 到达代理就记，不看 的结果。
   it("records browserUse for list and execute requests whatever upstream answers", async () => {
     const upstream = await createUpstream((request, socket) => {
       if (request.op === "list") return { id: request.id, ok: true, browsers: [] };
       if ((request.command as { method?: string }).method === "navigate") {
         return { id: request.id, ok: false, error: "Browser is not connected" };
       }
-      // 上游没有回应就断开。
+      // 没有回应就断开。
       socket.destroy();
       return undefined;
     });
@@ -259,7 +259,7 @@ describe("node_repl browser broker proxy", () => {
       command: { method: "title" },
     });
 
-    // 前提：三个请求都转发到了上游，后两个确实失败了。
+    // 前提：三个请求都转发到了 ，后两个确实失败了。
     expect(upstream.requests).toHaveLength(3);
     expect(rejectedResponse).toMatchObject({ ok: false, error: "Browser is not connected" });
     expect(droppedResponse).toMatchObject({
@@ -277,7 +277,7 @@ describe("node_repl browser broker proxy", () => {
     const listed = ledger.open(trustedMeta);
     const other = ledger.open(trustedMeta);
 
-    // 前提：没有上游时代理回原文案，请求确实到达了代理。
+    // 前提：没有 时代理回原文案，请求确实到达了代理。
     expect(
       await send(proxy.connection.socketPath, {
         id: randomUUID(),
@@ -335,7 +335,7 @@ describe("node_repl browser broker proxy", () => {
   });
 
   it("keeps the existing overflow messages for oversized requests and responses", async () => {
-    // MR !3219 评审 SG-03：超限文案沿用原来的说法——请求超限是上游 broker 的文案，响应超限是
+    // MR !3219 评审 SG-03：超限文案沿用原来的说法——请求超限是 broker 的文案，响应超限是
     // Worker 侧 bridge 的文案。
     const upstream = await createUpstream((request) => ({
       id: request.id,
@@ -376,13 +376,13 @@ describe("node_repl browser broker proxy", () => {
       ok: false,
       error: "Browser broker response exceeded the 32 MiB limit",
     });
-    // 前提：响应超限的请求确实转发到了上游。
+    // 前提：响应超限的请求确实转发到了 。
     expect(upstream.requests).toHaveLength(1);
     expect(call.facts.browserScreenshots).toEqual([]);
   });
 
   it("closes the upstream connection when the Worker side disconnects first", async () => {
-    // 上游不回应，模拟正在执行的长命令；Worker 侧被 abort 后断开，上游必须收到断开（视为取消）。
+    // 不回应，模拟正在执行的长命令；Worker 侧被 abort 后断开， 必须收到断开（视为取消）。
     const upstream = await createUpstream(() => undefined);
     cleanups.push(() => upstream.close());
     const { ledger, proxy } = await startProxy(upstream);

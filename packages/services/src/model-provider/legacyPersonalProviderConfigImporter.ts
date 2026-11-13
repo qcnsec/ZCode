@@ -113,6 +113,10 @@ function createPersonalProviderConfig(
         resolveModelProviderRuntimeBaseUrl(legacy) ||
         normalizeModelProviderConfiguredBaseUrl(legacy.endpoints.baseURL ?? ""),
       headers: legacy.headers,
+      // 旧配置若已携带自定义请求增强字段，迁移期一并桥接到运行时配置。
+      customPath: legacy.endpoints.customPath,
+      customQuery: legacy.endpoints.customQuery,
+      customHeaders: legacy.endpoints.customHeaders,
     }),
     ...(modelIds.length > 0 ? { personalModelIds: modelIds, modelOrder: modelIds } : {}),
   });

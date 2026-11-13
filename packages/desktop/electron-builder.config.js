@@ -663,7 +663,7 @@ export default {
     nsisInstallSectionOriginalSource = patchResult.originalSource;
     if (patchResult.changed) {
       // electron-builder 在当前进程内随后才会编译 NSIS；等整个构建进程退出后恢复 node_modules
-      // 中的上游模板，避免把一次打包的定制内容永久留在开发依赖里。
+      // 中的 模板，避免把一次打包的定制内容永久留在开发依赖里。
       process.once("exit", () => {
         restoreNsisInstallSectionFileSync({
           filePath: nsisInstallSectionPath,
@@ -982,13 +982,11 @@ export default {
   },
   detectUpdateChannel: false,
   publish: {
+    // 本 fork 不使用 electron-updater 自动下载/安装：没有代码签名证书，也不上传
+    // latest*.yml 更新元数据。客户端只查询 GitHub Releases 公开 API 比对版本并打开下载页
+    // （见 src/main/autoUpdater.ts），因此这里仅保留 electron-builder 必需的 generic 占位，
+    // 打包过程不产生任何 GitHub 上传行为；安装包由维护者手动上传到 Release。
     provider: "generic",
-    // 当前 OSS/CDN 对多 Range 请求返回 206，但 Content-Type 仍是 application/x-msdownload，
-    // electron-updater 会因缺少 multipart/byteranges 直接回退整包下载。关闭 multiple range 后仍走差分，
-    // 只是按单 Range 顺序拉取差异块，避免 Windows 用户更新时从约 15MB 退化成 300MB+ 全量包。
-    useMultipleRangeRequest: false,
-    // 新客户端运行时使用服务端 manifest provider；这里仅保留 electron-builder 必需的
-    // generic publish 占位，避免打包产物继续携带可配置的旧 stable feed。
     url: "http://localhost:8081",
   },
 };

@@ -69,7 +69,7 @@ export interface OffPeakCredentialSnapshot {
   /** BigModel Team 组织/项目身份；仅两者同时存在时才允许进入请求头。 */
   organizationId?: string;
   projectId?: string;
-  /** 仅供进程内 mock 代理真实选中 Coding Plan 上游；不会过 RPC 或持久化。 */
+  /** 仅供进程内 mock 代理真实选中 Coding Plan ；不会过 RPC 或持久化。 */
   providerBaseURL?: string;
 }
 
@@ -291,7 +291,7 @@ export async function resolveOffPeakCodingPlanSupport(
 }
 
 /**
- * mock 网关的上游解析：把 admitted 的 messages 代理到用户 coding plan 的 anthropic
+ * mock 网关的 解析：把 admitted 的 messages 代理到用户 coding plan 的 anthropic
  * 兼容端点（真模型、走用户自己的 key，仅开发/演示）。
  */
 export async function resolveOffPeakMockUpstream(deps: {
@@ -301,7 +301,7 @@ export async function resolveOffPeakMockUpstream(deps: {
   env?: NodeJS.ProcessEnv;
 }): Promise<{ url: string; headers: Record<string, string> }> {
   const credentials = await resolveOffPeakCredentials(deps, {
-    // mock 自己的 placeholder 不能拿去代理上游；这里强制解析真实 selected connection。
+    // mock 自己的 placeholder 不能拿去代理 ；这里强制解析真实 selected connection。
     allowMockCredentials: false,
   });
   if (!credentials.providerBaseURL) {

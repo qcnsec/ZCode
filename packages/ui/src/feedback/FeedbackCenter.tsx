@@ -1,109 +1,39 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.js";
-import { Tabs, TabsContent } from "@/components/ui/tabs.js";
-import { Button } from "@/components/ui/button.js";
 import { useFeedbackStore } from "@/feedback/feedbackStore.js";
-import { FeedbackSubmitForm } from "@/feedback/FeedbackSubmitForm.js";
-import { FeatureRequestDialog } from "@/feedback/FeatureRequestDialog.js";
-import { TicketsView } from "@/feedback/TicketsView.js";
-import { FeedbackBackgroundUploadIndicator } from "@/feedback/FeedbackBackgroundUploadIndicator.js";
-import { ArrowLeftIcon, XIcon } from "lucide-react";
-import type { IFeedbackService } from "@zcode/services";
-import type { IPlatformService } from "@zcode/shared";
-import { useZCodeIntl } from "@/i18n/IntlProvider.js";
-import { memo } from "react";
+import { ZCODE_GITHUB_NEW_ISSUE_URL, type IPlatformService } from "@zcode/shared";
+import { useEffect } from "react";
 
-export const FeedbackCenter = memo(function FeedbackCenterComponent({
-  feedbackService,
+/**
+ * Fork 后内置反馈中心无后端可用，所有反馈入口统一跳转 GitHub Issues：
+ * - 帮助菜单「问题上报 / 产品需求」「提交漏洞」
+ * - 报错横幅 / 任务列表「提交反馈」（openSubmit）
+ * 这里只负责把草稿里的标题与描述拼成 issue 的 title / body 并打开浏览器，
+ * 不再渲染任何 z.ai 后端的提交表单 / 我的反馈列表 / 需求弹窗（相关代码已整体移除）。
+ */
+export const FeedbackCenter = function FeedbackCenterComponent({
   platform,
 }: {
-  feedbackService?: IFeedbackService;
   platform: IPlatformService;
 }) {
   const open = useFeedbackStore((state) => state.open);
-  const featureRequestOpen = useFeedbackStore((state) => state.featureRequestOpen);
-  const tab = useFeedbackStore((state) => state.tab);
   const submitDraft = useFeedbackStore((state) => state.submitDraft);
-  const submissionJobId = useFeedbackStore((state) => state.submissionJobId);
-  const setTab = useFeedbackStore((state) => state.setTab);
   const close = useFeedbackStore((state) => state.close);
-  const openTickets = useFeedbackStore((state) => state.openTickets);
-  const { intl } = useZCodeIntl();
-  const titleId =
-    tab === "tickets" ? "feedback.center.ticketsTitle" : "feedback.center.submitTitle";
 
-  if (!feedbackService) return null;
+  useEffect(() => {
+    if (!open) return;
+    const params = new URLSearchParams();
+    if (submitDraft?.title) params.set("title", submitDraft.title);
+    const bodyParts: string[] = [];
+    if (submitDraft?.type) bodyParts.push(`类型：${submitDraft.type}`);
+    if (submitDraft?.module) bodyParts.push(`模块：${submitDraft.module}`);
+    if (submitDraft?.severity) bodyParts.push(`优先级：${submitDraft.severity}`);
+    if (submitDraft?.description) bodyParts.push(submitDraft.description);
+    if (bodyParts.length) params.set("body", bodyParts.join("\n\n"));
+    const url = params.toString()
+      ? `${ZCODE_GITHUB_NEW_ISSUE_URL}?${params.toString()}`
+      : ZCODE_GITHUB_NEW_ISSUE_URL;
+    void platform.openExternal(url);
+    close();
+  }, [open, submitDraft, platform, close]);
 
-  return (
-    <>
-      <FeedbackBackgroundUploadIndicator feedbackDialogOpen={open || featureRequestOpen} />
-      <FeatureRequestDialog feedbackService={feedbackService} />
-      <Dialog
-        open={open}
-        onOpenChange={(next) => {
-          if (!next) close();
-        }}
-      >
-        <DialogContent
-          showCloseButton={false}
-          className="grid h-[min(38rem,calc(100vh-2rem))] w-[min(34rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden rounded-2xl border border-popover-border bg-popover p-0 text-foreground shadow-md backdrop-blur-2xl max-sm:h-[calc(100vh-1rem)] max-sm:w-[calc(100vw-1rem)]"
-        >
-          <DialogHeader className="flex-row items-center justify-between gap-2 p-6 pb-0">
-            <div className="flex min-w-0 items-center gap-2">
-              {tab === "tickets" ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-md"
-                  className="shrink-0 rounded-lg text-foreground-subtle hover:text-foreground"
-                  aria-label={intl.formatMessage({ id: "feedback.center.backToSubmit" })}
-                  data-feedback-back-to-submit="true"
-                  onClick={() => setTab("submit")}
-                >
-                  <ArrowLeftIcon className="size-4" />
-                </Button>
-              ) : null}
-              <DialogTitle className="min-w-0 truncate text-ui-lg font-medium text-foreground">
-                {intl.formatMessage({ id: titleId })}
-              </DialogTitle>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              className="shrink-0 rounded-xl"
-              aria-label={intl.formatMessage({ id: "common.close" })}
-              onClick={close}
-            >
-              <XIcon className="size-4" />
-            </Button>
-          </DialogHeader>
-          <Tabs
-            value={tab}
-            onValueChange={(value) => setTab(value as typeof tab)}
-            className="flex min-h-0 flex-1 flex-col gap-0"
-          >
-            <TabsContent value="submit" className="min-h-0 flex-1 overflow-hidden outline-none">
-              <FeedbackSubmitForm
-                key={submissionJobId ?? "new-feedback"}
-                feedbackService={feedbackService}
-                platform={platform}
-                initialDraft={submitDraft}
-                submissionJobId={submissionJobId}
-                onSubmitted={(ticketId) => openTickets(ticketId)}
-                onViewTickets={() => setTab("tickets")}
-                onCancel={close}
-              />
-            </TabsContent>
-
-            <TabsContent
-              value="tickets"
-              className="flex min-h-0 flex-1 flex-col overflow-hidden outline-none"
-            >
-              <TicketsView feedbackService={feedbackService} onCreateNew={() => setTab("submit")} />
-            </TabsContent>
-          </Tabs>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-});
+  return null;
+};

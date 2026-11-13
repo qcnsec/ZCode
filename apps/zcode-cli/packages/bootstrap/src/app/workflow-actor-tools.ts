@@ -1,14 +1,12 @@
 // ============================================================
 // workflow actor 的工具面（AgentRuntime 工具配置）
 // ============================================================
-//
 // 子代理的工具面必须落到 child runtime 的工具注册上，否则实盘 transcript
 // 里裁判 actor 也拿到了整套交互工具。两类风险：
 //   1. 悬挂与越级：EnterPlanMode 在 headless child 里没有人可审批；AskUserQuestion 让子代理绕过
 //      主代理直接问用户（见减法表注释）；
 //   2. 越权与递归：CreateWorkflow 让 actor 能再提交一条工作流，ReadSessionContext 越界读父会话。
 // 本模块是那个缺失的映射，由 driver 侧的 runtime 工厂在造 AgentRuntime 时展开。
-//
 // persona 无工具档位：每个 actor 都拿完整工作工具集减去下面这份减法表；
 // 「裁判不要改文件」由 ask 文本说清——普通子代理也是这么做的（Explore 保留 Bash，
 // 只读靠提示）。

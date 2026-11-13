@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 /* eslint-disable max-lines -- 三方 license 盘点/声明/门禁一体脚本，数据表与校验逻辑集中维护。 */
 // 三方 license 盘点/声明/门禁 一体脚本
-//
 // 用法：
 //   node scripts/licenses.mjs notices   生成 THIRD-PARTY-NOTICES.md（精确版本、原始版权和许可文本）
 //   node scripts/licenses.mjs check     手动门禁：出现 allowlist 之外或许可未知的包即退出码 1
-//
 // 数据口径：
 // - 实装清单 = 全 workspace node_modules 的递归集合，含嵌套版本与符号链接。
 // - 声明生成：third-party-npm.mjs 按生产依赖的精确版本收集真实许可文件。

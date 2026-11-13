@@ -833,16 +833,13 @@ export const SQLITE_MIGRATIONS: readonly SqliteMigration[] = [
     touchedTables: ["dwf_run", "dwf_actor", "dwf_artifact", "dwf_node", "dwf_event"],
     // dynamic-workflow 执行引擎的 durable journal（docs/execution-engine.md 的 "Journal & storage"）。
     // legacy 的 workflow_* 表只是模板不是家：dwf_* 自成一套，与既有 workflow 机制彼此独立。
-    //
     // 本条是 beta 前把开发期 0019–0030 十二条迁移**压成的单一基线**：四张表一次建齐、形状即
     // 0030 之后的终态。中间态（三次为放宽 CHECK 的整表重建、0028 的删列改名）只存在于
     // 内部预览库里，收敛办法是删掉四张 dwf_* 表并清掉 schema_migration 里的 dwf 记账行，
     // 下次启动由本条重建。beta 之后本条
     // 不可再改：runner 按 checksum 记账，历史迁移只能追加。
-    //
     // 只为占住 0019 这个槽位，让
     // staging 后续迁移从 0020 起编号，功能分支合回时 ledger 不会撞号。四张表在功能落地前闲置无害。
-    //
     // 几条刻意为之的设计：
     // 1) parent_session_id / session_id 是纯 text，不加 FOREIGN KEY——子代理会话跑在内存
     //    event store 上、没有 session 行，而 runner 开着 pragma foreign_keys = on，真加 FK

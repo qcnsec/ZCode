@@ -340,18 +340,15 @@ function bindTarget(binding, target, what) {
       );
     }
     // 本 cell 没有取过栅格时不再拒绝。
-    //
     // 工具层的坐标目标本来就允许省略 frame_id —— schemas/parseTarget.ts 的
     // `CoordinateTarget.frame_id` 注释写着「omitted targets bind inside the current
     // transport」，frame-pixel-resolver 的 `bindFramePixelTarget` 也早有 explicit /
     // implicit 两条路，implicit 走 `resolveLatestForAction()`（绑该会话最近一次可动作
     // 栅格）。所以"必须与截图同 cell"只是这一处 throw 加出来的限制，broker 侧从来不需要。
-    //
     // 代价（真机 2026-09-14）：node_repl 每个 cell 都是新 Worker，binding 不跨 cell，于是
     // 每个要点坐标的 cell 都得先截一次图。模型照做前先撞一次这个错误、再补截图重来，
     // 白花一轮。模型面本来就不需要帧凭证概念：坐标就是"最近一张 app 窗口截图的像素"，
     // 只要会话已激活就能直接点。
-    //
     // 放宽之后安全性不变：帧过期 / 被替换 / 非可动作，以及 app_ref 与该帧
     // 真实 owner 不一致（`frame_dispatch_identity_mismatch`），都仍然 fail-closed；一次栅格
     // 都没有过时，broker 会给出「no actionable frame is available in this transport」。
@@ -454,7 +451,6 @@ function projectToHost(globals, result) {
   );
   if (media.length > 0) {
     // 带图的观察必须**保留**自己的 structuredContent（投影后）。
-    //
     // Bug 根因（2026-09-17 真机，会话 sess_8ec5bb22）：这里原先无条件丢弃它，于是
     // getAXStateAndScreenshot() 那次的元数据一个字都不显示，模型看到的 `Structured
     // content` 是同 cell 里**没有图**的另一次调用 —— 也就是 getApp() 绑定时那次隐藏的
@@ -462,7 +458,6 @@ function projectToHost(globals, result) {
     // （6 次调用全中），而 SKILL 里写着 "has_image: false 只表示这次没要像素"，两边对不上。
     // 更危险的是 `window` 与 `state_id` 也是探针那次的：探针早于本 cell 的动作执行，
     // 弹窗在动作后才出现时，模型读到的是**漂移前**的窗口，据此判断"对话框没出现"。
-    //
     // 丢弃的原意是防元素全表泄漏（见 forDisplay 的注释），但那件事 forDisplay 已经做了，
     // 不需要整块丢。这里走同一条投影，所以元素表照样不会外泄。
     const { structuredContent: raw, ...rest } = result;
@@ -591,7 +586,6 @@ function createTarget(ctx, binding) {
     // 打回（2026-09-11 真机就是这么炸的）。
     const args = { app_ref: binding.appRef, include_screenshot: includeScreenshot };
     // 不变量：delta 只在基线是模型**看过**的树时才允许。
-    //
     // Bug 根因（2026-09-13 真机，会话 sess_04f97297）：Helper 的 diff 基线是
     // `snapshotCache.get(pid, window)` —— "该 pid+窗口的上一次 capture"，不管发起者是谁、
     // 模型有没有看见。而 getApp() 绑定时会做一次**全量但不展示**的观察（身份解析、窗口校验、
@@ -599,7 +593,6 @@ function createTarget(ctx, binding) {
     // 从未见过的树做增量：飞书 930 个元素只吐出 8 行 AXMenuItem enabled 抖动，模型只能
     // 每次都显式传 disableDiffing 拿整树。node_repl 每个 cell 都是全新 Worker、每个 cell
     // 都要重新 getApp，所以这不是"首次观察"的个例，而是**每个 cell 都发生**。
-    //
     // 只截图的观察同样移动了 Helper 的基线却不给树文本，所以它把 treeSeen 清掉 ——
     // 规则是「只截图观察之后，再依赖无障碍索引前必须先拿整树」，这里由 SDK 强制执行而非靠模型记住。
     if (yieldsTree === true && binding.treeSeen !== true) args.disable_diffing = true;
@@ -622,7 +615,6 @@ function createTarget(ctx, binding) {
     const result = await call(methodName, args);
     assertOk(methodName, result);
     // 这里原先动作后无条件 `binding.stateId = undefined`，逼下一次索引解析先重新观察。
-    //
     // 为什么去掉（2026-09-12）：
     // 1. 与我们自己的文档打架。当时参考文档的动作示例就是 click(42) 紧跟 setValue(42)，
     //    而这条守卫让那种写法必然失败。真机上模型正是照文档写 click(9); setValue(9, ...)，
@@ -633,7 +625,6 @@ function createTarget(ctx, binding) {
     // 3. 这条守卫没有信息支撑：SDK 只知道"发生过动作"，不知道 UI 是否变化、也不知道那个
     //    元素还在不在。真正知道的是 Helper —— 索引在观察时就已冻结成 native token，
     //    元素消失时它本来就 fail-closed。
-    //
     // 所以保留冻结映射 + Helper 侧校验，不再在客户端提前否决。
   };
 
@@ -655,7 +646,6 @@ function createTarget(ctx, binding) {
         throw new ComputerUseError(
           // 措辞纪律（2026-09-11 真机）：这里过去写「raise the window and retry」，
           // 那是直接教模型抢用户焦点 —— 后台截图本来就能拿到（负坐标副屏窗口实测可用）。
-          //
           // 而真正常见的成因是应用处于 hidden（⌘H）：macOS 不渲染隐藏窗口，Helper 的前后
           // surface 指纹必然不一致，栅格 fail-closed。此时重试永远不会成功，模型如果只看到
           // 一句无信息的 "Screenshot unavailable" 就会绕圈并升级（历史上升级成抢焦点，
@@ -1003,14 +993,12 @@ export async function setupComputerUseRuntime({ globals }) {
     binding.stateId = state.state_id;
     binding.elements = state.elements;
     // 绑定成功后把 app_ref 收敛成**解析出来的身份**，不再继续拿模型给的原始字符串。
-    //
     // Bug 原因（2026-09-12 真机）：模型写 `getApp("地图")`（Maps 的中文本地化名）。观察成功了
     // —— capture_app 按名字找不到活动应用会走透明拉起分支，那里的 LaunchServices 查表能把
     // "地图" 解成 com.apple.Maps。但同一个 cell 里紧接着的 pressKey 失败：
     //   press_key_to_app: app_ref did not resolve to a unique live application
     // 因为活动应用列表里 Maps 的 name 字段是英文 "Maps"，{name:"地图"} 匹配零行，而键盘路径
     // 只按活动应用严格匹配。观察路径宽容、输入路径严格，两边就此分叉。
-    //
     // 观察结果里本来就带着已解析的身份（state.app.pid / bundle_id），此前只是没用。收敛之后
     // 本地化名、模糊名、大小写差异都只在第一跳解决一次，后续所有路径拿到的都是无歧义身份。
     // 两个字段都给：pid 精确（同 cell 内进程不会换），bundle_id 供 broker 侧交叉校验身份。
@@ -1031,7 +1019,6 @@ export async function setupComputerUseRuntime({ globals }) {
       binding.appRef = appRef;
     }
     // 判据取自**最终的 appRef**，不是位置参数 windowId。
-    //
     // Bug 根因（2026-09-17 复查）：这里原先写 `windowId !== undefined`，只认
     // getWindow(target, id) 那种位置参数形态。而 `getApp({pid, window_id})` 也能钉窗口
     // （objectRef 直接透传，见上面的 direct），走那条路时 windowId 恒为 undefined，
@@ -1047,21 +1034,17 @@ export async function setupComputerUseRuntime({ globals }) {
     }
     // getApp 不展示状态（2026-09-13）。它仍然做一次观察 —— 身份解析、窗口校验与索引解析
     // 基线都要它 —— 但不再把那棵树写进输出。
-    //
     // 根因：「getApp 自动输出结果」只在 kernel **持久**时划算 —— `const app = await
     // cua.getApp(...)` 跨 cell 存活，一个会话只调一次 getApp，那次展示确实省掉一次单独观察。
     // ZCode 的 node_repl 每个 cell 都是全新 Worker，绑定不跨 cell，于是**每个 cell 都要重新
     // getApp**，那次"顺便展示"就从"一次性省一个往返"变成了"每个 cell 都多一棵注定作废的树"。
-    //
     // 代价不只是 token。真机实测（会话 sess_f14c07fd）：8 个 cell 里 5 个吐两棵树，
     // 36% 的工具输出（43902/120854 字符）是被同 cell 后续观察直接覆盖的前序树；更糟的是
     // 同一个 `[35]` 在一个 cell 的输出里指向两个不同元素（先出现的 79 元素树里是
     // `genericelement Yanbao Maquanying Homeland`，后出现的 105 元素树里才是
     // `button Tsinghua University`），而**只有最后那棵**是索引解析真正会用的，输出里却
     // 没有任何标记说明这件事。读错就点到无关元素，且不会报错 —— 那个索引在旧树里合法。
-    //
     // 想看状态就显式 getAXState()，与其它观察方法一致。
-    //
     // 结构化元素视图。Target 的公开观察方法只给字符串，但模型写的是代码，单 cell 内
     // 「观察 → 找元素 → 动作」能省一次往返；树被按优先级裁剪（targeting/format.ts 的
     // `indices are sparse` 注记）时，它还是模型拿到隐藏元素索引的唯一途径。因此它已被
@@ -1078,7 +1061,6 @@ export async function setupComputerUseRuntime({ globals }) {
         // 返回值不含树）；false 的真实后果是位移台账只剩更旧的树，模型用
         // elements() 的新鲜索引点击时被拿旧树对照新树，element_index_shifted
         // 假阳性（真位移同时拦不住）。记账后 producer 台账与模型实际所见一致。
-        //
         // diff 基线问题不受影响：binding.treeSeen 仍清空（treeSeen 管的是 emit
         // 展示面的整树承诺，与记账正交），下一次 getAXState 照旧强制整树。
         const fresh = appStateOf(
@@ -1110,7 +1092,6 @@ export async function setupComputerUseRuntime({ globals }) {
 
   // `cua.computer` —— 平台特定逃逸口，暴露额外的平台相关 computer API。
   // 内容是存活的 14 个工具，入参 schema 逐字保留。
-  //
   // 返回值**解封**（2026-09-16）：此前原样返回 MCP envelope，于是模型拿到的是
   // `{content:[{type:"text",text:"[...]"}],_meta:{…}}`，还得自己 `JSON.parse(r.content[0].text)`。
   // 真机代价（list_windows）：4964 字符里有用载荷只 1723（35%），另外 65% 是信封与

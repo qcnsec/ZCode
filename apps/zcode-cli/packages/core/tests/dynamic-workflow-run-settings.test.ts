@@ -1,7 +1,6 @@
 // GUI「配置」的 runtime 方法（docs/dynamic-workflow/launch.md「Changing a run's settings from the
 // GUI」）。它是 `port.amend` 的第二个调用方，与 AmendWorkflow 工具共用三态归一，但不经模型轮、
 // 不开确认窗，并用一条排队的 controlOnly「设置轮」记下这件事。
-//
 // 钉住的不变式：
 //   1. 每一种拒绝都发生在 `port.amend` 之前——零 amend、零消息、零事件。
 //   2. 成功路径：amend 入参（沿用脚本、inheritArgs、新设置、settings- 前缀）+ 合成 AmendWorkflow

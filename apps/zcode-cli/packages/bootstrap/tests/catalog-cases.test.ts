@@ -1,7 +1,6 @@
 // Catalog 派生 case 全集 —— L1 黄金测试（M2 收尾，13-golden-test-mapping §Catalog 分组映射）。
 // 产品语义来源：docs/conversation-session-case-catalog.md；测试名携带 catalog case id，
 // 供 coverage matrix 审计脚本对账。形态：事件序列进 → ProductProjection → 投影断言出。
-//
 // 本文件只收 L1 可证明面（phase / queue / availability / inputRouting / marker / rows 结构）。
 // 显式不在本文件（登记去向，防止静默漏测）：
 //   A10/K03/K10（latestQueryEditPreemptsActiveTurn / latestQueryEditOnly / latestAssistantRetryOnly）、K06/K07（fork/edit 目标行剪枝）、B08-B10（queue 命令操作）

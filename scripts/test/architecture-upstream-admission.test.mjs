@@ -44,7 +44,7 @@ async function fixture(run) {
   }
 }
 
-test("原样上游存量可接纳，本地新增仍受管", async () => {
+test("原样 存量可接纳，本地新增仍受管", async () => {
   await fixture(async ({ cwd, collect }) => {
     await writeFile(join(cwd, "packages/legacy/local.ts"), original);
     assert.deepEqual(await collect(), ["packages/legacy/local.ts"]);
@@ -52,7 +52,7 @@ test("原样上游存量可接纳，本地新增仍受管", async () => {
 });
 
 for (const state of ["committed", "staged", "unstaged", "staged-then-restored"]) {
-  test(`${state}：改过的上游文件仍须登记`, async () => {
+  test(`${state}：改过的 文件仍须登记`, async () => {
     await fixture(async ({ cwd, collect, commit }) => {
       await writeFile(join(cwd, file), "export const value = 2;\n");
       if (state === "committed") await commit();
@@ -70,7 +70,7 @@ test("首次推送后的后续修改仍要求模块登记", async () => {
   });
 });
 
-test("再次合并指定上游原样更新的存量文件，仍接纳原样但拒绝本地修改", async () => {
+test("再次合并指定 原样更新的存量文件，仍接纳原样但拒绝本地修改", async () => {
   await fixture(async ({ cwd, upstream, collect, commit, acceptedUpstreamCommits }) => {
     await writeFile(join(cwd, file), "export const value = 2;\n");
     const updated = await commit();
@@ -96,7 +96,7 @@ test("同内容的重命名与重新生成的未跟踪路径不享受准入", as
   });
 });
 
-test("文件模式变化不能当作原样上游", { skip: process.platform === "win32" }, async () => {
+test("文件模式变化不能当作原样 ", { skip: process.platform === "win32" }, async () => {
   await fixture(async ({ cwd, collect }) => {
     await chmod(join(cwd, file), 0o755);
     assert.deepEqual(await collect(), [file]);
@@ -113,7 +113,7 @@ test("不允许用未合入或不存在的提交接纳文件", async () => {
   });
 });
 
-test("未提交的当前合并可先校验，修改上游文件仍不能接纳", async () => {
+test("未提交的当前合并可先校验，修改 文件仍不能接纳", async () => {
   await fixture(async ({ cwd, previousHead, upstream, collect }) => {
     await git(cwd, "checkout", "--detach", previousHead);
     await git(cwd, "merge", "--no-commit", "--no-ff", upstream);

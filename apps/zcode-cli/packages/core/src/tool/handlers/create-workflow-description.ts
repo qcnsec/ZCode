@@ -1,5 +1,4 @@
 // CreateWorkflow 的常驻描述（docs/dynamic-workflow/authoring.md「The authoring surface」）。
-//
 // 2026-09-21 起刻意收短：facade 声明、写作规则、阶段与命名规则、字段的完整语义都搬进了
 // `dynamic-workflows` 技能的「Tool reference」一节，由 resolveInput 上的技能门
 // （handlers/workflow-skill-gate.ts）保证模型在写脚本之前一定读过。此前这段描述连同 facade

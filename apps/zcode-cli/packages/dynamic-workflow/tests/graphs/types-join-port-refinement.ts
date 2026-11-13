@@ -3,7 +3,6 @@
 // two asks with DIFFERENT artifact types gives the join per-element (port) types. The
 // result is destructured, and each element flows onward into one consumer ask, so the
 // join's outgoing edges are port-refined to the element types (not the whole tuple).
-//
 // Both producer asks are the SAME actor (worker), so in the derived actor graph their
 // two additive producer edges collapse into ONE worker -> consumer edge that aggregates
 // two distinct message types.

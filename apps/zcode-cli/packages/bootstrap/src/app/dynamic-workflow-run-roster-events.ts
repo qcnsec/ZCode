@@ -5,7 +5,6 @@
 // 要的时间只有一个来源——`StoredEvent.timeCreated`，即事件落 journal 的时刻。节点行
 // （`NodeRecord`）没有任何时间列，所以「这次 ask 什么时候开始的」「它上次动是什么时候」
 // 只能从事件轨上取。
-//
 // 本模块是那趟扫描，且只是那趟扫描：纯函数、无 I/O、不认识端口类型。三个消费者
 // （-roster-phases / -roster-subagents / -roster）共用它的产物，于是一次 getRunDetail
 // 只读一遍事件——这条读面在 run 越长时越贵，读两遍就是白付一倍。

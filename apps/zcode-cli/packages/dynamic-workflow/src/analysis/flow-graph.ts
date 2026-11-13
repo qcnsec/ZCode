@@ -266,7 +266,6 @@ export function projectControlFlow(core: AnalysisCore): ControlFlowGraph {
     // gives up the control it carried for them: the parked exits continue from here, beside
     // the sources that arrived MINUS the ones that stood at the spawn of each strand joined
     // for certain (a may-join or a strand control passed through consumes nothing).
-    //
     // 修复原因：此前 settle 对主线完全透明（原样返回 incoming），于是每个 helper 调用的分叉点
     // 永远留在主线上：n 个顺序 `await helper()` 画出 entry 与每个早先调用到每个后来调用的边，
     // 共 n(n+1)/2 条（80 层 helper × 800 处调用时 1,629 万条边、4.7 GB），而且图是错的——

@@ -5,7 +5,6 @@
 // 派发时看上界，而一个 ask 是子代理的一整轮、动辄数分钟——对一个已有八个在飞 ask 的 run 说
 // 「最多两个」，光靠调度器要等六个 ask 自己跑完才看得见。本闸门是第二个执行点：超出上界的子代理
 // 跑完手上这次请求之后**在下一个 turn step 前停住**，会话、转录与它在 run 里的位置一个不丢。
-//
 // 三条纪律：
 //   1. **纯的**：不读时钟、不做 I/O、不订阅任何东西。两件事实（谁有在飞 ask、谁有工具在跑）都由
 //      driver 既有的观察面喂进来（workflow-driver.ts 的 startAsk / emit，
@@ -15,7 +14,6 @@
 //      `activeAsks ≥ limit`，调度器就派发不出新 ask，绝不可能插到一个停驻者前面。
 //   3. **上界 ≥ 1 ⇒ 永不死锁**：停驻的前提是「工作中的人数已经超过上界」，所以总有人在工作；
 //      FIFO 不空时最后一个座位不可能是空的。
-//
 // 工具侧的请求**永不**停驻（同文档「Why a tool's own requests never park」）：那个子代理本就在
 // 工作、本就占着座位，让它的 WebSearch 排在自己后面就是排给自己看。准入调用上只有 `{model}`，
 // 分不出是什么请求，所以闸门读 driver 已经为这个子代理记着的那条事实——它此刻有没有工具在跑。
@@ -104,7 +102,6 @@ export function createWorkflowRunSeatGate(input: { limit: number }): WorkflowRun
           // 是**这次请求**，不一定是这个 ask——driver 侧的瞬态重驱、流恢复、任何 per-request 信号
           // 都会在 ask 还活着的时候走到这里。把它留在两个集合之外，它此后每一次 turn 请求都因为
           // `needsSeat` 为假而无闸通过，而且再也不会被数进 working：上界会悄悄地往上漂。
-          //
           // 加回去可能让 working 一时超过上界，那是合法的瞬态（与调低上界那一刻同形）：下一个
           // 提出 turn 请求的人照常停驻，计数随即收敛。abort 之后真的结算时，askSettled 会
           // `working.delete` 成功并调 unpark，而 unpark 的 `working.size < limit` 守卫挡住了

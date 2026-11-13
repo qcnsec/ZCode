@@ -1,10 +1,10 @@
-import { DesktopCommandIds } from "@zcode/shared";
+import { DesktopCommandIds, ZCODE_GITHUB_DISCUSSIONS_URL } from "@zcode/shared";
 import type { UpdateStatePayload } from "@zcode/shared";
 import { useCallback, useEffect, useState } from "react";
-import { useFeedbackStore } from "@/feedback/feedbackStore.js";
 import { usePlatform } from "@/hooks/usePlatform.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { createHelpMenuActionHandlers } from "@/lib/helpMenuActions.js";
+import { useExportLogsBusy } from "@/lib/exportLogsState.js";
 import { useShortcutCommandLabel } from "@/shortcuts/useShortcutBindings.js";
 import { logger } from "@/logger.js";
 import { cn } from "@/components/lib/utils.js";
@@ -55,22 +55,16 @@ export function WindowsCaptionMenuButton({
   useWindowsCaptionSpacing?: boolean;
 }) {
   const platform = usePlatform();
-  const { intl, locale } = useZCodeIntl();
+  const { intl } = useZCodeIntl();
   const newTaskShortcutLabel = useShortcutCommandLabel("newTask");
   const openWorkspaceShortcutLabel = useShortcutCommandLabel("openWorkspace");
-  const openFeedbackSubmit = useFeedbackStore((state) => state.openSubmit);
-  const openFeatureRequest = useFeedbackStore((state) => state.openFeatureRequest);
-  const helpMenuActions = createHelpMenuActionHandlers({
-    platform,
-    intl,
-    openSubmit: openFeedbackSubmit,
-  });
+  const helpMenuActions = createHelpMenuActionHandlers({ platform, intl });
+  const exportLogsBusy = useExportLogsBusy();
   const [updateState, setUpdateState] = useState<UpdateStatePayload | null>(null);
   const [stdioTapDevState, setStdioTapDevState] = useState({
     enabled: false,
     visible: false,
   });
-  const [showCommunityMenuItem, setShowCommunityMenuItem] = useState(false);
   const showDesktopUpdateEntry = shouldShowDesktopUpdateEntry();
 
   const syncUpdateState = useCallback(async () => {
@@ -112,27 +106,6 @@ export function WindowsCaptionMenuButton({
         }) ?? (() => {}))
       : undefined;
   }, [platform, showDesktopUpdateEntry, syncStdioTapDevState, syncUpdateState]);
-
-  useEffect(() => {
-    let isCancelled = false;
-
-    void platform.canOpenCommunity(locale).then(
-      (visible) => {
-        if (!isCancelled) {
-          setShowCommunityMenuItem(visible);
-        }
-      },
-      () => {
-        if (!isCancelled) {
-          setShowCommunityMenuItem(false);
-        }
-      },
-    );
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [locale, platform]);
 
   const handleOpenWorkspaceInFileManager = async () => {
     if (readOnlyReason) {
@@ -265,21 +238,25 @@ export function WindowsCaptionMenuButton({
         <DropdownMenuItem onSelect={helpMenuActions.openIssueReport}>
           {intl.formatMessage({ id: "titleBar.menu.help.feedback" })}
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={openFeatureRequest}>
+        <DropdownMenuItem onSelect={helpMenuActions.openFeatureRequest}>
           {intl.formatMessage({ id: "workspaceHeader.help.productRequest" })}
         </DropdownMenuItem>
-        {showCommunityMenuItem ? (
-          <DropdownMenuItem
-            onSelect={() => handleExecuteDesktopCommand(DesktopCommandIds.OpenCommunity)}
-          >
-            {intl.formatMessage({ id: "sidebar.menu.community" })}
-          </DropdownMenuItem>
-        ) : null}
+        <DropdownMenuItem
+          onSelect={() => void platform.openExternal(ZCODE_GITHUB_DISCUSSIONS_URL)}
+        >
+          {intl.formatMessage({ id: "sidebar.menu.community" })}
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={helpMenuActions.openProductDocs}>
           {intl.formatMessage({ id: "workspaceHeader.help.docs" })}
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={helpMenuActions.exportLogs}>
-          {intl.formatMessage({ id: "titleBar.menu.help.exportLogs" })}
+        <DropdownMenuItem
+          disabled={exportLogsBusy}
+          aria-busy={exportLogsBusy}
+          onSelect={helpMenuActions.exportLogs}
+        >
+          {intl.formatMessage({
+            id: exportLogsBusy ? "sidebar.exportLogs.pending" : "titleBar.menu.help.exportLogs",
+          })}
         </DropdownMenuItem>
         {stdioTapDevState.visible ? (
           <>

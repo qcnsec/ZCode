@@ -424,7 +424,6 @@ class CuaPermissionOnboardingCoordinator {
         // 首次 ensureInstalled 的验签证据不能跨越用户停留设置页的时间复用。同 UID 进程可在
         // 下一 stage 前替换安装目录，导致授权落到另一 bundle。每一 stage 都以“指纹前快照 → 完整
         // verify → 精确 identity 复核 → 指纹后快照”的顺序重新建立证据；任一处变化都 fail-closed。
-        //
         // 终检在 dragstart 前同步比对：Helper 进入 TCC 列表靠用户拖拽，
         // 而 TCC 绑定的正是被拖入的那个 bundle，所以「拖之前字节没变」贴近
         // 真实风险。指纹登记到会话上供拖拽缓存消费（见 desktopCuaPermissionIpc）。
@@ -586,7 +585,6 @@ export interface PrepareCuaHelperPermissionDragMainResult extends PrepareCuaHelp
 // 错误 Team / 同用户可写内容替换的 .app 若被拖进 Accessibility/Screen Recording，TCC 授权会落到
 // 错误主体，绕过整个 TeamIdentifier pinning 设计。所以拖拽前必须走同一条 install+verify
 // （bundle id / 版本 / arch / codesign / TeamIdentifier / Gatekeeper）。
-//
 // 但 Electron 原生文件拖拽要求在 dragstart 事件链路里*同步*调用 event.sender.startDrag()，
 // 等不了这些异步 I/O（否则错过 OS 拖拽手势窗口，用户拖不出任何文件）。因此把 install+verify
 // 拆到本函数：浮窗挂载时预热并缓存已验证路径 + 指纹，dragstart 只读缓存并同步比对（见

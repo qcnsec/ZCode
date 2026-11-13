@@ -3,13 +3,11 @@
 // ============================================================
 // docs/dynamic-workflow/transcript-and-notifications.md「Reminding an idle main agent」。规则（空闲钟、
 // 两次、谁给新的一对）在 runtime-task/workflow-blocked-reminder.ts 的钟里；本文件只做两件事：
-//
 //   1. 把钟要的四样东西接到 runtime 上：在飞的 run 来自任务注册表，开集来自端口快照
 //      （`pendingQuestions` 与 `waiting` 的 `holes`——与 GetWorkflowRun 念的是同一份投影），空闲与否来自
 //      命令队列，发出走既有的后台通知入口（同一条队列、账本、分支围栏与关闭丢弃，不新增投递路径）。
 //   2. 接线点只在调用方留一行：命令开始与 run 的开集事件各有一个函数在这里；队列排空（空闲沿）与
 //      用户 steer 直接调钟，分别在 runtime-command-queue.ts 与 steering.ts。
-//
 // 与 `run-stalled` 的差别：停滞是 run 自己的事实，由 driver 的钟发现、进 journal；这里的「闲」是**父会话**
 // 的事实，run 与 journal 都不知道，所以它不是一条 run 事件，也不随进程重启恢复——进程没了，在飞的 run
 // 结算为 interrupted，resume 会让每个开着的决定带着自己的通知重新出现。

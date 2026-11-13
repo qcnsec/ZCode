@@ -185,7 +185,8 @@ export function useWorkspaceTerminalTaskNotifications({
       formatMessage,
     });
     for (const payload of payloads) {
-      showTaskNotification(platform, payload);
+      // 携带工作区归属，供 main 侧判定远程（SSH）工作区任务终态转发闸门。
+      showTaskNotification(platform, { ...payload, workspaceIdentity });
     }
     previousBySessionIdRef.current = nextBySessionId;
   }, [enabled, formatMessage, indexState, platform, signature]);

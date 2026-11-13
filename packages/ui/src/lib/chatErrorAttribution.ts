@@ -180,7 +180,7 @@ export function resolveTelemetryAttribution(params: {
   error: ZCodeUiError;
   displayMessage: string;
 }): TelemetryErrorAttribution {
-  // 修复原因：adapter 的 unknown 可能是保守的产品运行时分类，不能代表 ARMS 缺少上游证据；
+  // 修复原因：adapter 的 unknown 可能是保守的产品运行时分类，不能代表 ARMS 缺少 证据；
   // 这里仅在 telemetry 边界按 provider code/status/可见文案补全低基数归因，不改变重试或 UI 行为。
   const explicitSource = params.error.attribution?.source;
   const providerId = params.error.attribution?.providerId?.trim();
@@ -246,7 +246,7 @@ export function resolveTelemetryAttribution(params: {
     }
     // Bug 原因：旧实现先归一化 reason，再把所有非空 reason 统一反推成 provider，
     // 会把 proxy_error/provider_not_configured 等已知事实归错桶。source 必须使用同一份证据解析；
-    // invalid_request/rate_limited 等歧义 reason 缺少上游证据时保持空值。
+    // invalid_request/rate_limited 等歧义 reason 缺少 证据时保持空值。
     return resolve(
       structuredReason,
       resolveSourceFromReason(structuredReason) || resolveSourceFromAdditionalEvidence(params),

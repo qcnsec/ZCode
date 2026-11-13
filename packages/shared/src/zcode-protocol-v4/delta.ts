@@ -2,7 +2,6 @@ import { mcpAppInstanceSchema } from "../mcp-apps/instance.js";
 // ConversationDelta：快照增量与插件 UI 的 live-only 通知，操作集合封闭（10-protocol-spec §4.5）。
 // 没有 row.inserted（中间插入）、没有 row.moved、没有字段级 JSON patch——
 // 凡此模型表达不了的结构变化，服务端一律发 snapshot resync，刻意压缩客户端错误面。
-//
 // 唯一的例外是最后两条 `workflowRun.*`：`workflowRuns` 是一个高频状态键，键级整体替换让
 // 每条引擎事件都要重发整张表（O(N) 字节/事件、O(N²)/run）。它们**只**给这一个键开了一道
 // 按 (runId, siteId, ordinal) 的增量口子，语义仍是「键内整体替换，只是下探了两级」：

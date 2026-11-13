@@ -221,11 +221,11 @@ async function configureSubagentReasoningOverrides() {
 
   await selectModelInScope(generalScope, UPSTREAM_MODEL_VALUE);
   // 主动选模型按 Registry 的最高档位补全并落盘（历史缺失/失效才留空等用户选）；
-  // 上游模型的档位表由运行时 Registry 决定，这里断言「界面有值就落盘同一个值」这条不变量。
+  // 模型的档位表由运行时 Registry 决定，这里断言「界面有值就落盘同一个值」这条不变量。
   const upstreamEffort = await waitForBuiltInEffortAfterModelSwitch(
     "general-purpose",
     UPSTREAM_MODEL_VALUE,
-    "general-purpose 切换到上游模型后没有按 Registry 档位落盘",
+    "general-purpose 切换到 模型后没有按 Registry 档位落盘",
   );
   await assertCurrentThoughtLabel(generalScope, upstreamEffort);
   await selectModelInScope(generalScope, MODEL_VALUE);

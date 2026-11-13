@@ -636,7 +636,6 @@ export function TerminalSession({
           // 不能放 localDisposers：cleanup(detach) 时会被取消，而复用路径不重绑，
           // 导致切回 workspace 后 scrollback 在但无法输入交互。
           // 输入订阅生命周期必须 = entry 生命周期（随 term 常驻），detach 不取消。
-          //
           // 与原路径（下侧 terminal）的 onData 完全一致：维护 keydown candidate 去重历史，
           // 供 Windows 输入法 textarea 兜底消费（IME composition committed text 的三段去重闭环）。
           // 注：本段只处理「已提交 composition 文本」的去重，与 Shift 切换输入法动作无关——
@@ -729,7 +728,6 @@ export function TerminalSession({
           // 若失败不释放，terminalId="" 的僵尸 entry 会留在 registry，重挂/切 workspace 时命中
           // 复用快路径（见上方 existingEntry 分支），直接复用已启动失败的 xterm，且永不重新
           // terminalService.create()，该终端永久无法连接 PTY。
-          //
           // ownership 校验（稳妥方案）：只有 registry 当前 entry 仍是本次创建的 entry 时才释放。
           // 极端时序：create reject 触发前，组件可能已卸载（cleanup 已 release 半成品，见下方 !entry.terminalId
           // 分支）并重挂、registry 已被新一次创建的 entry 覆盖。此时无脑 release 会误删新 entry。

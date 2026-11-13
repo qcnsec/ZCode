@@ -1,7 +1,6 @@
 // Conversation topic 发布器（传输外壳）。
 // CLI 侧权威运行时：内存有界 delta 日志（logEpoch + 保留窗）+ subscribe(base)
 // 裁决（resume/snapshot）+ 每订阅者 flush 管线（filter → coalesce → 打帧）。
-//
 // 职责边界：
 // - 本类只做「事件 → 帧」的权威记账，不做网络 IO / 定时器——flush 时机由宿主驱动
 //   （host 通道层按 profile.flushWindowMs 调度；测试里手动调用），保持可测的纯推进。

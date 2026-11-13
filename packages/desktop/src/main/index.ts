@@ -84,7 +84,6 @@ import {
   PlatformChannels,
   ZCODE_ENV,
   ZCODE_PRODUCT_FLAVOR,
-  ZCODE_AUTO_UPDATE_ENABLED,
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
   DEFAULT_LOCALE,
   TEST_ZCODE_ENDPOINT_ORIGIN,
@@ -234,6 +233,12 @@ import {
 import { createWebRemoteControlSharedHostAttachments } from "./webRemoteControlSharedHostAttachments.js";
 import { createDesktopHelpConfigReader } from "./desktopHelpConfig.js";
 import { registerPlatformIpcHandlers } from "./desktopMainIpcPlatform.js";
+import {
+  flushQcTrkNotifications,
+  registerQcTrkIpcHandlers,
+  stopQcTrkUpdater,
+} from "./qctrk/handlers.js";
+import { createWebContentsFrozenProbe, installFreezeHealing } from "./qctrk/freezeHealing.js";
 import {
   loadCliMcpFromUserDirectory,
   migrateLegacyCommonMcp,
@@ -1231,6 +1236,11 @@ async function setAutoDownloadAndInstallUpdates(enabled: boolean) {
 }
 
 async function prepareAppQuit(reason: string, kind: AppShutdownKind = "normal"): Promise<void> {
+  // 桌面通知的 webhook 转发是 fire-and-forget，
+  // 退出前等待在飞推送完成（产物 Rh → flushQcTrkNotifications(3e3)），最多 3 秒。
+  await flushQcTrkNotifications(3_000);
+  // 停止自建更新通道的自动轮询定时器并作废在飞操作（15s 启动 + 1h 轮询）。
+  stopQcTrkUpdater();
   const selection = selectAppShutdownPolicy(activeAppShutdownKind, kind, process.platform);
   activeAppShutdownKind = selection.kind;
   activeAppShutdownPolicy = selection.policy;
@@ -2072,6 +2082,24 @@ function createWindowInstance(startupBootstrap: StartupWindowBootstrap = {}) {
     },
   });
   registerStabilityMainWindow(win);
+
+  // 「卡死自愈」看门狗：渲染进程无响应时分级恢复。
+  // 真实时序（独立阈值，与产物 setTimeout(fn, 阈值) 一致）：30s crash / 40s relaunch / 45s reload。
+  // 默认开启；可用 ZCODE_QCTRK_FREEZE_HEAL=off 关闭（kill-switch，产物无此开关）。
+  if (
+    process.env.ZCODE_QCTRK_FREEZE_HEAL !== "off" &&
+    process.env.ZCODE_QCTRK_FREEZE_HEAL !== "disabled"
+  ) {
+    installFreezeHealing(win.webContents, {
+      isFrozen: createWebContentsFrozenProbe(win.webContents),
+      relaunch: () => {
+        app.relaunch();
+        app.exit(0);
+      },
+      logger,
+    });
+  }
+
   return win;
 }
 
@@ -2294,11 +2322,10 @@ app.whenReady().then(async () => {
   logWindowsBundledRuntimeIntegrityDiagnostic();
 
   // 启动自动更新检查（后台执行，不阻塞主界面）
-  // Preview 身份无论连接哪个后端都不自动更新：stable feed 上只分发正式 ZCode 安装包，
-  // 不向 Preview 渠道提供更新。构建期未启用自动更新时同样不更新
-  // （见 docs/desktop/build-time-optional-capabilities.md）。
+  // Fork 只有一条 GitHub Releases 线，所有安装版都默认启用；
+  // 开发态由 app.isPackaged 自动跳过，ZCODE_DISABLE_AUTO_UPDATE=1 可显式关闭。
   void initAutoUpdater({
-    enabled: ZCODE_PRODUCT_FLAVOR === "production" && ZCODE_AUTO_UPDATE_ENABLED,
+    enabled: true,
     onBeforeQuitAndInstall: async () => {
       notifyStabilityLifecycle("update_install");
       await prepareAppQuit("auto-update quitAndInstall", "update-install");
@@ -2368,6 +2395,10 @@ app.whenReady().then(async () => {
       logger.warn("[desktop-tray] linux tray capability probe failed", error);
     });
   }
+
+  // 新增能力：用量/余额/代理/通知/自动继续/更新等 qctrk IPC。
+  // 传入 logger 让 webhook 推送失败可诊断（产物 setQcTrkNotifyLogger 等价）。
+  registerQcTrkIpcHandlers({ logger });
 
   registerPlatformIpcHandlers({
     fetchHelpConfig: readHelpConfig,

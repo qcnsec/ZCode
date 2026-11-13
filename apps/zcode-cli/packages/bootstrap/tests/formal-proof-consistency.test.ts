@@ -2,7 +2,6 @@
 // packages/formal-proof/src/model.ts 的 evaluate 是可执行裁决表（02-projection「规则模块下沉」）；
 // 本测试机械对账：每个 coherent ProductContext × Candidate 组合的 Decision，
 // 必须与投影同源派生（computeAvailability / computeInputRouting）一致。
-//
 // 对账面（v4 A 区可观测量，10 §4.2.2）：
 //   compact / slashCompact → availability.compact（含 reasonCode ↔ ruleId 映射）
 //   sendText / setGoal     → inputRouting.mode（allow→startNow / enqueue→enqueue / reject→reject）

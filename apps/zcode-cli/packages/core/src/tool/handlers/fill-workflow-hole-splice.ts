@@ -4,7 +4,6 @@
 // docs/dynamic-workflow/launch.md「Approval」：别的会话的 run 开窗时，窗里画的是**有效脚本**的图
 // （补上函数体之后的那份），而拼接与编译真正发生在端口实现侧、批准之后。所以这里在 resolveInput
 // 里预先拼一次，只为让 prepareApproval 有图可画；它不是执行路径，端口侧的 `fillHole` 才是。
-//
 // 拼接本体是分析器包的 `spliceHoleBody`（apps/zcode-cli/packages/dynamic-workflow/docs/analysis.md
 // 「Sites」）：函数体插在留白调用的闭括号前，站点 id 的编号规则由分析器保证。
 

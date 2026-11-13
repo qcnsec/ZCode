@@ -285,7 +285,6 @@ async function preRenderHooks(page) {
   //     container to its scrollHeight — that creates an oversized single "page" that
   //     Playwright splits unevenly. Instead, we remove the fixed height and overflow:hidden
   //     so content flows naturally and @page CSS handles pagination.
-  //
   //     (The old "expand to scrollHeight" logic belongs in html2poster.js where a single
   //     continuous canvas is the desired output.)
   const vOverflowFix = await page.evaluate(() => {

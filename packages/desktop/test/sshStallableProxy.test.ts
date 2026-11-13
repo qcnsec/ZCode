@@ -33,7 +33,7 @@ it("后端端口变化时保留外部端口，既有连接不改路由", async (
   const exchange = (client: Socket, value: string) =>
     new Promise<string>((done, reject) => {
       let response = "";
-      const timeout = setTimeout(() => reject(new Error("未收到上游响应")), 3000);
+      const timeout = setTimeout(() => reject(new Error("未收到 响应")), 3000);
       const read = (chunk: Buffer) => {
         response += chunk.toString();
         if (!response.endsWith("\n")) return;
@@ -74,7 +74,7 @@ it("后端端口变化时保留外部端口，既有连接不改路由", async (
   }
 });
 
-it("停摆期间已读的 SSH banner 在释放后仍先于后续数据到达真实上游", async () => {
+it("停摆期间已读的 SSH banner 在释放后仍先于后续数据到达真实 ", async () => {
   const server = createServer((socket) => {
     let received = "";
     socket.on("data", (chunk) => {
@@ -115,7 +115,7 @@ it("停摆期间已读的 SSH banner 在释放后仍先于后续数据到达真�
     const received = await Promise.race([
       reply,
       delay(3000, undefined, { ref: false }).then(() => {
-        throw new Error("上游未收到释放的数据");
+        throw new Error(" 未收到释放的数据");
       }),
     ]);
     expect(JSON.parse(received)).toBe(`${banner}AFTER-RELEASE\nEND\n`);

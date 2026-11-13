@@ -12,6 +12,7 @@ import { useTabStore } from "@/store/TabStoreProvider.js";
 import { logger } from "@/logger.js";
 import { resolveImportedComposerConfig } from "@/v4/composer/newTaskDraft.js";
 import { dismissToast, toast, updateToast } from "@/components/ui/toast.js";
+import { setExportLogsBusy } from "@/lib/exportLogsState.js";
 import { matchesPrimaryShortcut } from "@/lib/keyboardShortcuts.js";
 import { isShortcutRecordingActive } from "@/shortcuts/bindings.js";
 import { isRendererReloadNavigation } from "@/lib/rendererNavigation.js";
@@ -105,6 +106,7 @@ export function useRootPlatformEffects({
   const importOperationRef = useRef<string | null>(null);
   const lastImportProgressToastRef = useRef<{ phase: string; at: number } | null>(null);
   const importToastIdRef = useRef<number | null>(null);
+  const exportLogsPendingToastIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     // 启动时必须先判断 OAuth 本地会话，再恢复历史/初始 workspace。
@@ -348,6 +350,42 @@ export function useRootPlatformEffects({
     startNewTaskFromActiveWorkspace,
     tabs,
   ]);
+
+  // 托盘与原生应用菜单的「导出日志」由主进程直接执行，不会经过 renderer 的
+  // runExportLogsAction。订阅 main 广播的进度，用同一个常驻 toast 复现「正在导出日志中」
+  // 与失败提示，并同步共享的 busy 状态，让帮助菜单的导出项在同一时间置灰。
+  useEffect(() => {
+    if (!platform.onExportLogsProgress) return;
+    const dispose = platform.onExportLogsProgress((payload) => {
+      if (payload.phase === "start") {
+        setExportLogsBusy(true);
+        if (exportLogsPendingToastIdRef.current !== null) {
+          dismissToast(exportLogsPendingToastIdRef.current);
+        }
+        exportLogsPendingToastIdRef.current = toast(
+          intl.formatMessage({ id: "sidebar.exportLogs.pending" }),
+          { durationMs: Number.POSITIVE_INFINITY },
+        );
+        return;
+      }
+      setExportLogsBusy(false);
+      const pendingId = exportLogsPendingToastIdRef.current;
+      exportLogsPendingToastIdRef.current = null;
+      if (pendingId !== null) dismissToast(pendingId);
+      if (payload.success === false) {
+        toast(
+          intl.formatMessage(
+            { id: "sidebar.exportLogs.error" },
+            { error: payload.error ?? "unknown" },
+          ),
+        );
+      }
+    });
+    // 只注销订阅：语言切换会让 intl 引用变化并触发本 effect 重跑，若在此处
+    // 重置 busy / toast，会把仍在进行中的导出状态误清。复位统一由 main 的
+    // end 广播负责；窗口真正关闭时整个 renderer 上下文一并销毁，无需手动清理。
+    return dispose;
+  }, [platform, intl]);
 
   useEffect(() => {
     const pending = pendingShareImportRef.current;

@@ -283,13 +283,21 @@ export function MarketingTouchProvider({
           });
           // 领取结果由 Controller 的结果弹窗承载，避免成功 toast 与弹窗重复提示。
           return { status: "success" };
-        } catch {
+        } catch (err) {
           if (signal.aborted) return { status: "cancelled" };
+          // 验证码未取得校验参数时，prepareRequestVerificationClaim 会抛出带诊断的 Error，
+          // 这里把诊断回显给用户，便于无日志时定位 SDK 行为。
+          const diagMsg =
+            err instanceof Error && err.message.includes("人机验证未取得校验参数")
+              ? err.message
+              : "";
           return {
             status: submitted ? "uncertain" : "failure",
-            message: intl.formatMessage({
-              id: submitted ? "marketingTouch.uncertain" : "marketingTouch.failed",
-            }),
+            message: diagMsg
+              ? diagMsg
+              : intl.formatMessage({
+                  id: submitted ? "marketingTouch.uncertain" : "marketingTouch.failed",
+                }),
           };
         }
       },

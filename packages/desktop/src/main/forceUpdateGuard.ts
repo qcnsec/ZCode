@@ -14,6 +14,16 @@ const ZCODE_CLIENT_CONFIG_API_PATH = "/api/v1/client/configs";
 const FORCE_UPDATE_CONFIG_REQUEST_TIMEOUT_MS = 10_000;
 const FORCE_UPDATE_CONFIG_MAX_RESPONSE_BYTES = 1024 * 1024;
 
+/**
+ * 产物中
+ * resolveDesktopForceUpdateRequirement 开头为 `if(!!1)return null`，
+ * 远端一句最低版本要求不再阻断启动，升不升级由用户决定。
+ * 显式设置 ZCODE_FORCE_UPDATE_GATE=enabled 可恢复官方闸门，便于排障与回归测试。
+ */
+function isQcTrkForceUpdateGateEnabled(): boolean {
+  return process.env.ZCODE_FORCE_UPDATE_GATE === "enabled";
+}
+
 export interface ForceUpdateDialogText {
   title: string;
   message: string;
@@ -152,6 +162,10 @@ export async function resolveDesktopForceUpdateRequirement(options: {
   endpointOrigin?: string;
   fetchRemoteConfig?: () => Promise<unknown>;
 }): Promise<ForceUpdateRequirement | null> {
+  // 默认关闭远端强制升级闸门（见 isQcTrkForceUpdateGateEnabled 注释）。
+  if (!isQcTrkForceUpdateGateEnabled()) {
+    return null;
+  }
   const resolveFromConfig = (config: unknown) =>
     resolveForceUpdateRequirement({
       currentVersion: ZCODE_VERSION,

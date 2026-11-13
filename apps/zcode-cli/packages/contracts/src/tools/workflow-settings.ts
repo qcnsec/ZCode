@@ -2,12 +2,10 @@
 // 确认窗里可调的两项 run 设置（CreateWorkflow / AmendWorkflow 共用）
 // ============================================================
 // docs/dynamic-workflow/launch.md「Adjusting the settings in the window」。
-//
 // 两个 schema，一去一回：
 //   - `WorkflowAdjustableSettingsSchema`：`resolveInput` 回填进入参的事实，告诉确认窗「这个 agent 会应用
 //     你在窗里改的值」以及本机天花板。
 //   - `WorkflowSettingsAdjustmentSchema`：用户按 Allow 时应答 `content` 里带回来的改动。
-//
 // 回填块走**入参通道**而不是 `create_workflow` display：display 的字段集是冻结的（见
 // tool-result-metadata.ts 上的警告），多一个键会让严格解析它的客户端把整块连图一起丢掉；入参通道对
 // 每个客户端版本都没有 schema。旧客户端不认这块就照旧画纯文本条件行，旧 agent 不写这块，新客户端

@@ -1,7 +1,6 @@
 // The jsonl-db optimization loop, condensed: the motivating example for phase markers
 // (docs/dynamic-workflow/presentation.md「The display contract」). Six markers turn a
 // dense step graph into preflight → attempt → gate → checkpoint/recover → wrap-up.
-//
 // Three things this fixture exists to pin: the shared `runBench` helper is claimed by
 // BOTH preflight and gate, so its site is copied once per phase; the gate's `continue`
 // exits mean the phases cannot be expressed as scope callbacks (which is why markers are

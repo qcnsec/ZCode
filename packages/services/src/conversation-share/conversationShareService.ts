@@ -680,7 +680,6 @@ export class ConversationShareService implements IConversationShareService {
   private readonly publishPhases = new Map<string, ConversationSharePublishProgress["phase"]>();
   // 选择阶段与发布阶段共享“最终可见卡片”边界；发布仍会重新 stat/read，但不会重新
   // 纳入选择阶段已经因缺失而被 UI 隐藏的候选。
-  //
   // 生命周期：desktop host 是长驻进程，这张表原来只在 stat 未 settle 时删单条，
   // 会随使用时长单调增长。现在有两道回收：发布终态按 session 前缀清理，
   // 以及 set 时的 FIFO 上限兜底（覆盖用户中途放弃分享、永远不发布的路径）。
@@ -952,7 +951,6 @@ export class ConversationShareService implements IConversationShareService {
         if (!allowed) {
           // 即使类型不支持，也必须先完成选择阶段存在性检查；只有存在的附件才展示
           // artifact_type_not_allowed，避免把已经清理的附件误报成能力问题。
-          //
           // 类型判定必须排在体积判定之前：不支持的类型根本不会被上传，它的体积
           // 与分享无关。反过来会把「格式不支持（可跳过）」升级成「体积超限（阻断）」，
           // 用户被一个压缩也解决不了的错误挡住。
@@ -1599,7 +1597,6 @@ export class ConversationShareService implements IConversationShareService {
         // content-type 不一致不能直接判 invalid_contract，否则 .md 一律导入失败——
         // 对象存储/CDN 按自己的规则给下载打标签（.md 常被标成 text/plain 或
         // application/octet-stream），与发布时的 mime_type 无关。
-        //
         // 而到这一行字节已经通过 size + SHA-256 校验，且清单本身由 artifact_set_sha256 覆盖，
         // 所以 artifact.mime_type 才是权威值，响应头不提供任何额外完整性保证——
         // 拿它当门禁只会造成误拒。这里降级为记录，不再阻断。
@@ -1660,7 +1657,6 @@ export class ConversationShareService implements IConversationShareService {
       await rename(stagingPath, finalArtifactsPath);
       // 只读块要能永久离线打开：分享可能过期或尚未上线，渲染时不能回源，
       // 所以把公开 rows 与结果物元数据一起落在 importRoot 内，随失败清理一起删除。
-      //
       // 写 rawRows 而不是解析产物：本端认不出的行和字段照样存下来，用户升级之后就能看到，
       // 不会因为导入当天的版本较旧而被永久抹掉。
       await writeFile(

@@ -5,7 +5,6 @@ import { DatabaseSync } from "node:sqlite";
 // M5 冷恢复（打开历史会话）验收网：CLI 重启后内存注册表为空，v4 订阅历史会话
 // 必须经 host.resumePersistedSession 把 record 拉起来，而不是抛
 // "Session is not active"（真 bug：桌面重启后点侧栏历史会话永远"连接中"）。
-//
 // 两层覆盖：
 // - gateway 单元（stub host）：单飞幂等 / 完整事件日志 hydration 路径 /
 //   notFound vs resumeFailed 错误分型 / 宿主未实现钩子的退化行为。

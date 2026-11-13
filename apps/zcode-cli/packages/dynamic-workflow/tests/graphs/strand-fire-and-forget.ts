@@ -1,7 +1,6 @@
 // A fan-out nobody ever awaits: the script starts A's subagents, walks on to B, and returns
 // without joining them. Nothing in the script orders A's work against B's, so nothing may be
 // claimed — the only fact left is that the run outlived the strand.
-//
 // Expected:
 //   causality — NO edge between ask#1 (the fan-out's) and ask#2 (B's).
 //   cfg — `ask#1@1 -> sink join` (no `via`: the callback falls out of its body rather than

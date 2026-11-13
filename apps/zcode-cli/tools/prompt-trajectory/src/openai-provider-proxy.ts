@@ -472,7 +472,7 @@ function writeProxyError(response: ServerResponse, error: unknown): void {
     response.destroy(error instanceof Error ? error : undefined);
     return;
   }
-  // 没有匹配的 mock 是 fixture 断言失败，不是上游故障；按 400 返回，避免 provider 重试拖慢失败。
+  // 没有匹配的 mock 是 fixture 断言失败，不是 故障；按 400 返回，避免 provider 重试拖慢失败。
   response.statusCode = error instanceof MissingMockResponseError ? 400 : 502;
   response.setHeader("content-type", "application/json");
   response.end(

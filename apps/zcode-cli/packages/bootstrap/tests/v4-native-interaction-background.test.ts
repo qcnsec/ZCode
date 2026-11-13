@@ -1839,7 +1839,6 @@ describe("v4 conversation workflowRuns query", () => {
 // ── dwf 用户面产物的三条 query（docs/dynamic-workflow/authoring.md「How the user sees them」）──
 // ⚠ 术语：artifact = 脚本经 `artifact.*` 发布给**用户**看的产出，不是 run 的顶层返回值
 // （引擎内部对后者的同名叫法）。spec 的「术语」表是唯一消歧处。
-//
 // 三条与 workflowRunEvents 同族：只读、无状态、超时重发安全，同样带冷会话前置。
 // ArtifactRead 的**授权在宿主端口侧**（run 属于该会话 ∧ journal 有该版本的 completed 行 ⇒
 // 才拿行上的 uri 去 store 读）；网关只做参数校验与分块，刻意不持第二份判据——两处各判一次，

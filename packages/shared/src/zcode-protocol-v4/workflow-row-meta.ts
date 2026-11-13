@@ -94,7 +94,6 @@ export type WorkflowNotificationMeta = z.infer<typeof workflowNotificationMetaSc
 // 主代理闲着、run 还欠着决定时的提醒（docs/dynamic-workflow/transcript-and-notifications.md
 // 「Reminding an idle main agent」）：每个 run 一条，只带发出那一刻的计数与最久的等待——每个决定的
 // 原文在它自己那条 escalation / hole 行上，这一行不重复，也不随后续状态翻转。
-//
 // ⚠ 它是 originMeta 上**独立的键**，不是上面那个 union 的成员（同一篇文档「The payload」）。它曾经是
 // `kind: "blocked"`：闭集多一个成员，不认识它的客户端（手机远控页单独部署，可能比 CLI 旧）解析整帧
 // 失败，强制快照里是同一行、再次失败，于是整个会话打不开。不认识的**键**

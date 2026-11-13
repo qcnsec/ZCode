@@ -1,6 +1,5 @@
 // v4/conversation/inputPrediction 的 CLI 侧处理器（手机远控 ghost hint）。
 // 规格：docs/web-remote-control/mobile-input-prediction.md。
-//
 // 职责：
 // - 同一会话只保留一个进行中的预测：新请求到达即中止旧请求，旧请求回 cancelled；
 // - 按 (sessionId, revision, draft) 小 LRU 缓存终态结果，重连/重发不重复打模型；

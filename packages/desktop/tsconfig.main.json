@@ -8,7 +8,9 @@
     "lib": ["es2025", "dom"],
     "types": ["node", "electron"]
   },
-  "include": ["src/main", "src/shared", "src/scheduler"],
+  // src/host/qctrkPurge.ts 被 main/qctrk/handlers.ts 静态引用（删除会话后触发 VACUUM），
+  // 单文件纳入 file list，避免 TS6307；其余 host 代码仍由 tsconfig.host.json 独立编译。
+  "include": ["src/main", "src/shared", "src/scheduler", "src/host/qctrkPurge.ts"],
   // main 直接依赖 shared 和 services；把引用补齐后，desktop 子工程也能稳定复用上游声明产物。
   "references": [{ "path": "../shared" }, { "path": "../services" }]
 }

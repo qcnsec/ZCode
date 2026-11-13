@@ -2,7 +2,6 @@
 // 与「启动轮」行）。它是 `port.submit` 的第二个调用方，与 CreateWorkflow 工具路径同构：复用
 // resolveSavedWorkflow + validateWorkflowArgs 归一化、trackExternalBackgroundTask 追踪，但绕开
 // 权限判定 + alwaysAsk，并以一条 controlOnly 启动轮把用户真实动作落进会话。
-//
 // 两组不变式被钉在这里：
 //   1. 失败在任何持久化之前——not_found / invalid_name / invalid_args / compile_failed /
 //      session_busy 任一都零 submit、零消息、零事件、零追踪。

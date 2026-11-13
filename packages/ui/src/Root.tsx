@@ -48,7 +48,10 @@ import { useWorkspaceServices } from "@/hooks/useWorkspaceServices.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { SSHDialog } from "@/SSHDialog.js";
 import { SettingsPage } from "@/SettingsPage.js";
-import { setPendingSettingsSectionIntent } from "@/lib/settingsNavigation.js";
+import {
+  peekPendingSettingsAddProvider,
+  setPendingSettingsSectionIntent,
+} from "@/lib/settingsNavigation.js";
 import { CodingPlanUpgradeDialogProvider } from "@/settings/CodingPlanUpgradeDialogProvider.js";
 import { RewardsProvider } from "@/rewards/RewardsProvider.js";
 import { WelcomeScreen, type LoginCompleteReason } from "@/WelcomeScreen.js";
@@ -1254,6 +1257,15 @@ function RootInner({
   const handleWelcomeScreenComplete = useCallback(
     async (reason: LoginCompleteReason) => {
       await refreshAppSettings();
+      // 欢迎页「使用 API Key」入口：不再弹 API Key 填写表单，直接跳过登录并
+      // 打开设置面板（意图里已写好 modelProvider 分区 + 添加供应商模板页）。
+      // 这条路径刻意不创建默认 workspace，避免新建的工作区 tab 抢占刚打开的设置页。
+      if (peekPendingSettingsAddProvider()) {
+        setPendingSettingsSectionIntent("modelProvider");
+        tabStoreApi.getState().openSettingsTab();
+        setWelcomeScreenOpenReason(null);
+        return;
+      }
       if (
         welcomeScreenOpenReason !== "startup-provider-required" ||
         workspaceShellPath ||
@@ -1278,6 +1290,7 @@ function RootInner({
       allowOpenWorkspace,
       handleEnsureConversationWorkspace,
       refreshAppSettings,
+      tabStoreApi,
       welcomeScreenOpenReason,
       workspaceShellPath,
     ],
@@ -1619,7 +1632,6 @@ function RootInner({
             >
               <RootWorkspaceContent
                 workspaceScopedServices={workspaceScopedServices}
-                baseFeedbackService={services.feedbackService}
                 workspaceShellPath={workspaceShellPath}
                 workspaceIdentity={workspaceShellIdentity}
                 workspaceRemoteSessionId={workspaceShellRemoteSessionId}

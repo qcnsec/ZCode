@@ -1,5 +1,4 @@
 // Sharp native module staging for the shared node_repl runtime.
-//
 // Why this exists: the bundled node_repl server
 // (apps/zcode-cli/packages/browser-use-plugin/dist/mcp/server.js) externalizes `sharp` because it loads a native `.node`
 // binary that esbuild cannot inline. In dev the workspace's hoisted
@@ -8,7 +7,6 @@
 // Node walks up looking for `node_modules/sharp`. Nothing in that walk reaches
 // the Electron app.asar tree, so without staging sharp into the glm/ tree the
 // server fails at top-level ESM resolution and product CUA never comes up.
-//
 // What we do: copy `sharp` + the per-triplet prebuild packages into each official
 // plugin's `node_modules/` (including `zcode-cua-plugin`, which is CUA's native
 // dependency root and is independent from Browser Use).
@@ -16,7 +14,6 @@
 // `@img/sharp-libvips-*`; Windows keeps both the `.node` and libvips DLLs in
 // `@img/sharp-win32-*`. Keeping dependencies beside the plugin avoids
 // electron-builder's root node_modules filter and matches Node's resolution.
-//
 // Mirrors node-pty-package-assets.mjs in spirit (per-triplet prebuild staging
 // into the packaged app) but writes into the bundled-agents tree instead of
 // before afterPack because extraResources already ships the whole glm/
@@ -290,7 +287,7 @@ export function verifyStagedSharp({
   if (targetPlatform.os === "win32") {
     // Bugfix: Windows 没有独立的 @img/sharp-libvips-win32-* 包，libvips DLL
     // 与 sharp.node 一起位于 @img/sharp-win32-*/lib。沿用 macOS/Linux 的
-    // 目录模型会在资源准备阶段要求一个上游从未发布的包。
+    // 目录模型会在资源准备阶段要求一个 从未发布的包。
     if (
       nativeLibDir &&
       existsSync(nativeLibDir) &&
@@ -316,7 +313,7 @@ export function verifyStagedSharp({
     if (!existsSync(libvipsLibDir)) {
       problems.push(`missing @img/sharp-libvips-${suffix}/lib dir: ${libvipsLibDir}`);
     } else {
-      // Bugfix: Linux 上游产物使用 libvips-cpp.so.8.17.3 这类版本化名称，
+      // Bugfix: Linux 产物使用 libvips-cpp.so.8.17.3 这类版本化名称，
       // 只匹配以 `.so` 结尾会把已经正确打包的动态库误判为缺失。
       const libraryPattern = targetPlatform.os === "linux" ? /\.so(?:\.\d+)*$/u : /\.dylib$/u;
       const hasBinary = readdirSync(libvipsLibDir).some((name) => libraryPattern.test(name));

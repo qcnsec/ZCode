@@ -1,9 +1,7 @@
 // CreateWorkflow 的实时工具卡。
-//
 // 为什么不是 ToolTranscriptPart 上的几行 detailLines：工具行是**事件时刻的快照**，而
 // CreateWorkflow 一把 run launch 出去就返回——工具行会在 run 还在飞的时候就变成 completed。
 // 卡片因此必须在渲染时读镜像（join 按 toolCallId），状态取 run 的状态而不是工具行的状态。
-//
 // 视图是 props 的纯函数（TUI 测试按函数式调用组件，不起终端）。
 import React from "react";
 import type { TuiCopy } from "@zcode/i18n";

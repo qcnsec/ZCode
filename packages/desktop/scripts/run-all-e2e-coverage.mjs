@@ -22,7 +22,7 @@ const PROVIDER_ENV_FILES = [
   resolve(REPO_ROOT, ".env.e2e.local"),
 ];
 
-// 真实 provider smoke 走 capture，需要环境变量同时给出上游地址与真实 key（回放占位 key 不算）。
+// 真实 provider smoke 走 capture，需要环境变量同时给出 地址与真实 key（回放占位 key 不算）。
 export function hasRealUpstreamProviderConfig(env = process.env, envFiles = PROVIDER_ENV_FILES) {
   const read = (key) =>
     env[key]?.trim() || envFiles.map((envFile) => readEnvValue(envFile, key)).find(Boolean) || "";

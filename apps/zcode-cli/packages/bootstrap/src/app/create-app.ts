@@ -803,7 +803,6 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
             // 进度投影的接缝：一条引擎事件 → 一条父会话的会话事件 → v4 的 workflowRuns 状态键。
             // 走 runtime 的 append 链路（而不是直接推 eventSink）是必需的：只有它同时做持久化、
             // 补 sequenceNumber 与扇出，冷恢复与 replayable 重连因此免费。
-            //
             // 身份闸门、runtime 未就绪与 append 失败三条降级路径都在这个汇里（连同它们的单测），
             // 见 dynamic-workflow-run-progress-sink.ts 的文件头。
             onRunEvent: createDynamicWorkflowRunProgressSink({

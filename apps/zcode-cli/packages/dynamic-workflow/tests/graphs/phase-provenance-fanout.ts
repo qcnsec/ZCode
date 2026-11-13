@@ -3,13 +3,11 @@
 // fans out to every ADMISSIBLE copy of the head. Without this fixture an inverted branch
 // stays green across the whole corpus, because nothing else has a pair carrying both a
 // provenanced barrier fact and an unprovenanced one.
-//
 // The shape is chosen so that temporal admission cannot be what decides the outcome. The
 // scout's ask is ISSUED before both `probe` calls (so both copies are admissible for the
 // data edge — both issue after it), but it is not AWAITED until `audit` (so the barrier it
 // raises is witnessed in `audit` alone). Absent-dominates is then the only rule left that
 // can decide whether the merged data+seq fact reaches the `survey` copy:
-//
 //   ask#1 -> world-read#1~phase#1  and  -> world-read#1~phase#2
 //     data (target feeds the git args, no provenance) merged with a seq barrier witnessed
 //     only in `audit`. Absent dominates, so BOTH copies keep the edge. THIS PAIR PROVES
@@ -17,13 +15,11 @@
 //   ask#2 -> world-read#1~phase#2 ONLY
 //     seq alone, so provenance narrows it — the contrast that makes the first pair mean
 //     something.
-//
 // Why narrowing data would be WRONG, not merely stricter: the barrier's witness phase
 // answers "where did an await order these two", and the data fact answers "whose argument
 // carried whose answer". Different questions about the same pair, so one's witness cannot
 // bound the other's reach. Admission is the rule that answers the temporal question, and
 // it is applied separately.
-//
 // `world-read#1~phase#1 -> ask#2` is the other half worth reading: the tail is a copy too,
 // and admission drops the `~phase#2` alternative because the audit copy is issued after
 // ask#2, so it cannot precede it.

@@ -192,6 +192,12 @@ export function ProviderConnectionSection({
   onBaseUrlKeyDown,
   onBaseUrlCompositionStart,
   onBaseUrlCompositionEnd,
+  customPathValue,
+  onCustomPathChange,
+  customQueryValue,
+  onCustomQueryChange,
+  customHeadersValue,
+  onCustomHeadersChange,
 }: {
   provider: ProviderSettingsFormProvider;
   readOnly?: boolean;
@@ -203,11 +209,20 @@ export function ProviderConnectionSection({
   onBaseUrlKeyDown?: (event: ReactKeyboardEvent<HTMLInputElement>) => void;
   onBaseUrlCompositionStart?: () => void;
   onBaseUrlCompositionEnd?: () => void;
+  customPathValue: string;
+  onCustomPathChange: (value: string) => void;
+  customQueryValue: string;
+  onCustomQueryChange: (value: string) => void;
+  customHeadersValue: string;
+  onCustomHeadersChange: (value: string) => void;
 }) {
   const { intl } = useZCodeIntl();
   const showApiFormat = shouldShowProviderApiFormat(provider);
   const readOnlyBaseUrl = provider.config.api?.baseUrl ?? "";
   const resolvedApiFormat = provider.config.api?.type ?? "anthropic-messages";
+  const readOnlyCustomPath = provider.config.api?.customPath ?? "";
+  const readOnlyCustomQuery = provider.config.api?.customQuery ?? "";
+  const readOnlyCustomHeaders = provider.config.api?.customHeaders ?? "";
 
   const renderReadOnlyField = (label: string, value: string) => (
     <div>
@@ -241,6 +256,18 @@ export function ProviderConnectionSection({
               resolveProviderConnectionApiFormatDisplayLabel(intl, resolvedApiFormat),
             )
           : null}
+        {renderReadOnlyField(
+          intl.formatMessage({ id: "settings.modelProvider.customPath" }),
+          readOnlyCustomPath,
+        )}
+        {renderReadOnlyField(
+          intl.formatMessage({ id: "settings.modelProvider.customQuery" }),
+          readOnlyCustomQuery,
+        )}
+        {renderReadOnlyField(
+          intl.formatMessage({ id: "settings.modelProvider.customHeaders" }),
+          readOnlyCustomHeaders,
+        )}
       </>
     );
   }
@@ -275,6 +302,60 @@ export function ProviderConnectionSection({
           <ProviderApiFormatSelect value={apiFormat} onChange={onApiFormatChange} />
         </div>
       ) : null}
+      <div>
+        <label className="mb-1 block text-ui-base text-foreground-subtle">
+          {intl.formatMessage({ id: "settings.modelProvider.customPath" })}
+        </label>
+        <Input
+          {...TECHNICAL_INPUT_ATTRIBUTES}
+          type="text"
+          size="lg"
+          value={customPathValue}
+          placeholder={intl.formatMessage({
+            id: "settings.modelProvider.customPathPlaceholder",
+          })}
+          onChange={(event) => onCustomPathChange(event.target.value)}
+        />
+        <p className="mt-1 text-ui-base text-foreground-subtlest">
+          {intl.formatMessage({ id: "settings.modelProvider.customPathHint" })}
+        </p>
+      </div>
+      <div>
+        <label className="mb-1 block text-ui-base text-foreground-subtle">
+          {intl.formatMessage({ id: "settings.modelProvider.customQuery" })}
+        </label>
+        <Input
+          {...TECHNICAL_INPUT_ATTRIBUTES}
+          type="text"
+          size="lg"
+          value={customQueryValue}
+          placeholder={intl.formatMessage({
+            id: "settings.modelProvider.customQueryPlaceholder",
+          })}
+          onChange={(event) => onCustomQueryChange(event.target.value)}
+        />
+        <p className="mt-1 text-ui-base text-foreground-subtlest">
+          {intl.formatMessage({ id: "settings.modelProvider.customQueryHint" })}
+        </p>
+      </div>
+      <div>
+        <label className="mb-1 block text-ui-base text-foreground-subtle">
+          {intl.formatMessage({ id: "settings.modelProvider.customHeaders" })}
+        </label>
+        <textarea
+          {...TECHNICAL_INPUT_ATTRIBUTES}
+          value={customHeadersValue}
+          rows={3}
+          placeholder={intl.formatMessage({
+            id: "settings.modelProvider.customHeadersPlaceholder",
+          })}
+          onChange={(event) => onCustomHeadersChange(event.target.value)}
+          className="w-full min-w-0 resize-y rounded-lg border border-input-border bg-input px-3 py-2 text-ui-base text-foreground outline-none transition-colors placeholder:text-foreground-subtlest hover:border-input-border-hover focus-visible:border-input-border-focused focus-visible:bg-input-focused focus-visible:ring-0"
+        />
+        <p className="mt-1 text-ui-base text-foreground-subtlest">
+          {intl.formatMessage({ id: "settings.modelProvider.customHeadersHint" })}
+        </p>
+      </div>
     </>
   );
 }

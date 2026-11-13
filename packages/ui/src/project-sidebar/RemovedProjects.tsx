@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, FolderMinus, RotateCcw } from "lucide-react";
+import { ChevronRight, FolderMinus, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button.js";
 import {
   Collapsible,
@@ -7,6 +7,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
+import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
 import type { VirtualProject } from "@/project-sidebar/contract.js";
 import { formatCountMessage } from "@/project-sidebar/project-management-view.js";
 import { useRelativeTime } from "@/project-sidebar/ProjectManagementRow.js";
@@ -18,12 +19,15 @@ export function RemovedProjects({
   projects,
   disabled,
   onRestore,
+  onPurge,
 }: {
   projects: readonly VirtualProject[];
   disabled: boolean;
   onRestore(project: VirtualProject): void;
+  onPurge(project: VirtualProject): void;
 }) {
   const { intl } = useZCodeIntl();
+  const confirm = useConfirmDialog();
   const relative = useRelativeTime();
   const msg = (id: string, values?: Record<string, string | number>) =>
     intl.formatMessage({ id: `projectManagement.${id}` }, values);
@@ -91,6 +95,31 @@ export function RemovedProjects({
                     >
                       <RotateCcw className="size-3.5" />
                       {msg("restore")}
+                    </Button>
+                    <Button
+                      data-testid="project-management-purge-removed"
+                      variant="ghost"
+                      className="shrink-0 text-destructive hover:text-destructive"
+                      disabled={disabled}
+                      onClick={async () => {
+                        const ok = await confirm({
+                          intent: "project-management-purge-removed",
+                          title: intl.formatMessage({
+                            id: "projectManagement.removed.permanentlyDeleteTitle",
+                          }),
+                          description: intl.formatMessage({
+                            id: "projectManagement.removed.permanentlyDeleteDescription",
+                          }),
+                          confirmLabel: intl.formatMessage({
+                            id: "projectManagement.removed.permanentlyDelete",
+                          }),
+                          confirmVariant: "destructive",
+                        });
+                        if (ok) onPurge(project);
+                      }}
+                    >
+                      <Trash2 className="size-3.5" />
+                      {msg("removed.permanentlyDelete")}
                     </Button>
                   </div>
                 );

@@ -1,5 +1,6 @@
 import { normalizeRemoteConnectionError, sanitizeRemoteConnectionLog } from "@zcode/shared";
 import { join } from "node:path";
+import { createQcTrkPurgeAfterDelete } from "./qctrkPurge.js";
 /* eslint-disable max-lines -- Host 入口集中编排 local/remote service wiring，本次退出保护需要在同一处桥接 host 上报。 */
 /* eslint-disable max-lines -- host process 入口集中维护 local/remote 初始化和资源回收，realtime bridge 接入后先保持同文件收口。 */
 /**
@@ -1758,6 +1759,15 @@ let databaseStartup: ReturnType<typeof createHostDatabaseStartup> | undefined;
 const pendingStartupAttachments = new Map<string, () => void>();
 let activeServices: ServiceCollection | null = null;
 /**
+ * 官方的 deleteTask / deleteArchivedTask(s) 只做软删、不清理 CLI 会话，
+ * 这里在删除成功后真删会话文件与数据库行，并延迟触发 VACUUM。
+ * 用延迟读取的 getter 注入，避免模块初始化时 activeServices 仍为 null。
+ */
+const qctrkPurgeAfterDelete = createQcTrkPurgeAfterDelete({
+  getAgentService: () => activeServices?.getOptional(IZCodeAgentService),
+  log: (level, ...args) => (level === "warn" ? logger.warn(...args) : logger.info(...args)),
+});
+/**
  * Main 推送的实时界面语言，供 ZCode endpoint 请求的 X-Client-Language。
  * 过去 Host 用进程 Intl locale（Dock 启动无 LANG 会回退 en-US）；setting.json 写入可能滞后或失败，
  * 也不能代表当前界面，所以只认 Main 的 InitLocal 初值与 application-locale-changed 变更。
@@ -2565,6 +2575,14 @@ function createControllerRoutedTaskService(
       if (property === "deleteTask") {
         return async (params: Parameters<IZCodeTaskService["deleteTask"]>[0]) => {
           await route(params, { kind: "delete" });
+          // 官方删除只落软删标记； 在此真删 CLI 会话数据并延迟 VACUUM。
+          void qctrkPurgeAfterDelete.purgeAfterDelete({
+            taskId: params.taskId,
+            workspacePath: params.workspacePath,
+            ...(params.workspaceIdentity
+              ? { workspaceIdentity: params.workspaceIdentity }
+              : {}),
+          });
         };
       }
       if (property === "deleteArchivedTasks") {
@@ -2572,7 +2590,7 @@ function createControllerRoutedTaskService(
           if (params.taskIds.length === 0) {
             return { deletedTaskIds: [], skippedTaskIds: [], failedTaskIds: [] };
           }
-          return windowHostControllerRuntime.service.deleteArchivedTasks({
+          const result = await windowHostControllerRuntime.service.deleteArchivedTasks({
             address: await windowHostControllerRuntime.resolveTaskAddress({
               workspacePath: params.workspacePath,
               workspaceIdentity: params.workspaceIdentity,
@@ -2582,17 +2600,38 @@ function createControllerRoutedTaskService(
             }),
             taskIds: params.taskIds,
           });
+          for (const taskId of result.deletedTaskIds ?? []) {
+            void qctrkPurgeAfterDelete.purgeAfterDelete({
+              taskId,
+              workspacePath: params.workspacePath,
+              ...(params.workspaceIdentity
+                ? { workspaceIdentity: params.workspaceIdentity }
+                : {}),
+            });
+          }
+          return result;
         };
       }
       if (property === "deleteArchivedTask") {
-        return async (params: Parameters<IZCodeTaskService["deleteArchivedTask"]>[0]) =>
-          windowHostControllerRuntime.service.deleteArchivedTask({
+        return async (params: Parameters<IZCodeTaskService["deleteArchivedTask"]>[0]) => {
+          const result = await windowHostControllerRuntime.service.deleteArchivedTask({
             address: await windowHostControllerRuntime.resolveTaskAddress({
               ...params,
               attachmentScope,
               allowMissingTask: true,
             }),
           });
+          if (result) {
+            void qctrkPurgeAfterDelete.purgeAfterDelete({
+              taskId: params.taskId,
+              workspacePath: params.workspacePath,
+              ...(params.workspaceIdentity
+                ? { workspaceIdentity: params.workspaceIdentity }
+                : {}),
+            });
+          }
+          return result;
+        };
       }
       if (property === "setTaskUnread") {
         return async (params: Parameters<IZCodeTaskService["setTaskUnread"]>[0]) => {

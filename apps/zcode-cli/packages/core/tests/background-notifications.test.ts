@@ -1,5 +1,4 @@
 // 批量轮的 originMeta 合成（docs/dynamic-workflow/transcript-and-notifications.md「The pipeline and cold restore」）。
-//
 // 单条通知：originMeta 整体透传，manifest 载荷（workflowNotification）免费搭车。
 // 批量轮（多条通知合一轮、标题合成 `a · b · +N`）：**刻意丢弃** workflowNotification——
 // 「一轮 ↔ 一张 manifest」的对应在批量下不成立，谎报第一条的载荷比整轮退回裸标题行更坏。

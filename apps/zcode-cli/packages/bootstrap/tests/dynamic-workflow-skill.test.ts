@@ -2,19 +2,16 @@
 // bundled-skills: builtin /workflow command + dynamic-workflows skill tripwire
 // ============================================================
 // 契约见 docs/dynamic-workflow/authoring.md「The `/workflow` command and the skill」。
-//
 // 这套断言守的是一件事：**技能正文与 facade 同步，且 facade 只出现一次**。2026-09-21 起 facade 的
 // .d.ts 不再随 CreateWorkflow 的描述每次请求重发（那是约 4.4k token），而是逐字嵌在 SKILL.md
 // §16.2 的标记块里，由 resolveInput 上的技能门保证模型写脚本之前读过。标记块之外的正文不得再抄
 // 任何一段签名——第二份必然漂移。因此这里（1）钉住标记块与 FACADE_DTS 逐字相等，（2）从
 // FACADE_DTS 派生正文允许的成员集合——facade 一改，本文件就红，而不是让正文默默烂掉。
-//
 // 另有一条负向断言：另一套常见的 Workflow 工具 API（pipeline/parallel/
 // budget.total…）与本 facade 形近而实不同。它的词汇一旦漏进正文，模型会写出编译不过的脚本，且诊断信息
 // 指向的是"不存在的标识符"而非"你用错了 API"，极难自查。`phase` 是这份名单里唯一被撤下的：
 // dwf 自己有了 `phase("名字")` 阶段标注（docs/dynamic-workflow/presentation.md），黑名单
 // 因此变成假阳性，改由「marker 形态」正向断言接管。
-//
 // 2026-09-21 起命令与技能都不再随 zcode-guide 插件发布：命令编进 CLI（builtin-workflow-command.ts），
 // 技能进 packages/bundled-skills（bundled-skills.ts）。插件一被卸载/停用，入口就整体消失的事故形态
 // 由此关闭；本文件同时钉住两件资产的新住址。

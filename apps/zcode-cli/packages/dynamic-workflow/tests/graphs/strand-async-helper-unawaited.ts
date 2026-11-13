@@ -1,12 +1,10 @@
 // An `async` helper called but not awaited: `const p = h()` starts the helper's activation
 // and hands back a promise. Everything the helper awaits is concurrent with what the main
 // line does next, and ordered only by the LATER `await p`.
-//
 // The join at `await p` comes from the awaited-position scan on a bare identifier: `p` is
 // the operand itself, so the strands bound to it (strandsBySymbol, filled where the walk
 // binds steps to a declaration) are joined and their SUMMARY — what the strand itself
 // awaited — settles on the main line.
-//
 // Expected:
 //   core — `region call#1 call parent=seq#1 … label="h" strand`; `settle ask#1 in=seq#1>call#1`
 //     inside it (the helper's own await); `settle ask#2 in=seq#1` for the middle ask; then

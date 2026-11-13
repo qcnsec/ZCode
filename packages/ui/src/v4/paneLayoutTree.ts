@@ -1,7 +1,6 @@
 // 分屏 Layout 层二叉分割树的模型与纯状态机。
 // 对齐：Focus 指向 Layout 的 pane，
 // pane 指向 (workspaceScope, sessionId)，SessionDataLayer 对上两层零感知。
-//
 // 设计边界：
 // - 布局 = 二叉分割树（VS Code editor groups 模型）：任意 pane 可向右/向下拆分，
 //   嵌套即得 2x2 等网格；叶子上限 MAX_WORKBENCH_PANES（性能基线 4 pane）。

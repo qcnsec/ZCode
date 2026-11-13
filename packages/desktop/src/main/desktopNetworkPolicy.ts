@@ -1,6 +1,7 @@
 import { X509Certificate } from "node:crypto";
 import { readFileSync } from "node:fs";
 import type { ProxyConfig, Session } from "electron";
+import { normalizeProxyScheme } from "@zcode/shared";
 import { EMBEDDED_BROWSER_PARTITION } from "./browserDataManager.js";
 
 interface DesktopNetworkPolicySettings {
@@ -234,6 +235,16 @@ export function certificateChainMatchesCustomCa(
   return false;
 }
 
+/**
+ * 把
+ * socks5h:// → socks5://、socks4a:// → socks4://、socks:// → socks5://。
+ * Chromium 的 proxyRules 只认识 http/https/socks4/socks5，传入它不认识的 scheme
+ * 会静默退回直连，用户以为配了代理其实没生效。
+ * 靠 installChromiumProxyCompat 猴子补丁 Session.prototype.setProxy 兜底；
+ * 源码层直接在唯一的业务出口 buildElectronProxyConfig 归一化，不需要改原型。
+ * 别名表与归一化逻辑复用 @zcode/shared 的 PROXY_SCHEME_ALIASES / normalizeProxyScheme，
+ * 与 agent 子进程 env 注入（packages/services）保持一致，避免两处漂移。
+ */
 function normalizeProxyRules(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   if (!trimmed) {
@@ -243,10 +254,11 @@ function normalizeProxyRules(value: string | undefined): string | undefined {
   const candidate = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
   try {
     const url = new URL(candidate);
+    const scheme = normalizeProxyScheme(url.protocol.toLowerCase());
     const auth = url.username
       ? `${url.username}${url.password ? `:${url.password}` : ""}@`
       : "";
-    return `${url.protocol}//${auth}${url.host}`;
+    return `${scheme}//${auth}${url.host}`;
   } catch {
     return undefined;
   }

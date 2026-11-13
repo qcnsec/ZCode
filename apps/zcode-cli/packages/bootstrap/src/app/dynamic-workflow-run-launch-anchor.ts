@@ -6,7 +6,6 @@
 //   - 提交时由本文件解析出来（活动轮 / 直接启动铸的值 / 前驱 run 的锚点 / 兜底铸值）
 //     交给引擎落库；
 //   - resume 与进度事件派生字段从 journal 读回，同一个 run 的锚点因此跨生命周期唯一。
-//
 // 同一条事件还捎着几件同规的宿主元数据：脚本声明的阶段表（`phaseNames`）、本 run 子代理的
 // 选型（`subagentModel`）与权限模式（`subagentPermissionMode`，docs/dynamic-workflow/launch.md
 // 「Permissions inside a run」）、脚本点名的模型绑定表（`modelBindings`）、脚本来自哪个文件

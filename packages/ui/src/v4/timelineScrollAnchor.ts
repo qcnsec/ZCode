@@ -1,13 +1,10 @@
 // 虚拟滚动核心：v4 timeline 底部锚定状态机（纯函数，无 DOM/React 依赖）。
-//
 // 语义（scrollAnchor）：
 // - 用户位于底部 → following=true，新内容（新行 / 流式 delta / 测高变化）自动贴底；
 // - 用户上滚离底 → following=false，流式增量不得拉回阅读位置，出现「回到底部」按钮；
 // - 用户手动滚回底部（或点按钮）→ 恢复跟随。
-//
 // following 表达用户滚动权，不是瞬时几何快照：只有真实用户滚动输入可以改变它；
 // 程序化贴底、terminal 折叠和 virtualizer 测高补偿产生的 scroll 事件只更新几何账目。
-//
 
 /** 离底判定容差：小于该距离视为「在底部」。取值覆盖亚像素滚动与最后一行 padding。 */
 export const BOTTOM_ANCHOR_EPSILON_PX = 48;
@@ -210,7 +207,6 @@ export function initialFollowing(): boolean {
 }
 
 // ── loadOlder：prepend 滚动锚定（虚拟滚动前插的经典坑）──
-//
 // 语义：向窗口顶部前插历史行时，用户正在读的行（锚点）在视口中的位置不得跳动。
 // 虚拟列表下前插只改总高度（既有 turn 按 turnId 缓存测量值，不重挂不重测），
 // 因此锚定恢复 = scrollTop 平移「前插内容撑高的那段」：

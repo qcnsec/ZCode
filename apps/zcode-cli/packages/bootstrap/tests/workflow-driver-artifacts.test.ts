@@ -1,7 +1,7 @@
 /**
  * 用户面产物的 driver 侧执行（docs/dynamic-workflow/authoring.md「Publishing content」 + Tests 表的
  * driver 一行）。照 workflow-driver-world-run.test.ts 的形状：只碰 driver 端口本身，不经脚本、
- * 不经引擎——facade 的类型签名、id 的编译期字面量规则与版本号推导都在上游，这里防的是
+ * 不经引擎——facade 的类型签名、id 的编译期字面量规则与版本号推导都在 ，这里防的是
  * 编译期之外的接线错误，以及「一次发布 → 一条落库记录 / 一条命名拒绝」的映射契约。
  *
  * ⚠ 术语：本文件的 artifact 一律指**用户面产物**（脚本交付给用户看的字节），不是引擎内部

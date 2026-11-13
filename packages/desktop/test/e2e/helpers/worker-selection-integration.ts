@@ -22,7 +22,7 @@ import { TaskIndexRepo } from "../../../../services/src/session/taskIndexRepo.js
 import { createZCodeTaskIndexSyncer } from "../../../../services/src/zcode-agent/zcodeTaskIndexSyncer.js";
 import { getE2EAppDataPaths } from "./desktop-app.js";
 
-/** 独立测试 Host + 真实 stdio Worker；仅账号上游和模型 HTTP 使用隔离 fixture。 */
+/** 独立测试 Host + 真实 stdio Worker；仅账号 和模型 HTTP 使用隔离 fixture。 */
 export async function createWorkerSelectionIntegration(
   directory = "worker-selection-host",
   options: { workspacePath?: string; cliNodeArgs?: string[] } = {},

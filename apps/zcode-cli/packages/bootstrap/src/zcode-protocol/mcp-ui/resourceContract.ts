@@ -1,5 +1,5 @@
 /**
- * mcp-ui 资源契约（）：resources/list、resources/templates/list 与订阅。
+ * mcp-ui 资源契约：resources/list、resources/templates/list 与订阅。
  * 与 `contract.ts` 分开是为了让主契约保持在公开方法上限内；处理器接口经 extends 合成。
  */
 /** UI 请求的归属范围：会话 + MCP server（归属真相）+ pluginId（只做展示 / 日志；非插件 server 时等于 serverName）。 */

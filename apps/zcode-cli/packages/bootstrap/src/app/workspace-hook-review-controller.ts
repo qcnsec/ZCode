@@ -207,10 +207,9 @@ export class WorkspaceHookReviewController {
         // 失败一律报成 trust_store_corrupt 且把原始错误彻底丢弃，与 toggle 路径同类。
         // reasonCode 不变（新增需 contracts 评审），仅把
         // errorMessage 透传进 telemetry 供回溯。
-        //
-        // 脱敏：WorkspaceHookMutationError 的 message 已在上游脱敏
+        // 脱敏：WorkspaceHookMutationError 的 message 已在 脱敏
         // （见 workspace-hook-review-mutation.ts 使用 workspaceIdentitySummary / digestSummary）。
-        // 对任意 Error 仅取 error.message——上游抛错点必须保证消息不含绝对路径/完整 digest
+        // 对任意 Error 仅取 error.message—— 抛错点必须保证消息不含绝对路径/完整 digest
         // （禁止上报完整 workspace path / source path）。
         this.telemetry.trustStoreFailure(
           target.bundleDigest,
@@ -234,7 +233,6 @@ export class WorkspaceHookReviewController {
       // registry 的 deadline timer 恰好触发，flow 变为 timed_out，resolve 返回
       // superseded，于是「Trust 已落盘」却回报「审核已过期」。用户据此重试、排障者
       // 据此以为没写成功——同样属于错误归属倒错。
-      //
       // 决策已经生效（持久 Trust 已落盘），故按 accepted 回报并照发
       // Settled，让前端收敛到已决状态；resolve 被拒仅说明 flow 已被别的终态占用，
       // 不代表授权失败。此处只多不错：不会把未授权说成已授权。
@@ -440,7 +438,6 @@ export class WorkspaceHookReviewController {
       // 无 pending flow 时直接返回会让
       // 「授权 → review resolved → 撤销」之后，当前会话再没有任何重新授权入口，
       // 用户只能新建对话。
-      //
       // revoke 的语义是 revoked → admission=pending，本就应重新征询，
       // 因此这里在确实产生了待审项时开启新 flow：不新增「直接授予信任」的旁路，
       // 授权仍只能经当前不可变 review 绑定的行内按钮完成。

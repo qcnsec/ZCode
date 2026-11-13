@@ -5,12 +5,10 @@
 // 的是文件行号，下一次提交只要 `path`，改一行不必把两万 token 的脚本再流一遍。内联文本因此
 // 只是一道门——`CreateWorkflow` / `AmendWorkflow` / 中枢直接启动一收到不来自文件的脚本，就在
 // 这里写一个。
-//
 // 落点 `<cwd>/.zcode/workflow-drafts/`，与 `.zcode/workflows/`（用户保存的定义）、
 // `.zcode/workflow-runs/`（每个 run 的编译入口）平级。目录自带一份 `.gitignore: *`，写法与
 // dynamic-workflow-runtime/src/child-entry-file.ts 逐字同构（那里的注释记着裁决）：只在缺席时
 // 写一次，用户改过就不再动它，项目自己的 `.gitignore` 一个字都不碰。
-//
 // **尽力而为**：写不进去（只读 checkout、`.zcode` 是个普通文件、盘满）不让调用失败，返回
 // `undefined`，模型读到的退回「改好脚本再内联提交」的老话。刻意**不**回落到临时目录——一个
 // 用户在项目里找不到的草稿不值得一条路径。

@@ -4,14 +4,12 @@
 // the existing `#src/cua-permission-broker/index.js` import site for the
 // services internal callers (node.ts, accessor.ts, etc.) so they keep
 // compiling without per-file edits.
-//
 // Why two layers:
 //   - `@zcode/zcode-cua/broker/server` (51 server files) — broker server +
 //     Helper install/launch/verify/reaper + native seam + electron backend +
 //     MCP injection + host orchestration + the cuaPermissionService types.
 //   - `@zcode/zcode-cua/broker` (protocol) — brokerProtocol / helperErrors /
 //     helperHealth / helperConstants / socketPath / brokerAuth / types / ports.
-//
 // Both barrels re-export the ax-types symbols (AxAppPayload, AxReadOnlySource,
 // etc.) — server via axReadOnly.ts, protocol via types.ts. A bare
 // `export * from both` triggers TS2308 (member already exported). We avoid the

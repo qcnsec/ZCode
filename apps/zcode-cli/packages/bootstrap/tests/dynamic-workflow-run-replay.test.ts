@@ -1,7 +1,6 @@
 // dwf run 冷回放的结算来源（docs/dynamic-workflow/presentation.md「Cold replay」）：
 // 行是终态时，回放的尾部 `run-settled` 一律按行铸造——journal 里存着的那条（无论新旧词表）让位；
 // 尾部没有结算（进程死亡 / 孤儿收敛只改行）时追加。
-//
 // 修复原因（2026-09-15，桌面实测）：2026-09-14 终态词表重构之前写下的 `run-settled` 带旧词
 // cancelled / failed，事件载荷原样回放，reducer 认不出，run 被留在 running。这里用真实 SQLite
 // journal 落下一模一样的字节（appendEvent 原样存 JSON），钉住回放 + reducer 之后 run 必须是终态。

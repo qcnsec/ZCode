@@ -1,6 +1,5 @@
 // 随包 npm：桌面 agent 跑在 Electron Node 上，用户机器没装 Node 时，stdio MCP 的 npm/npx
 // 回退到这里 stage 的 npm（规格：apps/zcode-cli/docs/design/v2/mcp-node-fallback.md）。
-//
 // 为什么下载 registry tarball 而不是加 pnpm 依赖：仓库用 node-linker=hoisted，npm 包的
 // npm/npx bin 会被链接进根 node_modules/.bin，覆盖开发者自己的 npm（新 npm 还不支持仓库
 // 锁定的 Node 小版本）。这里按固定版本 + registry sha512 下载并缓存，开发工具链不受影响。

@@ -126,7 +126,7 @@ describe("会话区 Plan mode MCP 权限边界 E2E", () => {
     );
     const resetBlock = await waitForToolCallBlockStatus(
       RESET_TOOL_NAME,
-      // V4 权限拒绝投影为 cancelled/stopped；保留上游拒绝原因和 server 零调用断言。
+      // V4 权限拒绝投影为 cancelled/stopped；保留 拒绝原因和 server 零调用断言。
       "stopped",
       60000,
     );

@@ -1,5 +1,5 @@
 // P1 回归：image/video dataUrl 不得全量落 model-io。
-// 媒体 base64 会显著放大日志；video 还允许无上游压缩的 30MiB 输入，
+// 媒体 base64 会显著放大日志；video 还允许无 压缩的 30MiB 输入，
 // 单条请求即可突破 64MiB rollout 会话上限或把全量保留模式刷爆磁盘。
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";

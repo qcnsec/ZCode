@@ -73,7 +73,7 @@ interface Slot {
   /**
    * 已就绪快照：一旦观察到 fully-ready（TCC 双项 granted + 两个功能探针都 ok），
    * 后续只读刷新里只要 TCC 双项仍 granted，就沿用已确认 ok 的探针结果。
-   * 只读查询本来就不会跑截图探针（上游 shouldRunCuaScreenCaptureProbe 要求显式
+   * 只读查询本来就不会跑截图探针（shouldRunCuaScreenCaptureProbe 要求显式
    * includeFunctionalProbes），若如实下推 false 会把之前实测到的就绪结论抹掉。
    * 真实降级（TCC 被吊销 / Helper 不可用）走 else 分支清 sticky，如实发布。
    */
@@ -147,7 +147,7 @@ function publish(slot: Slot, snapshot: CuaPermissionStatusSnapshot): void {
  * 展示态就绪：TCC 双项 granted。设置页权限行与输入框入口按钮共用这一口径，
  * 保证同一份授权在两处显示一致。
  *
- * 为什么展示态不看功能探针：只读刷新按上游约定永不运行截图探针
+ * 为什么展示态不看功能探针：只读刷新按 约定永不运行截图探针
  * （shouldRunCuaScreenCaptureProbe 要求显式 includeFunctionalProbes，主动抓屏必须是
  * 用户意图），screenCaptureProbeOk 因而恒为 false，拿它判展示等于把已授权用户恒判成
  * 待授权。真实不可用（TCC 记了授权但 WindowServer 未放行像素等）由工具调用的普通
@@ -296,7 +296,6 @@ export function fetchCuaPermissionStatus(params: FetchCuaPermissionStatusParams)
       }
       // 查询失败 / Helper 尚未 running 都是环境瞬态，不是授权终态。还有重试额度时保留上一状态
       // （fresh=false 表示未确认），让退避重试去收敛。
-      //
       // 额度用尽后两个分支的归宿不同，这里如实说明：
       // - 结果是 unavailable（Helper 确实起不来）→ 落到下方如实发布，UI 显示错误态；
       // - 查询 reject（RPC 通道故障）→ 落到 `if (!completed)`，只保留 lastKnown + fresh=false，

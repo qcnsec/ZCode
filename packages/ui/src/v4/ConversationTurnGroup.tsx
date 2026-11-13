@@ -1159,7 +1159,6 @@ function ConversationBackgroundResultWork({
   });
 
   // 后台唤醒轮与普通回复使用相同的完成态折叠；耗时只统计本次唤醒轮。
-  //
   // workflow run 的 workflow 通知带结构化载荷时改渲染既有工具卡语法的通知行（替换裸标题行）；
   // 载荷缺席（批量轮、旧 transcript、bash/subagent）→ 原样退回标题行。
   const workflowNotification = resolveWorkflowNotification(unit);
@@ -1522,7 +1521,6 @@ function ConversationTurnGroupImpl({
   // 同一条规则的另外两个来源：中枢直接启动轮与「配置」的设置轮（docs/dynamic-workflow/presentation.md
   // 「The run card」）。它们的用户行是写给模型的规范句，conversationTurnRenderUnits 会裁掉，
   // 卡 / 「已调整设置」那一行于是成了轮内第一个节点。
-  //
   // Bug 根因：`pt-14` 是给用户气泡留的呼吸，判据却一直是「有没有轮」而不是「有没有气泡」；
   // 没有气泡时这 56px 叠上一轮的 pb-5，在行上方堆出约 76px 空白（设置轮总落在对话中段，最显眼）。
   const startsWithoutUserBubble =

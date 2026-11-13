@@ -83,7 +83,7 @@ describe("matchExecutionSelectionFallback", () => {
     ).toBeUndefined();
   });
 
-  it("无上游归因或归因为本地 runtime 的失败不退回", () => {
+  it("无 归因或归因为本地 runtime 的失败不退回", () => {
     expect(match(new Error("event store append failed"))).toBeUndefined();
     expect(
       match(adapterError({ source: "runtime", reason: "persistence_failed" })),

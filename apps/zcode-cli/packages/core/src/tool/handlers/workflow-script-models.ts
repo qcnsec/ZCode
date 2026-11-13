@@ -3,14 +3,11 @@
 // ============================================================
 // 见 docs/dynamic-workflow/launch.md「Models the script names」与
 // docs/dynamic-workflow/authoring.md「Choosing a model per subagent」。
-//
 // 编译器保证脚本能交给子代理的模型名是一个封闭集合（9010），分析结果以 `modelReferences` 交出来。
 // 这里做编译器做不了的那一半——对着**本机**的模型目录解析每个名字：
-//
 //   - `resolveInput` 把解出来的写进入参的 `model_bindings`（名字逐字 → 规范串）；
 //   - `prepareApproval` 看到有名字没绑定就不开窗；
 //   - handler 把没绑定的名字报成 9011 诊断，走「编不过」那条路（文件行、改文件、`path` 重交）。
-//
 // 解不出来的名字**不是**调用的业务失败（不像解不出来的 `subagent_model`）：它写在脚本里，改的是
 // 脚本文件，所以它该长得和编译错误一模一样，而不是一句让模型去改参数的话。
 

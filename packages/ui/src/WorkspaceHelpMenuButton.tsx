@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { DesktopCommandIds } from "@zcode/shared";
+import { useRef, useState } from "react";
+import { DesktopCommandIds, ZCODE_GITHUB_DISCUSSIONS_URL } from "@zcode/shared";
 import {
   TID_WORKSPACE_HELP_MENU_RESOURCE_MANAGER,
   TID_WORKSPACE_HELP_MENU_TRIGGER,
@@ -28,12 +28,12 @@ import {
 } from "@/components/ui/dropdown-menu.js";
 import { cn } from "@/components/lib/utils.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
-import { useFeedbackStore } from "@/feedback/feedbackStore.js";
 import { useDesktopUpdateMenu } from "@/hooks/useDesktopUpdateMenu.js";
 import { usePlatform } from "@/hooks/usePlatform.js";
 import { useVulnerabilityReportUrl } from "@/hooks/useVulnerabilityReportUrl.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { createHelpMenuActionHandlers } from "@/lib/helpMenuActions.js";
+import { useExportLogsBusy } from "@/lib/exportLogsState.js";
 import { toast } from "@/components/ui/toast.js";
 
 export function WorkspaceHelpMenuButton({
@@ -50,19 +50,27 @@ export function WorkspaceHelpMenuButton({
   const { intl } = useZCodeIntl();
   const platform = usePlatform();
   const [open, setOpen] = useState(false);
+  // 提示完全由真实指针移动/离开驱动。Radix 在菜单关闭后会把焦点还给 trigger，
+  // 且菜单浮层卸载时浏览器可能补发一次 pointerenter；两者都会让 Tooltip 的
+  // focus/hover 监听重新弹出「帮助」。这里不把这类请求当作打开来源。
+  // 按钮自带 aria-label，键盘无障碍信息不受影响。
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const awaitingPointerMoveRef = useRef(false);
   const { url: vulnerabilityReportUrl, loading: vulnerabilityReportLoading } =
     useVulnerabilityReportUrl(open);
+
+  const handleMenuOpenChange = (next: boolean) => {
+    setOpen(next);
+    setTooltipOpen(false);
+    // 菜单状态变化后，必须先等到一次真实 pointermove 才允许再次显示提示。
+    awaitingPointerMoveRef.current = true;
+  };
   const updateMenu = useDesktopUpdateMenu(isDesktop);
-  const openFeedbackSubmit = useFeedbackStore((state) => state.openSubmit);
-  const openFeatureRequest = useFeedbackStore((state) => state.openFeatureRequest);
+  const exportLogsBusy = useExportLogsBusy();
   const helpMenuLabel = intl.formatMessage({ id: "workspaceHeader.help.menu" });
-  const helpMenuActions = createHelpMenuActionHandlers({
-    platform,
-    intl,
-    openSubmit: openFeedbackSubmit,
-  });
+  const helpMenuActions = createHelpMenuActionHandlers({ platform, intl });
   const handleOpenCommunity = () => {
-    void platform.openCommunity();
+    void platform.openExternal(ZCODE_GITHUB_DISCUSSIONS_URL);
   };
   const handleOpenResourceManager = () => {
     void platform.executeDesktopCommand(DesktopCommandIds.OpenResourceManager);
@@ -86,8 +94,17 @@ export function WorkspaceHelpMenuButton({
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <ControlHintTooltip title={helpMenuLabel} side="bottom">
+    <DropdownMenu open={open} onOpenChange={handleMenuOpenChange}>
+      <ControlHintTooltip
+        title={helpMenuLabel}
+        side="bottom"
+        open={tooltipOpen && !open}
+        onOpenChange={(next) => {
+          // 只接受关闭请求；打开一律由下方 trigger 的真实 pointerenter 决定，
+          // 避免菜单关闭后 Radix 回焦 trigger 让「帮助」提示自己浮出来。
+          if (!next) setTooltipOpen(false);
+        }}
+      >
         <DropdownMenuTrigger asChild>
           <Button
             type="button"
@@ -101,6 +118,16 @@ export function WorkspaceHelpMenuButton({
             )}
             aria-label={helpMenuLabel}
             data-testid={TID_WORKSPACE_HELP_MENU_TRIGGER}
+            // 菜单状态变化后先「消费掉」第一次指针移动，避免菜单浮层卸载时
+            // 补发的合成指针事件把提示重新唤醒；之后的真实悬浮才正常显示。
+            onPointerMove={() => {
+              if (awaitingPointerMoveRef.current) {
+                awaitingPointerMoveRef.current = false;
+                return;
+              }
+              if (!open) setTooltipOpen(true);
+            }}
+            onPointerLeave={() => setTooltipOpen(false)}
           >
             <CircleHelpIcon className="size-4" />
           </Button>
@@ -136,7 +163,7 @@ export function WorkspaceHelpMenuButton({
             {intl.formatMessage({ id: "workspaceHeader.help.reportVulnerability" })}
           </DropdownMenuItem>
         ) : null}
-        <DropdownMenuItem onSelect={openFeatureRequest}>
+        <DropdownMenuItem onSelect={helpMenuActions.openFeatureRequest}>
           <LightbulbIcon className="size-4" />
           {intl.formatMessage({ id: "workspaceHeader.help.productRequest" })}
         </DropdownMenuItem>
@@ -146,9 +173,15 @@ export function WorkspaceHelpMenuButton({
           <>
             <DropdownMenuSeparator />
             {/* 独立导出入口曾被移除；复用原菜单动作，保持打包、系统定位与提示一致。 */}
-            <DropdownMenuItem onSelect={helpMenuActions.exportLogs}>
+            <DropdownMenuItem
+              disabled={exportLogsBusy}
+              aria-busy={exportLogsBusy}
+              onSelect={helpMenuActions.exportLogs}
+            >
               <DownloadIcon className="size-4" />
-              {intl.formatMessage({ id: "titleBar.menu.help.exportLogs" })}
+              {intl.formatMessage({
+                id: exportLogsBusy ? "sidebar.exportLogs.pending" : "titleBar.menu.help.exportLogs",
+              })}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={handleCopyDeviceMid}>
               <CopyIcon className="size-4" />

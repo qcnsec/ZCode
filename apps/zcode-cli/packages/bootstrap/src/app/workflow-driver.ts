@@ -4,12 +4,10 @@
 // 把 dynamic-workflow 引擎核心的向下副作用端口 WorkflowDriver 落到真实 ZCode AgentRuntime 上：
 // 每个 actor 一个**持久** child runtime（重复 executeTurn 累积 messageHistory），每次 ask 一次
 // executeTurn，typed ask 的结果经会话级 WorkflowSubmitPort 桥接回引擎裁决。
-//
 // Boundary B 的另外两半——`executeWorldRead` 与 `executeArtifactPublish`——分别住在
 // workflow-world-read.ts 与 workflow-artifact-publish.ts，本文件只做转发。两者与这里没有
 // 共同状态（不碰会话、turn、submit 桥接），所以分开之后本文件只剩「会话与 turn 的编排」
 // 这一件事。
-//
 // 三条时序（本文件的核心不变式）：
 //   1. accept：模型调用 submit_result → handler 阻塞在 port.respond → 本 driver 上报
 //      askSubmitAttempted → 引擎校验通过 → respondToSubmit(accept) → 解开 deferred 为 {accept:true}
@@ -21,11 +19,9 @@
 //   3. nudge（turn 结束未提交）：executeTurn resolve 且未 accept → 上报 askTurnEnded → 引擎决定 nudge
 //      → respondToSubmit(nudge)（此时**无** parked deferred，turn 已结束）→ 在同一持久 runtime 上发起
 //      一次**全新** executeTurn（nudge 提示）。
-//
 // 三值→二值裁决映射（引擎 SubmitVerdict 三值；contracts WorkflowSubmitPort 二值）：
 //   accept → {accept:true}；reject → {accept:false, violations}（Violation 1:1 映射）；nudge → 无 deferred，
 //   起新 turn。见 respondToSubmit。
-//
 // 第四条时序（升级问答）与上面三条**同层**：
 //   4. escalate：模型调用 escalate → handler 阻塞在 escalatePort → driver 铸 qid、停驻 deferred、
 //      把问题登记进升级注册表，并双轨发出 escalation-raised（journal + emit）→ 主代理经 run
@@ -33,7 +29,6 @@
 //      escalation-resolved → 工具结果 = 答案文本 → actor 的轮次就地继续，ask 照常 settle。
 //      引擎核心对此**零感知**：升级发生在 driver 执行 ask 的边界内（与 repair/nudge 轮次同层），
 //      不写 dwf_node 行。逃生舱是 cancelAsk——它连同停驻的升级 deferred 一起拒绝。
-//
 // amend-resume 给本文件加了两件 driver 私有的事，两件都只
 // 关乎会话转录，所以机制住在 workflow-actor-transcript.ts，这里只做编排（编排的三个实现体在
 // workflow-driver-transcript.ts）：
@@ -150,10 +145,8 @@ class AgentRuntimeWorkflowDriver implements WorkflowDriver {
     // 引擎的 record() 对**每一条**事件都紧接着调 driver.emit（engine.ts），所以这里是 driver
     // 看得见 ask 终点的唯一一处：`node-settled` 是三条结算路（settleOk / settleFailed /
     // abortInFlight）共同的出口，也就是座位闸门等的那条「这一位不工作了」。
-    //
     // 为什么不用 driver 自己的状态判：`state.currentInstance` 从不清空，untyped ask 经
     // askTurnEnded 在引擎侧结算之后 `live()` 仍然为真——照它腾座位就永远腾不掉，FIFO 会死等。
-    //
     // 递下去的**必须是同一个对象引用**：launch 侧的 sequence 截取按引用相等核对序号
     // （dynamic-workflow-run-launch.ts 的 createJournalSequenceCapture）。
     this.emit =

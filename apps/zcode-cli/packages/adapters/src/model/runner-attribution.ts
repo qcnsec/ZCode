@@ -107,7 +107,7 @@ export function normalizeModelSessionIdForAttribution(
 ): string | undefined {
   if (!sessionId) return undefined;
   // 内部 SessionId/QueryId 前缀只服务于 CLI 存储和事件归因；provider header
-  // 是跨网络观测字段，不能把 query_/subagent_agent_ 这类实现前缀暴露给上游。
+  // 是跨网络观测字段，不能把 query_/subagent_agent_ 这类实现前缀暴露给 。
   return stripHeaderInternalPrefixes(sessionId, [
     SESSION_ID_INTERNAL_PREFIX,
     SESSION_ID_SUBAGENT_PREFIX,

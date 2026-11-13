@@ -262,7 +262,7 @@ describe("ListWorkflowRuns declaration", () => {
   });
 
   // tool-contracts.test.ts 的 v2 全量循环在第一处不一致就中止，所以两个新工具在这里各自
-  // 再钉一遍那份契约——否则一个上游工具的既有偏差会把这两条断言永久遮住。
+  // 再钉一遍那份契约——否则一个 工具的既有偏差会把这两条断言永久遮住。
   it("declares the v2 common contract", () => {
     expectV2CommonContract(listWorkflowRunsToolEntry);
   });

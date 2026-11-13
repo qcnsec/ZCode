@@ -96,7 +96,7 @@ export function createOfficialCommandEndpoint(
       return;
     }
 
-    // CLI 断开时停止向 host 取头和向上游转发。
+    // CLI 断开时停止向 host 取头和向 转发。
     const abort = new AbortController();
     res.on("close", () => {
       if (!res.writableFinished) abort.abort();
@@ -178,7 +178,7 @@ export function createOfficialCommandEndpoint(
       }
       res.end();
     } catch {
-      // 上游中途断开：直接断开 CLI 的连接，让它看到不完整的响应，而不是一个正常结束的半截 body。
+      // 中途断开：直接断开 CLI 的连接，让它看到不完整的响应，而不是一个正常结束的半截 body。
       res.destroy();
     }
   };
@@ -220,7 +220,7 @@ function readBearerToken(header: string | undefined): string | undefined {
   return match?.[1];
 }
 
-/** 端点自己的错误沿用 zcode-server 的错误体，code 用 2007（上游错误），CLI 不用另写分支。 */
+/** 端点自己的错误沿用 zcode-server 的错误体，code 用 2007（ 错误），CLI 不用另写分支。 */
 function reject(
   res: ServerResponse,
   status: number,

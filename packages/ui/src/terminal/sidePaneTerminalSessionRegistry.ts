@@ -1,14 +1,11 @@
 // sidePaneTerminalSessionRegistry —— side pane terminal 跨 workspace 会话保活的模块级单例。
-//
 // 如果 xterm、PTY 与订阅由 TerminalSession 组件持有，切换 workspace 触发的卸载
 // 就会关闭进程并丢失历史。由模块级 registry 持有这些资源，组件只负责挂载显示，
 // 可以让终端会话跨 workspace 切换继续存活。
-//
 // 修复思路（对称下侧思想，但形态不同）：
 //   把 side pane terminal 的 xterm 实例 + PTY 关联**所有权上移到这个模块级单例**，
 //   脱离 TerminalSession 组件 effect 生命周期。组件任意卸载/重挂都不动 xterm/PTY，
 //   重挂时按 persistentKey(=tab.id) 取回 entry，把 hostEl 物理移回容器即可。
-//
 // 不与下侧 terminal 共享 session。
 // 仅 SidePaneTerminalPane 通过 TerminalSession 的 persistentKey prop 接入；下侧不传 persistentKey，
 // 走 TerminalSession 原 effect 路径，与 registry 完全无关。

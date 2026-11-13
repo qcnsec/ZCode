@@ -1,6 +1,5 @@
 // Coalesce 纯函数：CLI flush buffer 使用的合并规则。
 // 语义要求：coalesce(deltas) 与逐条投递等价——两种 delivery profile 处理同一事件序列后，终态必须逐字节一致。任何合并都不得改变 apply 后的最终状态。
-//
 // 规则（封闭集合）：
 //   1. 相邻同 (rowId, path) 的 row.delta → append 拼接；
 //   2. 相邻 state.updated → patch 键浅合并（键内整体替换，安全）；

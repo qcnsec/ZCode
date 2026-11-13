@@ -1,6 +1,5 @@
 // sessions-index fan-out 的高频事件节流（docs/v4-refactor/14-sessions-index.md「事件 fan-out 节奏」）。
 // 纯调度：窗口状态与定时器在这里，publish 由调用方注入，网关只保留调用点。
-//
 // 根因备忘：一次工作流运行的引擎事件以 DynamicWorkflowRunProgress 回到父会话，实测 8s 内 4000 条。
 // 每条都 bump record.updatedAt，摘要因此条条有变化 → 旧实现条条 flush 一帧 sessions-index 增量
 // → 宿主重算 task 行 → renderer 按事件频率重拉任务列表。ModelStreaming 早已因同样的理由被排除。

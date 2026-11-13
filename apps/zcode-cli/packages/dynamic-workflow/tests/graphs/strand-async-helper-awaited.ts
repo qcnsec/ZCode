@@ -2,10 +2,8 @@
 // `await h()` spawns the strand and joins it in one expression, so the picture is the plain
 // sequential one the analyzer has always drawn — the helper's step is settled before the
 // middle ask issues.
-//
 // This is the fixture that says the refactor did not cost anything: a strand is a fork only
 // when the script actually leaves it running.
-//
 // Expected:
 //   core — `region call#1 call parent=seq#1 … label="h" strand` (the flag rides the region
 //     whatever the call site does with the promise) and `settle ask#1 in=seq#1 joins=call#1`

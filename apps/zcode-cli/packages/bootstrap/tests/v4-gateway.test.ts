@@ -960,13 +960,13 @@ describe("订阅与帧调度", () => {
         durationMs: 10,
         reason: "server_error",
         retryable: true,
-        message: "上游响应正文不能穿过 fact",
+        message: " 响应正文不能穿过 fact",
         statusCode: 503,
       },
       { turnId: "turn-1" },
     );
     gateway.ingest("session-1", failed);
-    expect(JSON.stringify(host.telemetryFacts)).not.toContain("上游响应正文不能穿过 fact");
+    expect(JSON.stringify(host.telemetryFacts)).not.toContain(" 响应正文不能穿过 fact");
   });
 
   it("准入等待的两端不产出 model.request.status fact，也不让 schema 抛出（v3 决策 44）", () => {

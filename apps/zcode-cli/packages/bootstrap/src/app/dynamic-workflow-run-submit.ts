@@ -157,19 +157,16 @@ export async function amendDynamicWorkflowRun(
   }
 
   // 静默闸门（apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「What is imported」）。
-  //
   // 根因：`dispose()` 是同步的，对还有在飞 turn 的会话只挂了一条 `state.turn.then(close, close)`
   // 而不等它；引擎在 `cancelAsk` 中止 turn 之后立刻结算。所以上面那句 `await live.settlement`
   // 保证的是「run 结算了」，**不是**「被中止的 turn 把它的尾巴写完了」。此刻去数前驱会话的
   // 消息条数，可能少数一条，或者数到一条 part 还没落全的消息——而那个数会变成接续位置
   // （`inFlight.messageBoundary`），被 driver 拿去截断复制。已完结前缀不在此列：它们的边界在
   // ask 结算时就已经 journal 了，是事实而不是此刻的观察。
-  //
   // 所以问一次 driver「哪些会话已经静默」，只对静默的会话谈接续。**这不是用超时掩盖竞态**：
   // 到点仍未落地的会话不会被当作静默继续用，它只是拿不到 `inFlight`——也就是本特性之前的
   // 行为（整段在飞转录丢弃，ask 从完整前缀重开）。我们宁可少做一次优化，也绝不拿一个正在
   // 变动的条数去截断转录。
-  //
   // 两种情形一秒都不等，因为两者都没有可疑的数可言：
   //   - 本进程没有这个前驱的活条目（早已终态，或死进程留下的行）→ 没有 driver 就没有东西在
   //     写它的会话；
@@ -484,7 +481,6 @@ export async function resumeDynamicWorkflowRun(
   // 不重建就会在这一次续跑里变成 live 重跑。重建与提交时构建是同一个纯函数读同一份前驱
   // journal，所以确定性成立——引擎据本 run 的记录行重推分歧点（imported-cache.ts 的
   // reconcileRecorded），两侧因此不会错位。
-  //
   // **重建失败绝不拖垮 resume**：前驱 journal 是修订 run 的存续依赖，但只是加速结构——
   // 丢了变贵，不变错。前驱被清理 / 边界门不再通过时照常无缓存启动，未消费的导入退化成
   // live 重执行，而 run 自己的 journal 行仍然逐条 replay。

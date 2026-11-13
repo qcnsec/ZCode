@@ -168,13 +168,11 @@ class SqliteDwfJournalStore implements JournalStorePort, DwfRunIntrospectionQuer
     }
     // 终态与产物**一笔写**：分两条 UPDATE 会开出崩溃窗口，造出「completed 但 result_json
     // 为空」的 run——正是 0020 这一列要关死的损失类别。
-    //
     // `failure_json` **整列改写**（不 coalesce）。第二个桌面实例的孤儿
     // 收敛在本进程引擎仍活着的 run 上写下 failed + Interrupted；引擎随后正常 completed，而
     // coalesce 让那份外来失败原样留了下来——行同时说「完成了」和「被打断了」。结算袋是那一刻
     // 失败的**全部真相**：stopped 恒写信封、errored 写它自己的失败（缺席即 NULL，那就是真相）、
     // completed 写 NULL。
-    //
     // `result_json` 保留 coalesce：产物的语义是「缺席 = 不触碰」（契约用例「keeps an
     // already-settled artifact when a later write omits it」），一次不带产物的重复结算不该抹掉它。
     const encoded = encodeRunSettlement(status, settlement);

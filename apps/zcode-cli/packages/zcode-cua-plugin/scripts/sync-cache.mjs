@@ -1,15 +1,12 @@
 // Sync the built dev plugin into the CLI's plugin cache so the running zcode CLI
 // (which loads plugins from ~/.zcode/cli/plugins/cache/..., NOT from this repo)
 // picks up skill / MCP / manifest changes without a manual copy.
-//
 // This closes the last hop of the sync chain:
 //   packages/zcode-cua/plugin  --sync:skill-->  dev plugin (here)  --sync:cache-->  CLI cache
-//
 // The cache dir name (e.g. 0.1.31) is just an install-time cache key; copying newer
 // content (plugin.json says 0.2.0) on top of it is tolerated by the CLI and is exactly
 // what makes a dev skill/MCP edit go live. Run after `pnpm sync:skill` (+ `pnpm build`
 // when the MCP wrapper or skill changed).
-//
 // Usage:
 //   node scripts/sync-cache.mjs            # auto-resolve cache path from marketplace.json
 //   node scripts/sync-cache.mjs <cacheDir> # explicit cache dir

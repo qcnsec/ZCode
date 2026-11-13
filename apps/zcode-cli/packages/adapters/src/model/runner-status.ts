@@ -129,7 +129,7 @@ export function createAttemptStatusContext(
   return {
     ...statusContext,
     // adapter retry 会发起新的物理 provider 请求；
-    // 复用首轮 requestId 会让上游日志和 retry-after 诊断串错请求。
+    // 复用首轮 requestId 会让 日志和 retry-after 诊断串错请求。
     requestId: crypto.randomUUID(),
   };
 }

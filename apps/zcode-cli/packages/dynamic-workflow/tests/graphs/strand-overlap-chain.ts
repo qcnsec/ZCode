@@ -1,7 +1,6 @@
 // Overlapping, not nested: A's work is joined before C is entered, B's only before D. The
 // live intervals are A ∥ B, B ∥ C, and A → C — the shape a timeline must colour onto two
 // tracks, because no single band holds all three.
-//
 // Expected:
 //   cfg — `phase phase#2 "B" alongside=phase#1` (B entered while A ran),
 //     `phase phase#3 "C" alongside=phase#2` (C entered while B still ran), and phase#4 with

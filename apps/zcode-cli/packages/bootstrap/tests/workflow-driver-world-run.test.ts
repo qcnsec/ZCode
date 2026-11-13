@@ -1,7 +1,7 @@
 /**
  * world.run 的 driver 侧执行（docs/dynamic-workflow/authoring.md）。照
  * workflow-driver-world-read-args.test.ts 的形状：只碰 driver 端口本身，不经脚本、不经引擎
- * ——facade 类型签名与编译期字面量规则在上游拦截，这里防的是编译期之外的接线错误，
+ * ——facade 类型签名与编译期字面量规则在 拦截，这里防的是编译期之外的接线错误，
  * 以及「执行结果 → 值 / 拒绝」的映射契约。
  */
 

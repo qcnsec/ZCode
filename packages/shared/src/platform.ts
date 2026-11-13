@@ -27,6 +27,7 @@ import type {
   WebRemoteControlRendererActionRequest,
   WebRemoteControlRendererActionResult,
 } from "#src/web-remote-relay/index.js";
+import type { QcTrkPlatformApi } from "./qctrk/index.js";
 import type { AppSettings, Locale } from "./protocol.js";
 import type {
   ArmsCustomEventPayload,
@@ -57,10 +58,19 @@ export type {
 
 export interface TaskNotificationPayload {
   taskId: string;
-  status: "completed" | "failed" | "permission_request" | "elicitation_request" | "feedback_update";
+  status:
+    | "completed"
+    | "failed"
+    // 取消是独立终态，不再被当成 completed 触发完成通知。
+    | "cancelled"
+    | "permission_request"
+    | "elicitation_request"
+    | "feedback_update";
   requestId?: string;
   title: string;
   body: string;
+  /** 工作区归属；以 "remote:" 开头表示远程（SSH）工作区，用于远程任务通知转发闸门。 */
+  workspaceIdentity?: string;
 }
 
 /** Main 将一次能够定位真实 tab 的 browser-use 操作投递给其 origin renderer。 */
@@ -740,6 +750,12 @@ export type CuaOsSupport =
  * 业务服务（文件、终端、凭据等）走 IServiceAccessor 的 RPC 通道。
  */
 export interface IPlatformService {
+  /**
+   * 新增能力的桌面端聚合 API（用量、余额、代理、通知、自动继续、更新）。
+   * 只有桌面端实现；web / 手机远控为 undefined，UI 需做可选判断。
+   */
+  qctrk?: QcTrkPlatformApi;
+
   /** 是否支持当前客户端本机文件的默认应用与目录操作；Web 不具备此能力。 */
   canOpenLocalFiles?: boolean;
 
@@ -1114,6 +1130,15 @@ export interface IPlatformService {
 
   /** 注册 main 进程触发新建任务的回调，返回 disposer */
   onNewTask(handler: () => void): () => void;
+
+  /**
+   * 注册托盘/原生菜单触发日志导出的进度回调，返回 disposer。
+   * 这些入口由主进程直接执行导出，renderer 需据此显示「正在导出日志中」提示。
+   * Web 端没有原生菜单，实现为可选。
+   */
+  onExportLogsProgress?(
+    handler: (payload: import("./channels.js").ExportLogsProgressPayload) => void,
+  ): () => void;
 
   /** 注册 main 进程触发打开工作区的回调，返回 disposer */
   onOpenWorkspace(handler: () => void): () => void;

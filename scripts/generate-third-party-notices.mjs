@@ -102,7 +102,7 @@ export async function generateThirdPartyNotices(root = repositoryRoot) {
       );
     }
   }
-  // 上游 AI Elements 的 LICENSE 是短版授权头，还需随包提供 Apache 2.0 全文。
+  // AI Elements 的 LICENSE 是短版授权头，还需随包提供 Apache 2.0 全文。
   addText(
     await readInput("scripts/license-texts/Apache-2.0.txt"),
     "Apache-2.0 licensed components",

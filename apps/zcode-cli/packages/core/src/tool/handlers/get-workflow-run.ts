@@ -2,7 +2,6 @@
 // GetWorkflowRun Tool Handler
 // ============================================================
 // 单 workflow run 的自适应详情：running → 进度摘要 + log 尾巴；终态 → 产物 / 失败。
-//
 // handler 只做四件端口做不了的事：
 //   1. **产物序列化**。端口交出的是脚本返回值的**原值**；面向模型的文本投影在 core 有唯一
 //      实现（`serializeWorkflowArtifact`，完成通知与 TaskOutput 共用它）。在端口侧再做一次
@@ -12,7 +11,6 @@
 //      格式器因此是纯函数，一次输出里的两个年龄也永远可比。
 //   4. **拼摘要**。`summary` 由结构化字段确定性拼出（get-workflow-run-summary.ts），
 //      没有模型参与。
-//
 // 刻意**不做** wait/block 语义：等待是 TaskOutput 的活，这里是即时快照。
 
 import {

@@ -5,7 +5,6 @@
 // 产物**——脚本经 `artifact.file` / `artifact.markdown` 交付给**用户**看的字节；不是引擎内部
 // 那个 artifact（`RunSettlement.artifact`、`serializeWorkflowArtifact` 的顶层返回值，那是给
 // **模型**看的）。本文件不触及后者。
-//
 // 与 workflow-world-read.ts 同一条分工线：driver 本体（workflow-driver.ts）做 actor 会话与
 // turn 的编排，这一半把一次 `(op, id, path | content, opts)` 变成一次真实的**字节拷贝**，
 // 且完全不碰会话、模型与 journal。四件事在这里，而且只在这里：
@@ -18,7 +17,6 @@
 //      字节；超限一律**拒绝不截断**（与 world-read 同 house policy——一份被悄悄截断的 PDF
 //      是一件坏交付物，而一条指名上限的拒绝是脚本能据以改写自己的契约）。
 //   4. **写 tool-artifact store**，并把 store 的回执归一成 `ArtifactVersionRecord`。
-//
 // 拒绝一律是结构化 `WorkflowError`（错误码：ArtifactSourceMissing /
 // ArtifactPathOutsideWorkspace / ArtifactTooLarge / ArtifactStoreUnavailable），因为内容成员
 // 在脚本里是一个可 `catch` 的 promise——门控习语 `try { await artifact.file(…) } catch { … }`

@@ -1,6 +1,5 @@
 // 完成卡「保存 / 再次运行」的纯逻辑（docs/dynamic-workflow/transcript-and-notifications.md
 // 「Saving the run, and running it again」）：名字规则、落点预览、交给 ZCode 的那条消息。
-//
 // 与组件分文件的理由同 globalWorkflowGroupHelpers：这些判定没有 React，也该能被单独测。
 import type { ZCodeSavedWorkflowScope } from "@zcode/shared";
 

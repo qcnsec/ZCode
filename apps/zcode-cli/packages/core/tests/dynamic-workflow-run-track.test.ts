@@ -1,5 +1,4 @@
 // 恢复的 dwf run 的追踪重臂（apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md）。
-//
 // submit 路径的追踪由 tool executor 在 CreateWorkflow 返回 backgrounded 时自动完成；resume
 // 是一条 v4 命令、没有在飞的工具调用，所以 runtime 需要一个公共方法合成工具描述子、走同一条
 // trackBackgroundTask。漏掉它的两个可测后果：恢复的 run 不在 runtime-task registry 里
@@ -169,7 +168,6 @@ describe("trackResumedDynamicWorkflowRun", () => {
 
 // ————————————————————————————————————————————————
 // 终态残留复位（fix 档，apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「Cancel and resume」）。
-//
 // 根因：同进程 cancel 终态 → 未重启即 resume 时，registry 既有条目带上一轮 claim 的
 // notified:true，registerRuntimeBackgroundTask 的 {...existing} 重建不复位它，
 // claimRuntimeBackgroundTaskNotification 据此拒收——恢复 run 的终态模型通知被吞。
@@ -605,7 +603,6 @@ describe("终态通知的 manifest 载荷", () => {
 
   // 用户面产物的 chips 载荷（docs/dynamic-workflow/authoring.md「How the user sees them」）。这是通知行 chips
   // 的唯一数据源；冷恢复靠 shared 的 zod 原样读回，所以形状必须与那份 schema 逐字对齐。
-  //
   // ⚠ 术语：这里的 artifacts 是脚本经 `artifact.*` 发布给用户看的产出，与同一载荷上的 `result`
   // （脚本顶层返回值，引擎内部也叫 artifact）是两件不同的东西。
   it("artifacts：只带 chip 画得下的字段，与 result 并列且互不影响", async () => {

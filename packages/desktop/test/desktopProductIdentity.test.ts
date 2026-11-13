@@ -13,7 +13,7 @@ import {
 
 describe("desktop product identity", () => {
   it("根锁文件的发布版本与构建版本一致", () => {
-    // 合并上游发布提交只对齐当前版本，不恢复上游旧版本，也不重算依赖锁。
+    // 合并 发布提交只对齐当前版本，不恢复 旧版本，也不重算依赖锁。
     const readRootJson = (name: string) =>
       JSON.parse(readFileSync(resolve(import.meta.dirname, "../../..", name), "utf8"));
     const version = readRootJson("package.json").version;

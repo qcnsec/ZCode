@@ -177,7 +177,6 @@ export function buildSessionQuotaBannerState(params: {
   }
 
   // 官方 Server MCP 不可用（额度耗尽 / 无 Coding Plan）。
-  //
   // 位置要求：必须在上面几条服务端业务错误之后（模型侧问题更紧急，不能被 MCP 提示挡住），
   // 且必须在下面那道 Start-Plan-only 早退之前——Coding Plan 会话一定命中那道早退，
   // 放在其后这条分支永远不会生效。

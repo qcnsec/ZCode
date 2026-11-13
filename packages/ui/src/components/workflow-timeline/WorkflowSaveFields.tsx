@@ -1,6 +1,5 @@
 // 「保存工作流」弹层里细线之下的那一半（docs/dynamic-workflow/transcript-and-notifications.md
 // 「The popover」）：三个字段、一句后果、一枚「直接保存」。
-//
 // 与弹层壳分文件只为守住 400 行的门；这里不持有任何状态，全部由 WorkflowSavePopover 传进来。
 import type { RefObject } from "react";
 import { FolderIcon, GlobeIcon } from "lucide-react";

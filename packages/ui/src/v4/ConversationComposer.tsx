@@ -194,6 +194,12 @@ import { useConversationSelectionReferences } from "@/v4/composer/useConversatio
 import { ConversationBackgroundWorkTrigger } from "@/v4/composer/ConversationBackgroundWorkTrigger.js";
 import { V4ComposerCuaEntry } from "@/v4/composer/V4ComposerCuaEntry.js";
 import {
+  QcTrkBalanceBadge,
+  QcTrkProxyBadge,
+  QcTrkUsageBar,
+} from "@/chat-input-toolbar/QcTrkStatusIndicators.js";
+import { QcTrkRetryBadge } from "@/chat-input-toolbar/QcTrkRetryBadge.js";
+import {
   V4ComposerModeSwitch,
   V4ComposerModelControls,
   type ModelSelectionSource,
@@ -1704,7 +1710,6 @@ function ConversationComposerImpl({
         }
         // 外部上下文不走协议附件；按 selection -> code comment -> web -> PPTX 的固定尾块顺序
         // 序列化，历史 user row 才能按相反顺序无损解析并隐藏内部 prompt block。
-        //
         // 分享 handover 不在这里序列化：share URL 块纯粹是 renderer 自产自销（CLI/shared
         // 里没有任何东西解析它），唯一作用是驱动一个已被产品裁掉的 chip，代价却是把一个
         // share URL 塞进发给模型的正文。模型侧内容由隐藏的 shared_context 消息经
@@ -2675,6 +2680,23 @@ function ConversationComposerImpl({
           isWebRemoteControl={isWebRemoteControl}
           currentSessionBusy={canStop}
         />
+        {/*
+          左下 leadingActions（对齐 Nr）：用量条（速度/已用）→ 余额 → 代理 → 重试 → 后台任务。
+          压缩按钮与上下文容量圈留在右侧 submitControl 簇，故视觉上位于用量条右边。
+        */}
+        <QcTrkUsageBar
+          usage={composerUsage}
+          sessionId={sessionId ?? null}
+          phase={composerPhase}
+          workspacePath={workspacePath}
+          workspaceIdentity={workspaceIdentity}
+        />
+        <QcTrkBalanceBadge />
+        <QcTrkProxyBadge />
+        <QcTrkRetryBadge
+          workspacePath={workspacePath}
+          workspaceIdentity={workspaceIdentity}
+        />
         <ConversationBackgroundWorkTrigger
           backgroundWorks={snapshot?.backgroundWorks ?? []}
           runningSubagentCount={runningSubagentCount}
@@ -2686,6 +2708,8 @@ function ConversationComposerImpl({
     [
       activeConfigPicker,
       canStop,
+      composerPhase,
+      composerUsage,
       disabled,
       runtimeBlocked,
       draftConfig,

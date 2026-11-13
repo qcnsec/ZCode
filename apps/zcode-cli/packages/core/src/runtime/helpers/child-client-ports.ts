@@ -1,13 +1,11 @@
 // ============================================================
 // child runtime 的「对外交互」端口派生（唯一出口）
 // ============================================================
-//
 // 子 runtime 有两条会话身份轴：
 //   账本身份 sessionId —— 事件持久化 / transcript / trace / session store，子用自己的；
 //   路由身份         —— 一切 agent → app 反向请求（permission、AskUserQuestion、provider
 //                        runtime headers），子必须用父的，直到根会话。
 // 客户端只认识根会话；拿子会话去问，桌面侧找不到 session，response 永不发出，子代理挂死。
-//
 // 过去这条规则散在各 child 装配点：core 的 subagent 包了两层私有 wrapper，dwf actor 与 legacy
 // workflow child 直接透传 appOptions 的端口——于是两处错、一处对。这里把派生收敛成一处，并由
 // **父 runtime** 调用（`AgentRuntime.createChildClientPorts`），`parentSessionId` 由父自己填，

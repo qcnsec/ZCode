@@ -2,7 +2,6 @@
 // 1) 多轮会话内每次真实 provider `messages` 只能在尾部追加；
 // 2) 同进程切走再打开（热恢复）不得改写已经发送的历史；
 // 3) 保留 profile 完整重启 Desktop/Host/CLI（冷恢复）后仍不得重算历史 reminder。
-//
 // Bug 根因防线：只检查当前请求“还含有 plugin_reference”无法发现旧 reminder 被删除、
 // 重排或重建。这里逐项比较相邻请求的完整 messages 前缀，直接锁住 Prefix Cache 合同。
 import { DEFAULT_WORKSPACE, clearAppData } from "../helpers/desktop-app.js";

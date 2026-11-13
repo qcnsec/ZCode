@@ -65,7 +65,6 @@ describe("readRunLaunchAnchor：从 journal 读回", () => {
 });
 
 // 本 run 的脚本文件（docs/dynamic-workflow/launch.md「Script files」的 Provenance）。
-//
 // 这一组钉的是**冷读路径的缺席语义**：两条读面对一个本进程没有条目的 run 只能扫事件头，而
 // 本特性之前发起的 run 要么整条 `run-launched` 都没有（锚点之前），要么有事件但没有这个键。
 // 两种都必须让读面上的字段**整个不出现**，而不是出现一个值为 undefined 的键——`GetWorkflowRun`

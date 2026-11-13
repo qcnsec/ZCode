@@ -375,7 +375,6 @@ export class Evaluator {
       // A `Promise.all` join result is a live place: its element fields carry may-alias
       // back-references to the (place) inputs (see handleJoin), so destructuring / indexing
       // the awaited result aliases the originals. Any other call is not a place.
-      //
       // Gated on `joinResults` — the registry handleJoin populates — NOT on the site table:
       // several read-side callers are `resolvePlace(x) ?? evalExpr(x)` (literals.ts
       // fieldValue, heap-ops.ts Object.assign source, array-methods.ts reduce seed), and

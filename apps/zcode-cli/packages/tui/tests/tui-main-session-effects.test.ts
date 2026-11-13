@@ -1,5 +1,4 @@
 // WP-F 效果级回归：actor/子会话的原始事件绝不进主转写（user directive 2026-08-23）。
-//
 // 与 tui-main-session-filter.test.ts 的分工：那个文件钉谓词，这个文件钉**流水线的效果**
 // （闸门 → 去重 → applySessionEventToState）。有些回归只在效果层面看得见——尤其是
 // actor 的 turn_complete 会不会经 applyTurnCompleteFallbackResponse 把 actor 的答案

@@ -15,7 +15,7 @@ export interface UsePluginUiSurfacesInput {
 }
 
 /**
- * 工作区级面板入口（）：经桥读 `plugins/listUiSurfaces`。
+ * 工作区级面板入口：经桥读 `plugins/listUiSurfaces`。
  * 只订阅当前插件管理命令的成功变更；旧 pluginStore 不接收真实安装和启停结果。
  */
 export function usePluginUiSurfaces(input: UsePluginUiSurfacesInput): PluginUiSurfaceEntry[] {

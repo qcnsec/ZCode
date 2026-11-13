@@ -1,7 +1,6 @@
 // PromptMentionNode.ts 承载 Lexical 节点行为 + 全部分类图标 DOM 数据，
 // 新增 plugin 图标后超出 max-lines(400) 门禁。图标数据/DOM 构建是纯展示常量，
 // 与节点行为解耦到本文件；PromptMentionNode 继续 re-export 保持既有导入面兼容。
-//
 // PromptMentionNode 是 Lexical 自定义 DOM 节点，不能直接渲染 lucide-react 组件。
 // 这里保留 lucide 的 IconNode 数据形状，再用原生 SVG DOM 生成图标。
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";

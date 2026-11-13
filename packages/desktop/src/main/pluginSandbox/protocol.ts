@@ -217,7 +217,7 @@ export function createPluginSandboxProtocolHandler(options: {
             readAsset(join(options.assets.aliasDir, "visualize.html")),
           ]);
           const decode = (value: Uint8Array) => new TextDecoder().decode(value);
-          // bridge/Tweak 在作者脚本前，inner kit 在片段后；原手写 Widgets 改变了上游初始化语义。
+          // bridge/Tweak 在作者脚本前，inner kit 在片段后；原手写 Widgets 改变了 初始化语义。
           html = html.replace(
             "<!--__ZCODE_GEN_UI_STYLES__-->",
             `<style>${decode(styles)}\n:root { --visualize-paint-gutter: 5px; --viz-fg: var(--foreground); }</style>`,

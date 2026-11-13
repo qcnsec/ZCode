@@ -1,7 +1,6 @@
 // 冷恢复协调器：订阅落在「不在内存注册表、但可能已持久化」的会话时
 // （CLI 重启后打开历史会话），经宿主钩子把 record 拉起来，再回到既有
 // gateway READY hydration 路径。从 v4-gateway 拆出（单一职责 + max-lines）。
-//
 // 语义要点：
 // - runtime activation 单飞归宿主生命周期 owner；完整 READY 水位由 gateway 负责；
 // - 错误分型（项目规范：不靠错误文本分流）：

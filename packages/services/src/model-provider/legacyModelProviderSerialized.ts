@@ -29,6 +29,12 @@ export interface ModelProviderEndpoints {
   baseURL?: string;
   /** v2 catalog endpoint paths，key 使用公开 runtime kind。 */
   paths?: Partial<Record<ModelProviderKind, string>>;
+  /** 自定义请求路径（可选，追加到 baseURL 覆盖 operation path）。 */
+  customPath?: string;
+  /** 自定义查询参数（可选，追加到请求 URL）。 */
+  customQuery?: string;
+  /** 额外请求头（可选，每行 `Key: Value`）。 */
+  customHeaders?: string;
 }
 
 export type RemoteProviderSchema = "anthropic" | "openai:chat" | "openai:messages" | "gemini";

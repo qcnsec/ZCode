@@ -41,7 +41,7 @@ export interface OffPeakMockGatewayOptions {
 export interface OffPeakMockGatewayDeps {
   logger: ServiceLogger;
   /**
-   * 准入后 messages 的转发目标：完整 messages URL + 出站头（含上游鉴权）。
+   * 准入后 messages 的转发目标：完整 messages URL + 出站头（含 鉴权）。
    * 返回 null = 不代理，直接回一段固定的 Anthropic 响应（E2E/离线演示：agent loop 立即完成，
    * 不依赖真实模型 key）。
    */
@@ -364,7 +364,7 @@ export async function startOffPeakMockGateway(
         `mock gateway admitted ticket=${ticketId} activeDeadline=${ticket.activeDeadline}`,
       );
     }
-    // admitted：原样代理到真实上游（SSE 透传）。
+    // admitted：原样代理到真实 （SSE 透传）。
     const requestBody = await (async () => {
       const chunks: Buffer[] = [];
       for await (const chunk of req) chunks.push(chunk as Buffer);

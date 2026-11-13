@@ -44,6 +44,7 @@ import { Button } from "@/components/ui/button.js";
 import { HighspeedModelIndicator } from "@/highspeed/HighspeedModelIndicator.js";
 import { formatHighspeedRemainingTime } from "@/highspeed/highspeedTime.js";
 import { ChatContextUsage } from "@/chat-input-toolbar/display.js";
+import { QcTrkCompactButton } from "@/chat-input-toolbar/QcTrkCompactButton.js";
 import {
   hasChatCodingPlanUsageRemaining,
   type ChatCodingPlanUsageRemainingConfig,
@@ -1264,18 +1265,30 @@ function V4ComposerModelControlsImpl({
         data-usage-max={usage?.contextWindow?.maxTokens ?? ""}
         className="hidden"
       />
-      {/* Highspeed 卡激活即锁定模型；不能等动效交接完成才隐藏，否则 usage 圈圈会短暂闪现。 */}
+      {/*
+        右侧 submitControl 簇（对齐 G2t / K2t）：压缩按钮 → 上下文容量圈 → 模型选择 → 思考深度。
+        用量条「速度/已用」、余额、代理、重试徽标属于左侧 leadingActions（Nr），
+        已移到 ConversationComposer.leadingActionsNode；这里再渲染会把容量圈挤到用量条左边。
+      */}
       {!modelLocked ? (
-        <ChatContextUsage
-          codingPlanUsageRemaining={codingPlanUsageRemaining}
-          taskUsage={taskUsage}
-          startPlanBalance={contextStartPlanBalance}
-          selectedProvider={displayProvider}
-          intl={intl}
-          locale={locale}
-          onSendCompressionCommand={onSendCompressionCommand}
-          compressionDisabled={disabled || recoveryPending}
-        />
+        <>
+          {onSendCompressionCommand ? (
+            <QcTrkCompactButton
+              disabled={disabled || recoveryPending}
+              onSendCompressionCommand={onSendCompressionCommand}
+            />
+          ) : null}
+          <ChatContextUsage
+            codingPlanUsageRemaining={codingPlanUsageRemaining}
+            taskUsage={taskUsage}
+            startPlanBalance={contextStartPlanBalance}
+            selectedProvider={displayProvider}
+            intl={intl}
+            locale={locale}
+            onSendCompressionCommand={onSendCompressionCommand}
+            compressionDisabled={disabled || recoveryPending}
+          />
+        </>
       ) : null}
       {/* 加速轮的模型由本次卡决定，选型菜单此时不可用，所以指示器优先于选型加载态。 */}
       {highspeedPresented && highspeedModel ? (

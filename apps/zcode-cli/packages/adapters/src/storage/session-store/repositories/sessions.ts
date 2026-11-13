@@ -222,23 +222,53 @@ export function listArtifactReferrers(
 }
 
 /**
- * 彻底删除会话及其附属后代的全部行。message/part/todo/usage 等经外键级联；
+ * 彻底删除会话及其附属后代的全部行。message/part/todo 等经外键级联；
  * input_history、dwf_run、workflow_run 对 session 没有级联外键，必须显式删除，否则留下孤儿行。
  * 调用方负责先删除会话文件：文件失败时不调用本函数，下次重试仍能按会话找到它们。
+ *
+ * model_usage / turn_usage / tool_usage 同样是
+ * `references session(id) on delete cascade`，官方整行删除会把历史用量一并清掉，
+ * 用量条与「今日 / 30 天」统计随之归零。产物 purgeSessionData({preserveUsage:true})
+ * 的做法是：有 usage 行的会话只做软删标记（保留壳），无 usage 的才真删。
+ * 默认启用；传 `{ preserveUsage: false }` 可回到官方的整行删除行为。
  */
-export function purgeSessions(db: DatabaseSync, sessionIDs: readonly SessionId[]): void {
+export function purgeSessions(
+  db: DatabaseSync,
+  sessionIDs: readonly SessionId[],
+  options: { preserveUsage?: boolean } = {},
+): void {
   const ids = [...new Set([...listOwnedSessionTrees(db, sessionIDs).values()].flat())];
   if (!ids.length) return;
+  const preserveUsage = options.preserveUsage !== false;
   // foreign_keys 不能在事务内切换；启动时已打开，这里再保证一次级联生效。
   db.exec("pragma foreign_keys = on");
   db.exec("begin immediate");
   try {
+    const deletedAt = Date.now();
     for (const chunk of chunked(ids)) {
       const marks = chunk.map(() => "?").join(",");
       db.prepare(`delete from input_history where session_id in (${marks})`).run(...chunk);
       db.prepare(`delete from dwf_run where parent_session_id in (${marks})`).run(...chunk);
       db.prepare(`delete from workflow_run where parent_session_id in (${marks})`).run(...chunk);
-      db.prepare(`delete from session where id in (${marks})`).run(...chunk);
+      if (preserveUsage) {
+        db.prepare(
+          `update session
+              set parent_id = null,
+                  title = '[deleted session: usage retained]',
+                  title_source = 'custom',
+                  time_deleted = coalesce(time_deleted, ?)
+            where id in (${marks})`,
+        ).run(deletedAt, ...chunk);
+        db.prepare(
+          `delete from session
+            where id in (${marks})
+              and not exists (select 1 from model_usage where session_id = session.id)
+              and not exists (select 1 from turn_usage where session_id = session.id)
+              and not exists (select 1 from tool_usage where session_id = session.id)`,
+        ).run(...chunk);
+      } else {
+        db.prepare(`delete from session where id in (${marks})`).run(...chunk);
+      }
     }
     db.exec("commit");
   } catch (error) {

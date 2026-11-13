@@ -1,7 +1,6 @@
 // ============================================================
 // AmendWorkflow Tool - revise a run: stop it if it is still going, import its finished work, start the revision
 // ============================================================
-//
 // 与 CreateWorkflow 分成两个工具的理由：修订是**另一种动作、另一张卡**——模型不是在启动什么，
 // 而是在改一个用户正看着的东西，而且前驱可能仍在跑。两者共用同一个输出形状，所以 executor 的
 // 后台追踪、`backgrounded` 契约与 display 载荷只有一份。

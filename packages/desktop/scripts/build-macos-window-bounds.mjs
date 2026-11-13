@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // 编译 macOS 窗口 bounds 辅助程序（CUA 权限浮窗的吸附数据源）。
-//
 // 非 darwin 直接跳过：这个二进制只服务 macOS 的 TCC 授权引导，其他平台没有对应流程。
 // 缺少 swiftc（未装 Xcode CLT）时也只警告不失败 —— 吸附是观感增强，拿不到 bounds 时浮窗
 // 会 fail-open 到屏幕底部照样可用，不该因此让整个 desktop 构建挂掉。

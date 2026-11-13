@@ -5,7 +5,6 @@
 // 重启后为空；而 dwf_event 里躺着引擎发过的每一条事件——与 live 时喂给投影的是同一份有界序列化。
 // 本模块把它们按 journal 顺序重新铸成 DynamicWorkflowRunProgressPayload，冷物化把这批载荷当
 // 内存事件喂给同一个 reducer，于是重启前后的投影逐字节一致。
-//
 // 独立成模块而不是塞进 observation.ts：铸造链（toProgressPayload）在 launch.ts，而 launch.ts
 // 已经 import observation.ts（谓词），反向 import 就是环。
 

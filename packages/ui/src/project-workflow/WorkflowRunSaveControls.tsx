@@ -1,10 +1,8 @@
 import { useSavedWorkflowProjectOptions } from "@/project-sidebar/useSavedWorkflowProjectOptions.js";
 // 完成卡与 run 侧板表头上的那一对控件（docs/dynamic-workflow/transcript-and-notifications.md
 // 「Saving the run, and running it again」）：
-//
 //   leading  ── 「已保存」芯片：一条关于**文件**的事实，不是运行状态，所以中性底色而非绿色；
 //   trailing ── 「保存」/「再次运行」：一次 run 跑完的那一刻，用户正好知道它值不值得留下。
-//
 // 两个槽共用一个控制器（`useWorkflowRunSave`），因此同一个 run 在卡上与侧板上说的是同一句话。
 // 返回 ReactNode 而不是渲染成组件：表头的两个插槽在结构上是分开的，但它们背后必须是同一次查询。
 import { useMemo, useRef, useState, type ReactNode } from "react";

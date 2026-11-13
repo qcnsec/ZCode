@@ -130,7 +130,7 @@ describe("无项目工作区共享 CLI", () => {
     expect((await getV4ConversationState()).taskId).toBe(taskB);
     expect(await readAgents()).toEqual(agentsA);
 
-    // 用上游请求已开始作屏障；A 流式执行期间，B 仍可完成自己的发送。
+    // 用 请求已开始作屏障；A 流式执行期间，B 仍可完成自己的发送。
     await $(`[data-testid="${testId(TID_TASK_ITEM, taskA!)}"]`).click();
     await sendV4Prompt("E2E_SHARED_CLI_RUNNING");
     await waitForUpstreamNetworkRequestStarted("E2E_SHARED_CLI_RUNNING");

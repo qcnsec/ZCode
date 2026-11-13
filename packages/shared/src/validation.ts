@@ -612,6 +612,7 @@ export const taskNotificationPayloadSchema = z.object({
   status: z.enum([
     "completed",
     "failed",
+    "cancelled",
     "permission_request",
     "elicitation_request",
     "feedback_update",
@@ -619,6 +620,7 @@ export const taskNotificationPayloadSchema = z.object({
   requestId: nonEmptyStringSchema.optional(),
   title: z.string(),
   body: z.string(),
+  workspaceIdentity: z.string().optional(),
 });
 
 export const telemetryRendererContextSchema = z.object({

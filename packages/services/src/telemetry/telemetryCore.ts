@@ -679,7 +679,7 @@ export function createTelemetryCore(dependencies: TelemetryCoreDependencies = {}
       );
     },
 
-    // 接纳上游已收到但尚未开始 HTTP 上报的完整投递 Promise，共用既有 pending 与退出预算。
+    // 接纳 已收到但尚未开始 HTTP 上报的完整投递 Promise，共用既有 pending 与退出预算。
     trackPendingReport: trackReport,
     flushPendingReports,
   };

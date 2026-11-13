@@ -1,5 +1,4 @@
 // Provider 内置工具轮次（GLM 的 analyze_image / webReader 等）。
-//
 // 服务端执行内置工具后把多轮结果合成一次响应下发。这里按服务端工具把一次响应切成「轮」：
 // 每轮是该工具之前的 reasoning/text 加这次调用与结果；最后一轮（客户端工具或最终回答）照旧。
 // 回放时每轮写成 assistant(text, toolCalls=[服务端工具]) + tool(结果)，与服务端内部拼接的多轮一致，

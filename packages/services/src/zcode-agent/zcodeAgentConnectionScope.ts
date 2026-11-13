@@ -548,7 +548,7 @@ export function createZCodeAgentConnectionScope(
     forget(entry);
     try {
       // trusted relay 以 owned route 校验 flow control。最后一个 subscription
-      // 必须先 closed 再 unsubscribe；反序会让上游先忘 owner，closed 被拒绝后留下 paused connection。
+      // 必须先 closed 再 unsubscribe；反序会让 先忘 owner，closed 被拒绝后留下 paused connection。
       await closeUnusedFlowRoute(entry);
     } finally {
       await unsubscribeBase(entry, runtimePolicy);

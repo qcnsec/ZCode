@@ -18,7 +18,6 @@ import {
 // 遗留 bearer token 的环境变量名。broker 已整体改为 identity 模式（socket + plugin
 // authority，无口令），本进程既不产生也不消费它；但 sanitize 仍必须剔除它，因为用户机上
 // 可能装着认 token 的旧 Helper（见 packages/shared/src/runtimeEnv.ts 同名注释）。
-//
 // 刻意写字面量而不是从 src/mcp-config.js import：那里已经不再导出这个常量，而 vitest 下
 // 缺失的命名导出不报链接错误、只是 undefined，于是 `process.env[undefined]` 变成读
 // `"undefined"` 键，`toBeUndefined()` 之类断言全部永真。2026-09-16 评审实测本文件因此

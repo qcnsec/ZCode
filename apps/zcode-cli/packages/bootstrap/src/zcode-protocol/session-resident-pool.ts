@@ -1,5 +1,4 @@
 // CLI session 常驻池。
-//
 // 这是容量与生命周期控制器，不拥有 session 内容。宿主提供当前 resident registry、同步
 // 安全事实和去激活执行面；pool 只维护 idle TTL、LRU touch、operation lease 与
 // deactivation gate。

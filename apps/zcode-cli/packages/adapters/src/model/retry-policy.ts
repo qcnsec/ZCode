@@ -10,9 +10,10 @@ export type ResolvedAiSdkModelRetryOptions = Required<AiSdkModelRetryOptions>;
 
 type EnvRecord = Record<string, string | undefined>;
 
-const DEFAULT_MAX_RETRIES = 10;
-const DEFAULT_RETRY_BASE_DELAY_MS = 2_000;
-const DEFAULT_RETRY_BACKOFF_FACTOR = 2;
+// 普通失败恒定间隔 1 秒、最多 100000 次尝试。
+const DEFAULT_RETRY_MAX_ATTEMPTS = 100_000;
+const DEFAULT_RETRY_BASE_DELAY_MS = 1_000;
+const DEFAULT_RETRY_BACKOFF_FACTOR = 1;
 const DEFAULT_RETRY_MAX_DELAY_MS = 60_000;
 
 const ENV_MODEL_RETRY_MAX_RETRIES = "ZCODE_MODEL_RETRY_MAX_RETRIES";
@@ -23,9 +24,8 @@ const ENV_MODEL_RETRY_MAX_DELAY_MS = "ZCODE_MODEL_RETRY_MAX_DELAY_MS";
 const DEFAULT_RETRY_OPTIONS: ResolvedAiSdkModelRetryOptions = {
   backoffFactor: DEFAULT_RETRY_BACKOFF_FACTOR,
   baseDelayMs: DEFAULT_RETRY_BASE_DELAY_MS,
-  jitter: true,
-  // maxAttempts includes the first request; env/config names expose retry count.
-  maxAttempts: DEFAULT_MAX_RETRIES + 1,
+  jitter: false,
+  maxAttempts: DEFAULT_RETRY_MAX_ATTEMPTS,
   maxDelayMs: DEFAULT_RETRY_MAX_DELAY_MS,
 };
 

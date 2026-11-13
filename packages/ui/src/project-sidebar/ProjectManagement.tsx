@@ -348,6 +348,7 @@ function ProjectManagementContent() {
         projects={removed}
         disabled={disabled}
         onRestore={(project) => void state.restore(project)}
+        onPurge={(project) => void state.purgeRemoved([project])}
       />
       {selected.length ? (
         <div

@@ -3,12 +3,10 @@
 // ============================================================
 // 从 workflow-runs-reducer.ts 拆出（max-lines 门），与 workflow-runs-concurrency.ts 同一先例：
 // 主归约只剩 switch 的分派，产物的三条规则住在这里。同一条纪律：纯函数、无时钟、无 I/O。
-//
 // ⚠ 术语：本模块的 artifact 是脚本经
 // `artifact.*` 发布给**用户**看的产出。主归约里 `resultPreview` 调用的
 // `serializeWorkflowArtifact`（workflow-artifact.ts，单数）里那个 artifact 是**另一个意思**
 // ——引擎内部对「脚本顶层返回值」的叫法，给模型看的。两者无关。
-//
 // 三条规则各有各的键，这是本模块最要紧的一句话：
 //   artifact-published ⇒ 按**产物 id** upsert。同 id 再发布是新版本，必须覆盖同一张卡；
 //                        而同一个 id 的两个版本来自两个不同的**站点实例**，所以这里不能

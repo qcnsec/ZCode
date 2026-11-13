@@ -1,5 +1,4 @@
 // 可复用工作流的两道确认窗在 v4 投影上的边界（docs/dynamic-workflow/launch.md）。
-//
 // 整个文件钉的是同一条决策：saved run 的脚本与 SaveWorkflow 的落点/覆盖判定全部走**归一化
 // 入参**，display 一个字段都不加。选它而不是 display 的理由在 spec 的「版本偏斜边界」：入参
 // 通道对每个客户端版本都是无 schema 的透传（v4 侧 `detail: z.unknown()`，legacy v3 侧

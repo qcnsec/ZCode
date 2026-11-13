@@ -224,7 +224,6 @@ const WorkflowRunContent = memo(function WorkflowRunContent({
 
   // Resume 可用性只读投影的 `resumable` 状态位：
   // 重启后投影由 CLI 冷回放补齐，这里不再另查 journal 摘要。
-  //
   // 再叠一道灰度门：已有的 run 照常渲染
   // ——状态头、时间线、产物一件不少——唯独 Resume 收起来，因为按下去会真的起一台引擎。
   // 快照未就绪时 enabled 为 false，按未命中处理：宁可按钮晚半拍出现，也不给一个随时会消失的按钮。
@@ -318,7 +317,6 @@ const WorkflowRunContent = memo(function WorkflowRunContent({
     (artifactId: string) => {
       // 卡片只发意图（哪个产物），会话与 workspace 身份由这里补齐——与 actor transcript
       // 同一条论证：卡片不感知 scope。**不带版本号**：打开即最新版。
-      //
       // 这份清单是活投影 + journal 的合并视图，所以 `contentType` 与 `sourcePath` 两个键都在：
       // 前者让宿主把 html 产物直接开成浏览器 tab，后者省掉宿主再查一次 journal
       const artifact = artifacts.find((candidate) => candidate.id === artifactId);

@@ -197,7 +197,7 @@ export async function runGenerateText(input: {
       );
 
       // 部分非流式 provider/fetch 兼容层收到 AbortSignal 后不会及时 settle
-      // generateText promise，导致 runtime 已 Stop，goal verifier 仍要等上游自然返回才收口。
+      // generateText promise，导致 runtime 已 Stop，goal verifier 仍要等 自然返回才收口。
       // adapter 是本地取消契约边界：signal 一旦 abort 就立即拒绝，迟到 provider 结果只丢弃。
       const pendingResult = input.runtime.generateText(options);
       // options 构造成功不等于 runtime 已接受请求；同步 setup 异常会在调用点直接抛出。

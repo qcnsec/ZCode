@@ -1,16 +1,13 @@
 // v4 交互应答登记表（原生化，resolveInteraction）。
-//
 // 背景：conversation-product-protocol 的权限/AskUserQuestion 是「反向请求」——CLI 经
 // context.requestClient 把请求推给客户端并 await 应答。旧客户端用 RPC RESPONSE 应答
 // （resolveClientRequest 按 server-N id 收口）。v4 客户端不回 RPC response，而是发一条
 // 前向 `resolveInteraction` COMMAND（先到先得，晚到 noop）。
-//
 // 本登记表是两条应答路径的汇合点：interaction-broker 发起反向请求时按业务 requestId
 // （= v4 的 interactionId）注册一个 deferred，并让 requestClient 与该 deferred 竞态；
 // v4 命令面（handlers/interaction-background.ts）拿到 resolveInteraction 后经本表
 // resolve 对应 deferred，broker 侧的 Promise.race 立即用 v4 应答收口、abort 掉悬空的
 // 反向 RPC。
-//
 // 分层：本表只做「按 id 找到 deferred 并投递应答」，不懂 permission/userInput 的 schema
 // 差异——broker 注册时自带各自的 resolve 回调（闭包已知 kind），本表对应答体透明。
 // 归属：本文件是 v4 原生基础设施（放 v4 目录），旧目录（broker/server）import 本文件

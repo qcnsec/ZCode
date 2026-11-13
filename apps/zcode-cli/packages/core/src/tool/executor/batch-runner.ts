@@ -138,13 +138,11 @@ export async function* executeToolSchedule(
     //   (result) => !result.success && !deps.registry.get(result.toolName)?.metadata.concurrentSafe,
     // );
     // if (!hasBlockingFailure) continue;
-    //
     // const skippedTools = schedule.parallelGroups
     //   .slice(groupIndex + 1)
     //   .flat()
     //   .map((id) => toolMap.get(id))
     //   .filter((toolCall): toolCall is ExecutableToolCall => toolCall !== undefined);
-    //
     // for (const toolCall of skippedTools) {
     //   const result = createErrorResult(
     //     toolCall,
@@ -156,7 +154,6 @@ export async function* executeToolSchedule(
     //   allResults.push(result);
     //   await emitSkippedToolError(deps, result, options?.traceContext);
     // }
-    //
     // break;
   }
 

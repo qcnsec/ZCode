@@ -1,8 +1,6 @@
 // 商店页「目录自动刷新」（Catalog Auto-Refresh）的节流判据。
-//
 // 需求：每次进入商店页都默认刷新 ZCode 官方市场，让 CDN 新上架插件无需手动点刷新即可见；
 // 但要节流（距上次成功刷新不足窗口则跳过）与防抖（刷新失败后、请求仍在飞时不重复触发）。
-//
 // 判据 = now - max(lastUpdated, lastAttemptAt) >= 窗口。
 // - lastUpdated 来自 agent 持久化的 known_marketplaces.json，任何成功刷新（手动、会话推荐插件
 //   路径）都会重写它，因此天然跨窗口、跨重启共享，手动刷新后自动窗口随之重置。

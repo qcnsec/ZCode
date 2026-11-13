@@ -2,11 +2,9 @@
 // 一次 ask 的**任务与进度读数**：node-queued 的 instructionsHead + node-progress 的三个计数
 // ============================================================
 // 住在 reducer 主文件之外，与 workflow-runs-phases.ts 同一个理由：主文件的 max-lines 门。
-//
 // 这几个键回答的是相位回答不了的问题：一个 ask 可以在 `executing` 上待十分钟，光看相位分不出
 // 「在干一件长活」与「已经死了」。`turn` / `toolCalls` / `lastTool` 是那条分界线，
 // `instructionsHead` 则回答「这个子代理被派去干什么」。
-//
 // 两条容易踩的结构性事实：
 //   1. 归约在每条 `node-*` 事件上**整个重建**节点对象（只有 kind / actor ref / phaseName 靠
 //      previousNode 向前携带）。所以这四个键必须显式携带——否则 `node-progress` 的下一条

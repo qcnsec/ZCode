@@ -2,7 +2,6 @@
 // workflow actor 的权限面（发起会话模式 → run 记录 → AgentRuntime 模式）
 // ============================================================
 // 见 docs/dynamic-workflow/launch.md「Permissions inside a run」。
-//
 // 子代理跑在发起 run 的会话的权限模式上（plan 不带入：run 总在执行）。该问时经父 runtime 派生的
 // broker 请求用户。模式在建 run 那一世定下、记进 `run-launched`，resume 从事件读回——会话此后
 // 换模式不影响在飞的 run。缺席或未知值即 YOLO：本特性之前的 run 与没接模式读取的宿主照旧。

@@ -1,9 +1,7 @@
 // 完成卡「保存」弹层（docs/dynamic-workflow/transcript-and-notifications.md「The popover」）。
-//
 // 两条路按**价值**排序而不是按成本：先是整条宽的「让 ZCode 帮我提炼保存」，一条细线之下才是
 // 「按原样直接保存」的三个字段。刚跑完的脚本是一次性的，把两次运行之间会变的值抽成 args、写清
 // 说明与使用时机——这件事只有读过脚本的人能做，所以它排在第一位。
-//
 // 三个字段服务于两条路：填了什么，既随消息交给 ZCode，也是直接保存要写下去的那一份。
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { SparkleIcon } from "lucide-react";

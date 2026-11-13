@@ -525,7 +525,7 @@ function seedLegacySessions(sourceId: string) {
 }
 
 async function withRetryProxy<T>(run: () => Promise<T>): Promise<T> {
-  // 独立 Host 使用内建 HTTPS provider；仅在本用例安装隔离代理，不访问真实上游。
+  // 独立 Host 使用内建 HTTPS provider；仅在本用例安装隔离代理，不访问真实 。
   const proxy = await startE2ENetworkCaptureProxy({
     artifactPath: join(artifactDir, "session-retry-network.json"),
     caDir: join(paths.homeDir, "session-retry-ca"),

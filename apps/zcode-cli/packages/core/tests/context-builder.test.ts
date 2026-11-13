@@ -1496,7 +1496,6 @@ describe("ContextBuilder meta user context", () => {
 });
 
 // ── 工作流子代理身份（docs/dynamic-workflow/authoring.md「The system prompt」）──
-//
 // persona 不再整段替换子代理的系统提示：基座段（CLI prefix、安全行、Harness、memory）保留，
 // 交互式身份换成工作流子代理契约，persona 叠加其上；面向「与用户对话」的三段（desktop、
 // Dynamic Behavior、session guidance）跳过。

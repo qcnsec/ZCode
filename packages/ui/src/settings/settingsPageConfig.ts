@@ -23,6 +23,10 @@ import {
   FileSearch,
   RefreshCw,
   User,
+  Bell,
+  Network,
+  Repeat,
+  Wallet,
 } from "lucide-react";
 import { isSettingsSectionEnabled, type SettingsSectionId } from "@/lib/settingsNavigation.js";
 import type { Theme } from "@/useTheme.js";
@@ -198,6 +202,33 @@ const BASE_SETTINGS_SECTIONS: SettingsSectionDefinition[] = [
     titleId: "archives.nav",
     groupId: "dataAndStats",
   },
+  // 新增的四个设置分区（仅桌面端，依赖 platform.qctrk）。
+  // 产物侧栏注册顺序：dataSync → usage → projects → archives → 余额 → 代理 → 通知 → 自动继续，
+  // 四者同属 dataAndStats 组并排在组末尾；图标为 wallet / network / bell / repeat。
+  {
+    id: "qctrkBalance",
+    icon: Wallet,
+    titleId: "settings.qctrkBalanceTitle",
+    groupId: "dataAndStats",
+  },
+  {
+    id: "qctrkProxy",
+    icon: Network,
+    titleId: "settings.qctrkProxyTitle",
+    groupId: "dataAndStats",
+  },
+  {
+    id: "qctrkNotify",
+    icon: Bell,
+    titleId: "settings.qctrkNotifyTitle",
+    groupId: "dataAndStats",
+  },
+  {
+    id: "qctrkAutocont",
+    icon: Repeat,
+    titleId: "settings.qctrkAutocontTitle",
+    groupId: "dataAndStats",
+  },
   // 暂时隐藏设置页里的 Migration 入口，只保留页面实现，后续可以直接恢复这一项。
   // {
   //   id: "migration",
@@ -256,7 +287,14 @@ export const SETTINGS_SECTION_GROUPS = BASE_SETTINGS_SECTION_GROUPS.map((group) 
 export type { SettingsSectionId };
 
 /** 依赖本机 Source Server 管理与设备连接的设置页，Web 与手机远控不显示。 */
-const DESKTOP_ONLY_SETTINGS_SECTIONS = new Set<SettingsSectionId>(["remoteDevices", "dataSync"]);
+const DESKTOP_ONLY_SETTINGS_SECTIONS = new Set<SettingsSectionId>([
+  "remoteDevices",
+  "dataSync",
+  "qctrkBalance",
+  "qctrkProxy",
+  "qctrkNotify",
+  "qctrkAutocont",
+]);
 
 export function isSettingsSectionAvailable(
   section: SettingsSectionId,

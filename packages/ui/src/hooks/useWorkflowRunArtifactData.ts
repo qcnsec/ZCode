@@ -214,7 +214,6 @@ export function useWorkflowRunArtifactData(options: {
   }, [drain, enabled]);
 
   // 增量：`itemCount` 抬升即续拉。
-  //
   // 门里**没有**「本地一条都还没有就不拉」这一条：一个在脚本顶部声明、之后每轮才被 report
   // 喂数据的看板，挂载那一刻本地就是空的，用空判据挡下来等于让它永远画不出第一个点。
   // 挂载时那次重复触发由单飞门吞掉（重取 effect 先跑，已经占住了门）。

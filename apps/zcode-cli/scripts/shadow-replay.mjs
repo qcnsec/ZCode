@@ -2,11 +2,9 @@
 // 用途：把本机真实 CLI 库（默认 ~/.zcode/cli/db/db.sqlite）的历史会话全量喂给
 // 冷恢复管线（transcript 合成 → ProductProjection），输出守恒对账报告——
 // 每阶段上线门槛 = 全量重放无崩溃、无静默丢弃、失败清单审查完毕。
-//
 // 对源库只读：默认把 db（含 -wal/-shm）复制到临时目录再打开——store 打开时会跑
 // 迁移（0015/0016 等），不能直接落在用户真实库上（迁移应由 CLI 正常启动路径应用）。
 // 运行前先构建：pnpm -C apps/zcode-cli build（脚本从各包 dist 导入）。
-//
 // 用法：
 //   node scripts/shadow-replay.mjs [--db <path>] [--limit <n>] [--session <id>] [--verbose] [--no-copy]
 import { parseArgs } from "node:util";

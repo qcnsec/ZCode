@@ -10,7 +10,7 @@ export async function createStallableTcpProxy(target: { host: string; port: numb
   let mode: "forward" | "stall" | "reject" = "forward";
   let accepted = 0;
   const attach = (client: Socket, initial: readonly Buffer[] = []) => {
-    // 建立上游前必须暂停下游；否则 release 后、connect 回调前的新数据仍会被丢弃。
+    // 建立 前必须暂停下游；否则 release 后、connect 回调前的新数据仍会被丢弃。
     client.pause();
     const upstream = createConnection({ host: target.host, port: target.port });
     live.add(client);

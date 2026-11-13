@@ -62,7 +62,6 @@ export type WorkflowErrorCode =
   // ——————————— 用户面产物（docs/dynamic-workflow/authoring.md「Publishing content」）———————————
   // ⚠ 术语：这一批 artifact 全是**用户面产物**（脚本发布给用户看的产出），与
   // `RunSettlement.artifact`（顶层返回值）无关。
-  //
   // 通道按**成员族**分裂，与 WorldReadCapExceeded / ReportCapExceeded 的分界同一条论证：
   // 内容成员（`file`/`markdown`）返回 promise，脚本可 catch，所以是节点级拒绝；预置成员
   // 返回 void，没有可拒绝进去的地方，所以同样的事实在那一族是 failRun。三个 driver 侧的

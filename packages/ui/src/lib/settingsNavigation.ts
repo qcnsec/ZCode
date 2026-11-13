@@ -24,7 +24,12 @@ export type SettingsSectionId =
   | "workspaceFileSearch"
   | "computerUse"
   | "automations"
-  | "shortcuts";
+  | "shortcuts"
+  // 新增的四个设置分区
+  | "qctrkBalance"
+  | "qctrkProxy"
+  | "qctrkNotify"
+  | "qctrkAutocont";
 
 export type SettingsUsageTabTarget = "app" | "codingPlan";
 export type SettingsPluginTabTarget = "plugins" | "mcps" | "skills" | "commands";
@@ -38,6 +43,7 @@ const SETTINGS_SECTION_INTENT_KEY = "zcode-settings-section-intent",
 const SETTINGS_SOURCE_SERVER_ID_INTENT_KEY = "zcode-settings-source-server-id-intent";
 const SETTINGS_SOURCE_SERVER_DETAILS_INTENT_KEY = "zcode-settings-source-server-details-intent";
 const SETTINGS_MODEL_PROVIDER_ID_INTENT_KEY = "zcode-settings-model-provider-id-intent";
+const SETTINGS_ADD_PROVIDER_INTENT_KEY = "zcode-settings-add-provider-intent";
 const SETTINGS_SECTION_INTENT_EVENT = "zcode:settings-section-intent",
   SETTINGS_LAST_SECTION_STORAGE_KEY = "zcode-settings-last-section";
 const HIDDEN_SETTINGS_SECTIONS = new Set<SettingsSectionId>([
@@ -90,7 +96,11 @@ function isSettingsSectionId(value: string): value is SettingsSectionId {
     value === "workspaceFileSearch" ||
     value === "computerUse" ||
     value === "automations" ||
-    value === "shortcuts"
+    value === "shortcuts" ||
+    value === "qctrkBalance" ||
+    value === "qctrkProxy" ||
+    value === "qctrkNotify" ||
+    value === "qctrkAutocont"
   );
 }
 
@@ -450,6 +460,49 @@ export function consumePendingSettingsModelProviderTarget():
   } catch {
     // 忽略浏览器存储异常，不影响主流程。
     return undefined;
+  }
+}
+
+/**
+ * 欢迎页「使用 API Key」入口在跳过登录后，需要直达「设置 - 模型设置 - 添加供应商」页。
+ * 这里用一次性意图标记（sessionStorage）在登录完成、设置面板挂载后触发模板选择页打开。
+ */
+export function setPendingSettingsAddProvider(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    window.sessionStorage.setItem(SETTINGS_ADD_PROVIDER_INTENT_KEY, "1");
+  } catch {
+    // 忽略浏览器存储异常，不影响主流程。
+  }
+}
+
+/** 读取但不清除意图（供 Root 判断是否需要打开设置面板）。 */
+export function peekPendingSettingsAddProvider(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  try {
+    return window.sessionStorage.getItem(SETTINGS_ADD_PROVIDER_INTENT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** 读取并清除意图（供模型设置分区挂载后打开「添加供应商」模板页）。 */
+export function consumePendingSettingsAddProvider(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  try {
+    const exists = window.sessionStorage.getItem(SETTINGS_ADD_PROVIDER_INTENT_KEY) === "1";
+    if (exists) {
+      window.sessionStorage.removeItem(SETTINGS_ADD_PROVIDER_INTENT_KEY);
+    }
+    return exists;
+  } catch {
+    return false;
   }
 }
 

@@ -1,21 +1,16 @@
 // ============================================================
 // 工作区 transcript 的读面（DynamicWorkflowRunPort 的两个 workspace 方法的实现体）
 // ============================================================
-//
 // 一个 run 的 `files.*` / `git.*` / `world.run` 调用在 journal 里是 `kind ∈ {world-read,
 // world-run}` 的 `dwf_node` 行：`input_json`（迁移 0030）是 op 与实参，`result_json` 是正文。
 // UI 把它们回放成工具卡片——清单（不带正文）先来，正文展开时才取。
-//
 // 从 dynamic-workflow-run-service.ts 拆出（那个文件已在 max-lines 的既有欠账里），与产物的
 // artifact-read.ts 同一条理由。
-//
 // **授权链**（与 readArtifact 同一条纪律，两条查询都走）：
-//
 //   调用方给的 runId
 //        ├─① dwf_run 行存在吗？                              否 ⇒ undefined
 //        ├─② 该行的 parent_session_id == 本服务的父会话吗？   否 ⇒ undefined
 //        └─③ 才碰节点行
-//
 // 清单也授权而不只正文：`files.read` 的正文是工作区文件内容，而清单上的 args 已经是路径与
 // 命令行——两者对「不是你的 run」都不该放行。三种拒绝归一成 undefined（网关归一成空清单 /
 // not found），不告诉一个越权的调用方它猜对了哪一半。

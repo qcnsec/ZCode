@@ -701,7 +701,6 @@ export function createBrowserWindow(options: {
     // CDP 在原生 Dialog 已创建后再替换 UI，macOS 仍可能显示已经排队的
     // Chromium NSAlert。固定 preload 在每个 frame 调用原生 API 前拦截，且隔离世界只
     // 暴露 alert/confirm 同步桥；网页主世界仍没有 Node 或任意 IPC 能力。
-    //
     // Coding Plan 官网页例外：它需要 window.zcodeBridge 回传购买完成信号，
     // 改用专用 preload（codingPlanWebview.ts），其余 webview 保持原生 Dialog 桥。
     const targetUrl = params.src ?? "about:blank";

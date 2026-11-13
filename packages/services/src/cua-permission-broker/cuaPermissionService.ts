@@ -1,5 +1,4 @@
 // Computer Use Helper macOS permission service — services-side descriptor registration.
-//
 // As part of the single-package merge the type definitions + functional helpers
 // (CuaPermissionStatus, CuaPermissionStatusResult, isCuaPermissionStatusAvailable,
 // shouldRunCuaScreenCaptureProbe, ICuaPermissionService interface, etc.) moved
@@ -8,7 +7,6 @@
 // + @zcode/shared ServiceChannels), so services internal callers (node.ts,
 // accessor.ts, services/index.ts) and ui consumers (via @zcode/services root
 // export) keep importing `ICuaPermissionService` from this exact path.
-//
 // producer 只拥有 type contract；VALUE descriptor 继续由 services 的
 // createServiceDescriptor 创建，避免 producer 反向依赖 RPC/service registry。
 

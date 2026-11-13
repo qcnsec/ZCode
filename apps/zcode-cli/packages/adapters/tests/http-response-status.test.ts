@@ -5,11 +5,9 @@ import { createNodeHttpClientAdapter } from "../src/http/index.js";
 import { createNetworkProxyFetch } from "../src/network/proxy-fetch.js";
 
 // 上游状态码不在 WHATWG `Response` 能表示的范围里时（docs/design/v2/model/http-proxy.md「行为」）。
-//
 // 回归（2026-09-29 实测）：子代理 WebFetch 一个 LinkedIn 个人页，LinkedIn 对爬虫回 999；adapter 在
 // `http.request` 回调里 `new Response(stream, { status: 999 })`，构造函数抛 RangeError，没人接得住，
 // agent 进程以 uncaughtException 退出，整个工作区的会话和 run 一起断了。204 / 304 带着流去构造也一样抛。
-//
 // 只有 adapter 自己发请求（这里是走代理）才经过这条路径；原生 fetch 本来就能带回 999。
 // 这里的「代理」直接给出答复，不再转发：状态码是它说了算。
 

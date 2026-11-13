@@ -5,14 +5,11 @@
 // 这里说"事件怎么把它推进一格"。归约必须单一实现：它若长在 bootstrap 的 v4 product-projection 里，
 // 而 TUI 也要同一份状态——
 // 抽出来是为了守住**单时钟**原则（workflow-runs.ts）：投影与 TUI 镜像不允许各归约一份。
-//
 // 本模块是纯函数：无 Date.now、无随机、无 I/O。投影的**非纯部分**（身份闸门、
 // recordDynamicWorkflowRunProgress 接线、cold hydration 归类、state.updated 发射）留在 bootstrap。
-//
 // 依赖方向：contracts → shared。所以输入事件类型在这里**结构化定义**，不 import contracts 的
 // DynamicWorkflowRunProgressPayload；bootstrap 侧把 contracts 的有界 payload 赋给
 // WorkflowRunProgressEnvelope，赋值本身就是两边形状不漂移的编译期闸。
-//
 // 三个来自引擎 Boundary C 的**结构性**事实，值得在读代码前先知道，否则下面几处会像兜底：
 //   1. 节点相位就是引擎实际发出的事件：queued/dispatched/executing/waiting/repairing/nudged/settled。
 //      `executing` / `waiting` 是 driver 的观察：

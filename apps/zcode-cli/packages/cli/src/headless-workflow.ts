@@ -252,7 +252,6 @@ export const createHeadlessSessionObserver = (
         // One event per line, written as it happens. Deliberately not formatJson:
         // that pretty-prints with an indent, which would spread a single event
         // over several lines and break every line-oriented reader downstream.
-        //
         // dwf 进度走定型行：mapSessionEvent 的 default 会把它落成 catch-all
         // `session.updated`（session-mapper.ts），读者既无从分辨、也没法
         // 只订阅它。

@@ -89,6 +89,7 @@ import { buildChatSessionScrollMemoryKey } from "@/lib/chatSessionScrollMemory.j
 import type { MessageFileLinkTarget } from "@/components/ai-elements/message.js";
 import { useServices } from "@/hooks/useServices.js";
 import { useOptionalPlatform } from "@/hooks/usePlatform.js";
+import { useQcTrkAutoContinue } from "@/hooks/useQcTrkAutoContinue.js";
 import { browserGlobalNoticeStore } from "@/global-notice/globalNoticeStore.js";
 import {
   HIGHSPEED_SEND_WAIT_BUDGET_MS,
@@ -2612,12 +2613,10 @@ export function SessionPane({
   // 工具卡 → workflow run 的关联表。权威来源是 workflowRuns 投影里每条 run 的 toolCallId
   // （schema 注释就写着它是「工具卡 → 详情页的关联键」）；工具行自己的 output 在 v4 下
   // 只剩 formatCreateWorkflowModelContent 挑出的那句散文，结构化字段拿不到。
-  //
   // 值不只是 runId：run 态的卡片本身要渲染状态词与步数，所以联接一次就把摘要算完
   // （计数规则见 buildWorkflowRunByToolCallId，它的单测穷举 settled / observed 语义）。
   // 重启后投影不再为空：CLI 冷物化把 journal 回放进同一个 reducer，
   // 卡片 join 只读投影，不再合并发现查询。发现查询在这里只剩一个用途——
-  //
   // `limit` 与 `refreshKey` 服务的是任务列表那条「已结束的工作流 · N」页脚行：
   // - 深度取 run 目录页的同一个常量，否则页脚行的计数与页面上的行会是两套口径；
   // - 触发器取**同一个派生函数**（run 数 + 已结算数），所以页脚行与它开出来的目录页新鲜度一致；
@@ -4095,6 +4094,18 @@ export function SessionPane({
   );
   // 上面那个 ref 的唯一赋值点（见 handleSendWorkflowSaveRequest 的说明）。
   sendTextRef.current = handleSendText;
+
+  // 任务因临时故障中断时自动发送一条「继续」。
+  // 配置经 platform.qctrk 读取（qctrk-autocont.json），Web / 手机远控无该能力时自动跳过；
+  // 取消、额度耗尽、鉴权失败、参数错误、上下文超限等终局错误不触发。
+  useQcTrkAutoContinue({
+    snapshot,
+    sessionId,
+    workspaceKey: workspaceIdentity?.trim() || workspacePath,
+    readOnly,
+    send: handleSendText,
+    platform,
+  });
 
   const handleComposerDraftStateChange = useCallback(
     (state: { hasContent: boolean; busy: boolean }) => {

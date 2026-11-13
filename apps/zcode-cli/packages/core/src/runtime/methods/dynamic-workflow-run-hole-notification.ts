@@ -3,13 +3,11 @@
 // ============================================================
 // docs/dynamic-workflow/transcript-and-notifications.md 的 `hole` 载荷与「What the model reads」；引擎侧
 // apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「Holes」。
-//
 // 从 dynamic-workflow-run-progress.ts 拆出（400 行门），与那里的升级 / 停滞发射器同层、同三条纪律：
 // **每条 `hole-reached` 恰好一条通知**（这条自己不重发；一直没人补时由 dynamic-workflow-blocked-reminder.ts
 // 那条按状态铸的提醒接手，随时可查的兜底是 GetWorkflowRun 的 `holes`）；
 // **`hole-filled` 不发通知**（补全方就是主代理自己，回执已是那次工具调用的结果）；**绝不抛异常**
 // （这是观察面，run 的真相在 journal）。
-//
 // 与另两条不同的一点：事件载荷只带站点、名字与 prompt，而通知还要念类型、草稿路径与行号、前后
 // 阶段——那些是编译产物，住在快照的 `holes[]` 与 `scriptPath` 上。所以这里读一次端口快照（有界：
 // 一处留白一次），端口缺席或读不到时退回载荷自己说得出的字段，通知照发、只是少几句。

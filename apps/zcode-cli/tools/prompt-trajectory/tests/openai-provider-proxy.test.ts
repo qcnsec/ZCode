@@ -154,7 +154,7 @@ describe("prompt trajectory OpenAI provider proxy", () => {
       upstreamBaseURL: UNUSED_UPSTREAM,
     });
 
-    // 没有匹配的 mock 是 fixture 断言失败，按 400 返回，不让 provider 当作上游故障重试。
+    // 没有匹配的 mock 是 fixture 断言失败，按 400 返回，不让 provider 当作 故障重试。
     const missing = await post(requestBody());
     equal(missing.status, 400);
     deepStrictEqual(await missing.json(), { error: "Missing mock OpenAI response for request 1." });

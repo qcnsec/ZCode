@@ -1371,7 +1371,6 @@ describe("background task per-tool provider lookup", () => {
   });
 
   // ── 渐进产物（report）随完成通知回投（docs/dynamic-workflow/transcript-and-notifications.md「Notifications」）──
-  //
   // 三个终态一律携带，因为一个死在半途的 run 仍然做完了前面那些活——捞回它正是 report 存在
   // 的理由，而一句「失败」把它全扔了。条目来自 journal 的 kind="report" 行（run service 把它
   // 们放在快照的 `reports` 上），不是 memory-only 的 workflowRuns 投影。
@@ -1429,7 +1428,6 @@ describe("background task per-tool provider lookup", () => {
   });
 
   // ── 呈现指引（docs/dynamic-workflow/authoring.md「What the main agent is told when a run ends」）──
-  //
   // XML 之后追加一段散文，告诉主代理把 run 的结果当交付物呈现。completed 与非 completed 各一段；
   // 散文排在 reports 之后，所以总截断先斩它。
   it("completed 的通知在 XML 之后带交付物呈现指引", async () => {
@@ -1527,7 +1525,6 @@ describe("background task per-tool provider lookup", () => {
   });
 
   // ── run 的脚本文件（docs/dynamic-workflow/launch.md「Script files」）──
-  //
   // 端口在快照上给绝对路径（run 身份的一部分），追踪器交给指引的是**工作区相对**写法：
   // 主代理接下来要 Edit 这个文件，而那是它在别处读写文件时用的那一种路径。
   it("errored 的指引带上快照里的脚本文件，写成工作区相对路径", async () => {
@@ -1586,7 +1583,6 @@ describe("background task per-tool provider lookup", () => {
   });
 
   // ── 用户面产物（docs/dynamic-workflow/authoring.md「How the user sees them」）──
-  //
   // ⚠ 术语：本 describe 里的 artifact 有两个义。`<result>` 那一族是脚本的**顶层返回值**
   // （引擎内部的 `RunSettlement.artifact`），`<artifacts>` 这一节是脚本经 `artifact.*`
   // **发布给用户看的产出**。两者在同一条通知里并列出现，措辞必须可区分。

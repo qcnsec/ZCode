@@ -2,7 +2,6 @@
 // 父会话冷物化时，`app.replayDynamicWorkflowRuns` 交出的进度载荷被铸成 DynamicWorkflowRunProgress
 // 会话事件、前置到内存事件之前，经既有 cold merge（memory-only 权威）与同一个 reducer 落进
 // `workflowRuns`——重启后订阅拿到的快照里 run 与重启前一致。
-//
 // 覆盖面：
 //   1. 父会话直接命中 record：回放载荷进投影，内存里已有的 runId 被交给 CLI 排除；
 //   2. 子会话经 parentID 回落到父 record：**不**补种（journal 按父会话建键）；

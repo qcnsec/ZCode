@@ -138,7 +138,6 @@ describe("sandbox child spawn strategy", () => {
     // 只会让一份 run 级事实多出一个永远不会被读的副本，而那个副本还会随入口文件留在项目的
     // .zcode 目录里。launch 里的 `subagentModel` 尤其如此：模型面整个在宿主侧（子进程只把
     // ask 经桥递回来），子进程知道跑在哪个模型上既无用处，也没有任何代码路径会去读。
-    //
     // 五个都真的传下去，否则「不在 payload 里」是一句废话。
     const { settlement, cwd } = await runOnce({
       launch: { inputId: "input-origin", subagentModel: "zhipu/glm-5.3-flash$high" },

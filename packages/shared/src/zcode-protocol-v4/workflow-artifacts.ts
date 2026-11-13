@@ -7,11 +7,9 @@
 // `serializeWorkflowArtifact` **不是一回事**：那个 artifact 是引擎内部对「脚本顶层返回值」
 // 的叫法（`RunSettlement.artifact`），是给**模型**看的。两个文件名只差一个 s，读代码时按
 // 这条注释区分，不要靠文件名。
-//
 // 本模块只放 schema + 三条 v4 查询的参数/结果形状。状态键上的**摘要**元素
 // （`workflowRuns[].artifacts`）也住这里而不是 workflow-runs.ts：它与三条查询共享
 // `kind` 的枚举与「不带 spec、不带字节、不带 items」这条裁剪规则，拆开两处早晚漂移。
-//
 // 分层：字节永不进任何一个 schema（除 `workflowRunArtifactRead` 一次一块的 base64）。
 // 权威在 journal——`workflowRuns.artifacts` 只是「有没有变」的信号。
 
@@ -269,7 +267,6 @@ export type V4ConversationWorkflowRunArtifactDataResult = z.infer<
 // ── v4 query ③：workflowRunArtifactRead（内容产物的字节）──
 // **逐字照 `v4AttachmentRead*`**：≤ 512 KiB 一块（PROTOCOL_V4_LIMITS.attachmentChunkMaxBytes，
 // 同一个常量，不另铸），host→CLI 每请求 ≤ 1 MiB 的既有证明因此原样沿用。
-//
 // 刻意不复用 attachmentRead 本身：它按 conversation 的 user row 授权，而产物不挂在任何消息
 // 行上。授权链在 CLI 侧：sessionId 必须是该 run 的 parentSessionId ∧
 // (artifactId, version) 在 journal 有 completed 行 ⇒ 才拿行上的 uri 去 store 读。

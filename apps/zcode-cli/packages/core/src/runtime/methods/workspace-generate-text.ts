@@ -183,7 +183,7 @@ async function generateWorkspaceTextImpl(
   const abortSignal =
     options?.abortSignal ?? AbortSignal.timeout(WORKSPACE_GENERATE_TEXT_TIMEOUT_MS);
   // Git Commit 调用方曾传入固定 256，Core 又按 querySource 丢弃，形成虚假接口。
-  // 通用生成入口只处理调用方真实提供的预算；Git 辅助调用不再由上游伪造固定上限。
+  // 通用生成入口只处理调用方真实提供的预算；Git 辅助调用不再由 伪造固定上限。
   const requestMaxOutputTokens =
     querySource === GIT_COMMIT_MESSAGE_QUERY_SOURCE ? undefined : input.maxOutputTokens;
 

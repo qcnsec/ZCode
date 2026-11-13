@@ -624,6 +624,17 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.on(PlatformChannels.NewTask, handler);
     return () => ipcRenderer.removeListener(PlatformChannels.NewTask, handler);
   },
+  /** 注册托盘/原生菜单触发日志导出的进度回调，返回 disposer */
+  onExportLogsProgress: (
+    callback: (payload: import("@zcode/shared").ExportLogsProgressPayload) => void,
+  ): (() => void) => {
+    const handler = (
+      _event: unknown,
+      payload: import("@zcode/shared").ExportLogsProgressPayload,
+    ) => callback(payload);
+    ipcRenderer.on(PlatformChannels.ExportLogsProgress, handler);
+    return () => ipcRenderer.removeListener(PlatformChannels.ExportLogsProgress, handler);
+  },
   /** 注册 main 进程触发打开工作区的回调，返回 disposer */
   onOpenWorkspace: (callback: () => void): (() => void) => {
     const handler = () => callback();
@@ -960,6 +971,91 @@ contextBridge.exposeInMainWorld("zcode", {
     ipcRenderer.invoke(PlatformChannels.SetTitleBarTheme, theme),
   /** 获取桌面端设备标识符（deviceMid） */
   getDeviceId: () => ipcRenderer.invoke(PlatformChannels.GetDeviceId),
+
+  /**
+   * 新增能力。
+   * 通道白名单以安装包 out/preload/index.cjs 的 25 个 zcode:qctrk-* 为基础，
+   * 另加 1 个源码侧自建的 zcode:qctrk-usage-report（逐轮用量回写，产物由 renderer 直算），
+   * 对应 main 进程 registerQcTrkIpcHandlers。
+   */
+  qctrk: {
+    getUsage: (sessionId?: string): Promise<import("@zcode/shared").QcTrkUsageSnapshot> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkUsage, sessionId),
+    reportUsage: (report: import("@zcode/shared").QcTrkUsageReport): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkUsageReport, report),
+    invalidateUsage: (sessionId?: string): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkUsageInvalidate, sessionId),
+    getErrors: (): Promise<import("@zcode/shared").QcTrkErrorReport> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkErrors),
+    getBalanceConfig: (): Promise<import("@zcode/shared").QcTrkBalanceConfig> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkBalanceGet),
+    setBalanceConfig: (config: import("@zcode/shared").QcTrkBalanceConfig): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkBalanceSet, config),
+    queryBalance: (
+      targetId?: string,
+    ): Promise<import("@zcode/shared").QcTrkBalanceResult[]> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkBalanceQuery, targetId),
+    autoReadBalanceTargets: (): Promise<
+      import("@zcode/shared").QcTrkBalanceTarget[]
+    > => ipcRenderer.invoke(PlatformChannels.QcTrkBalanceAuto),
+    getProxy: (): Promise<import("@zcode/shared").QcTrkProxyConfig> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkProxyGet),
+    setProxy: (config: import("@zcode/shared").QcTrkProxyConfig): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkProxySet, config),
+    testProxy: (): Promise<import("@zcode/shared").QcTrkProxyTestResult> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkProxyTest),
+    getNotifyConfig: (): Promise<import("@zcode/shared").QcTrkNotifyConfig> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkNotifyGet),
+    setNotifyConfig: (config: import("@zcode/shared").QcTrkNotifyConfig): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkNotifySet, config),
+    testNotify: (
+      channel: "dingtalk" | "feishu",
+    ): Promise<import("@zcode/shared").QcTrkNotifyTestResult> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkNotifyTest, channel),
+    forwardNotify: (payload: import("@zcode/shared").QcTrkNotifyForwardPayload): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkNotifyForward, payload),
+    getAutocontConfig: (): Promise<import("@zcode/shared").QcTrkAutocontConfig> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkAutocontGet),
+    setAutocontConfig: (config: import("@zcode/shared").QcTrkAutocontConfig): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkAutocontSet, config),
+    getUpdateState: (): Promise<import("@zcode/shared").QcTrkUpdateState> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkUpdateGet),
+    checkUpdate: (): Promise<import("@zcode/shared").QcTrkUpdateState> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkUpdateCheck),
+    downloadUpdate: (): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkUpdateDownload),
+    cancelUpdate: (): Promise<void> => ipcRenderer.invoke(PlatformChannels.QcTrkUpdateCancel),
+    openUpdateInstaller: (): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkUpdateOpen),
+    onUpdateChanged: (
+      callback: (state: import("@zcode/shared").QcTrkUpdateState) => void,
+    ): (() => void) => {
+      const handler = (_event: unknown, state: import("@zcode/shared").QcTrkUpdateState) =>
+        callback(state);
+      ipcRenderer.on(PlatformChannels.QcTrkUpdateChanged, handler);
+      return () => ipcRenderer.removeListener(PlatformChannels.QcTrkUpdateChanged, handler);
+    },
+    listDeletedTasks: (): Promise<import("@zcode/shared").QcTrkDeletedTask[]> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkDeletedTasks),
+    purgeTask: (
+      request: string | import("@zcode/shared").QcTrkPurgeTaskRequest,
+    ): Promise<void> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkPurgeTask, request),
+    scanModels: (request: {
+      baseURL: string;
+      apiKey: string;
+      headers?: Record<string, string>;
+    }): Promise<import("@zcode/shared").QcTrkScanModelsResult> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkScanModels, request),
+    getModelContextSources: (): Promise<
+      import("@zcode/shared").QcTrkModelContextSourcesResult
+    > =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkModelContextSourcesGet),
+    setModelContextSources: (payload: {
+      entries: import("@zcode/shared").QcTrkModelContextSourceInput[];
+    }): Promise<import("@zcode/shared").QcTrkModelContextSourcesResult> =>
+      ipcRenderer.invoke(PlatformChannels.QcTrkModelContextSourcesSet, payload),
+  },
 });
 
 installPluginSandboxHostBridge();

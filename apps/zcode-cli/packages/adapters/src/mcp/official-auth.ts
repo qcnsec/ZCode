@@ -196,14 +196,11 @@ export function createOfficialMcpAuthFetch(
       const headers = mergeOfficialAuthHeaders(init?.headers, authHeaders);
 
       // 关联 id 一律**不外发**，只剥离。
-      //
       // 服务端不会采用客户端传入的 request id，始终自行生成、不读入站 header。
       // 因此客户端发送
       // X-Request-Id / X-Trace-Id 不会被任何人读取，属死代码且会误导后来者。
-      //
       // 端到端对账改为反方向：读服务端**响应头**里的 x-request-id 并记入日志
       // （见下方 serverRequestId），用它去查服务端日志。
-      //
       // 仍然显式 delete 而不是放任：这两个 header 语义上属于关联/可观测通道，不应由
       // 插件静态配置注入到官方端点——插件设的值会原样出现在服务端及中间层日志里。
       headers.delete(REQUEST_ID_HEADER);
@@ -261,12 +258,10 @@ export function createOfficialMcpAuthFetch(
           });
         } else {
           // 非 2xx 必须记在 warn，不能只有上面那条 debug。
-          //
           // 生产构建的 logger 最低级别是 Info（见 logging/index.ts 的
           // getDefaultMinLevel），debug 直接被丢弃。结果是出错时——恰恰是唯一需要对账的
           // 时候——服务端 request id 在日志里根本不存在，只能靠读代码反推（3001
           // "parameter error" 那次排查就是这样）。
-          //
           // 这里刻意不吞掉响应：4xx/5xx 仍原样交回 SDK，由它按协议报错，本 wrapper 只
           // 补一条可检索的记录。401/403/3xx 的分类失败在下方另行抛出。
           input.logger?.warn("Official MCP response failed", {

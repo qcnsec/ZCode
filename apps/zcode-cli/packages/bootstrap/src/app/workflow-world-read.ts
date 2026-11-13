@@ -4,7 +4,6 @@
 // 从 workflow-driver.ts 里分出来的一半。driver 那边是 actor 会话、turn 编排与 submit 桥接；
 // 这边是"把一个 (op, args) 变成一次真实的只读观察"——两者唯一的接触面是
 // {@link executeWorldRead}，且这一半完全不碰会话、模型与 journal。
-//
 // 三件事在这里，而且只在这里：
 //   1. **每个 op 的元数与实参校验**。Boundary A 的 `worldRead(siteId, op, args)` 只承诺
 //      "实参按位置原样送达"（lowering 不看 op），所以"一个 pattern / 一个 base ref 长什么样"

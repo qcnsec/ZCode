@@ -2,16 +2,13 @@
 // through the variable it was bound to. The continuation is a deferred strand: its first
 // event is the ordinary barrier over its receiver (the writer's ask), and the edit it awaits
 // belongs to the strand's frame, never to the main line.
-//
 // This is the "edge disappears" case the plan predicted and no existing fixture has: the
 // side ask is issued between the registration and `await q`, and under the old global
 // `settle maybe` it collected a `seq maybe` arrow from the receiver's step. It gets none now.
-//
 // The join at `await q` is the bound-variable half of the awaited-position scan: `q` is the
 // operand, `strandsBySymbol` holds the strand spawned while its declaration was evaluated,
 // and the strand's summary carries BOTH the receiver's step (settled by the prologue) and
 // the editor's (settled by the callback's own await).
-//
 // Expected:
 //   core — `region call#1 call parent=seq#1>choice#1>branch#1 … label="then" strand` (the
 //     continuation runs iff the receiver fulfils, hence the skippable choice), a CERTAIN

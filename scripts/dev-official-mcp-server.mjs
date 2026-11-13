@@ -39,7 +39,7 @@ const { values } = parseArgs({
     //   initialize  → 模拟"连接时就发现没额度"
     //   tools/call  → 模拟"连上了，调用时额度耗尽"
     "fail-on": { default: "all", type: "string" },
-    // 在 tools/call 前人为延迟 N 毫秒，用来复现"上游网关慢导致客户端超时"。
+    // 在 tools/call 前人为延迟 N 毫秒，用来复现" 网关慢导致客户端超时"。
     // 设成大于 .mcp.json 的 timeoutMs 即可稳定触发客户端超时。
     "delay-ms": { default: "0", type: "string" },
   },
@@ -332,7 +332,7 @@ const server = createServer((request, response) => {
       console.log(`   → 入参：${JSON.stringify(args)}`);
 
       if (control.delayMs > 0) {
-        // 复现"上游慢 → 客户端预算先到期"。客户端超时后会断开，这里的响应会写到已关闭的
+        // 复现" 慢 → 客户端预算先到期"。客户端超时后会断开，这里的响应会写到已关闭的
         // socket 上（被忽略），正好对应线上"服务端还在处理、客户端已放弃"的形态。
         console.log(`   ⏳ 人为延迟 ${control.delayMs}ms（--delay-ms）…`);
         await sleep(control.delayMs);

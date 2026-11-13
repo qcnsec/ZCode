@@ -1,5 +1,4 @@
 // PermissionRequest hook 与交互 broker 的并发竞速（spec：docs/design/v2/permission-responder-race.md）。
-//
 // Bug 根因（2026-08-26 实机事故）：旧路径在 emitPermissionRequested 之后**串行** await
 // PermissionRequest hook 链，broker 的应答通道要等 hook 返回才建立。同步 hook（外部审批
 // 桥接）阻塞期间，确认窗已可见但用户点击全部被 resolveInteraction 按幂等语义静默丢弃，

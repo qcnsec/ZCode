@@ -18,7 +18,7 @@ function replaceRequired(source, needle, replacement, label) {
 /**
  * 给 electron-builder 的安装段补上可见阶段，并开启 NSIS 内置逐文件详情。
  *
- * 这里不复制整份上游模板，避免 electron-builder 升级时静默带入旧模板；每次打包
+ * 这里不复制整份 模板，避免 electron-builder 升级时静默带入旧模板；每次打包
  * 都必须命中下面的结构锚点，模板结构变化会立即失败并提醒维护者重新对齐。
  */
 export function patchNsisInstallSectionSource(source) {

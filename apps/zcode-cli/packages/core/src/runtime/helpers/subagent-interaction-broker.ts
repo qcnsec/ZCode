@@ -28,7 +28,6 @@ export function createSubagentInteractionBroker(
       // 契约（2026-09-17 review）：registered 只是挂在 Promise 上的属性；本函数必须原样返回父 broker 的
       // 响应对象，不得改成 async 或加 .then 重新包装，否则信号静默丢失、executor 退回同步登记假设并
       // 重新引入"确认窗可见但 deferred 未登记"的竞态。subagent-interaction-broker.test.ts 守护该同一性。
-      //
       // 本包装可以叠加。`sessionId` 由**外层**（离客户端更近的一层）
       // 最后改写，所以任意深度最终都落到根会话；`origin` 反过来保留**内层**已有值，
       // 归属永远是真正发起请求的那个子代理，不会被外层覆盖成中间层。

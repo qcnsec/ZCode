@@ -48,7 +48,6 @@ export function ArtifactPresetBody({
 }) {
   if (!isArtifactPresetKind(artifact.kind)) return null;
   // 「spec 不在场」与「spec 坏了」必须分开说。
-  //
   // spec 只有 journal 查询带得回来（活投影刻意不带它），所以**每次打开面板的头几帧**
   // spec 都还是 undefined。两者合并成一句「无法渲染」的结果，是每个看板在加载期间都先
   // 闪一次错误文案。所以：不在场 ⇒ 交给调用方决定（侧板小卡传 undefined，保持安静；

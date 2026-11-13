@@ -7,7 +7,6 @@
 // fan-out nodes: fan-out#1 = the `map` inside `viaMap` (source-order first),
 // fan-out#2 = the top-level `seeds.map`. Before the fix the top-level map failed to
 // promote (a dropped fan-out).
-//
 // Expected edges:
 //   source -> world-read#1                       (glob drives the loops)
 //   world-read#1 -> fan-out#2                     (seeds iterated by the top map)

@@ -63,7 +63,6 @@ export function publishContentArtifact(
   // 实参形状的运行期护栏（编译期的字面量 id 诊断与 facade 类型是正门）：走到这里的非字符串
   // 只可能是有东西绕过了编译。用 DriverError 而不是某个 Artifact* 码——让那些码只表示它们
   // 各自的那件事（同 probeReportItem 对「item 不是 JSON」的取码论证）。
-  //
   // 这两条**不落 journal 行、不发事件**，与下面所有失败路径不同。理由是它们是**确定性**的：
   // 结论只由 args 决定，没有 driver 往返，resume 重跑同一个调用必然得到同一个拒绝，所以
   // 不需要一行记录把它钉住（「settled failure 落库」那条要求针对的是 driver 执行过的、

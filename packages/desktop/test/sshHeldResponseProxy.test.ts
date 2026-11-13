@@ -79,7 +79,7 @@ describe("旧 SSH 回包代理的真实字节对账", () => {
     expect(fresh.chunks.join("")).toBe("CURRENT");
   });
 
-  it("上游先结束时，旧字节和 FIN 都保留到显式释放", async () => {
+  it(" 先结束时，旧字节和 FIN 都保留到显式释放", async () => {
     const { peers, proxy, connect } = await setup();
     const old = await connect();
     let ended = false;

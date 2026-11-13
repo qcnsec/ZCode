@@ -73,7 +73,7 @@ export async function callMcpUiTool(
   );
 }
 
-/** `mcp/uiCancelCall`（）：取消 `mcp/uiCallTool` 带 callId 的进行中调用；同样 fail closed 校验归属。 */
+/** `mcp/uiCancelCall`：取消 `mcp/uiCallTool` 带 callId 的进行中调用；同样 fail closed 校验归属。 */
 export async function cancelMcpUiToolCall(
   context: ZCodeProtocolAgentServerContext,
   rawParams: unknown,

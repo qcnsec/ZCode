@@ -1,5 +1,4 @@
 // PermissionRequest hook 链与交互 broker 的并发竞速。
-//
 // 旧路径在 emitPermissionRequested 之后串行 await hook
 // 链，broker 的应答 deferred 要等 hook 返回才注册。同步 hook（把权限请求转投外部 UI 并
 // 阻塞等待外部点击的桥接程序）挂起期间，确认窗已对用户可见，但所有点击都被

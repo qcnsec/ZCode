@@ -3,7 +3,6 @@
 // ============================================================
 // 独立成文件：workflow-driver.ts 早已超过 max-lines，而这段只读 driver 的 deps / sink / 会话态，
 // 与状态机的其余部分无关。
-//
 // 静态 profile 是站点图 may-set 上的推导；一个 typed ask 落到与之不符的会话上，只可能是分析不够
 // 精确——不是脚本的错，也不该让 run 静默出错：
 //   - `mono` 但 schema 不同：把这个会话的 submit_result 换回通用声明并让 runtime 重算工具面，

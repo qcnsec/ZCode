@@ -4,7 +4,6 @@
 // submit（新 runId）与 resume（既有 runId，引擎走
 // resume 分支）在「装配 driver → 跑 runWorkflowScript」这一段完全同构，抽到本文件共享：
 // 两条入口各自维护一份，迟早有一边忘记接事件 sequence 截取或 actor 重水化。
-//
 // 本文件持有三件事：
 //   1. journal sequence 截取（emit 侧拿到刚 append 的那条事件的 sequence）；
 //   2. RunEvent → 会话事件载荷（有界化 + 派生字段；实现在 dynamic-workflow-run-progress-payload.ts）；
@@ -322,7 +321,6 @@ export function launchDynamicWorkflowRun(
         escalatePort,
         // resume 的 pin：这个 actor 上一次跑在哪个模型上。必须在**造 runtime 之前**读，
         // 因为下面那行 journalActorResolvedModel 会把这一轮的解析结果写回同一个字段。
-        //
         // 种子带来的 pin 是**承袭**（amend-resume）：修订 run 的第一次派发时本 run 的 journal 还
         // 没有解析结果，pin 只能来自前驱——转录接续下静默换模型正是 pin 要防的身份突变。两者都在
         // 场（修订 run 崩溃后 resume）时以本 run 的记录为准：那是这个 actor 在**这个 run 里**实际
@@ -538,7 +536,6 @@ async function persistActorSession(input: {
       // dwf_run；migration runner 开着 pragma foreign_keys = on。对着真实 store 探测过：
       // 带 workflow runId 调用得到 `FOREIGN KEY constraint failed`，省略则成功。所以 run 身份走
       // 下面这个无 FK 的 path 列。别把它"修"回来。
-      //
       // path 是一个迷你契约：`dwf/<runId>/<siteId>@<ordinal>`。runId 已字符集安全；siteId 段
       // 保留原始 `#`/`@`（自由文本列，且已 sanitize 的形态就在会话 id 里）。**今天没有任何代码
       // 解析它**——它服务于人阅读与将来可能的前缀扫描（"这个 run 的所有 actor 会话"）。

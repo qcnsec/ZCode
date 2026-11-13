@@ -3,11 +3,9 @@
 // ============================================================
 // 见端口
 // `DynamicWorkflowRunPort.resume` 的契约（interfaces/dynamic-workflow-run.port.ts）。
-//
 // 这是 workflow run 恢复的第三个入口（继 UI 详情页按钮、CLI /dwf resume 之后），执行底座零
 // 改动：同一条 `port.resume(runId)`、同 runId 原地续跑（脚本由 scriptHash 钉死、实参与
 // caps 沿用 journal 记录、已完结节点纯 replay、未完结节点重新派发）。
-//
 // 输出只有成功形：失败走 ToolHandlerFailure（core 侧），不进本 schema——所以全字段必填、
 // 无 optional。`status: "backgrounded"` 让 executor 的自动追踪按输出形状认领它，走
 // CreateWorkflow 同一条 trackBackgroundTask。

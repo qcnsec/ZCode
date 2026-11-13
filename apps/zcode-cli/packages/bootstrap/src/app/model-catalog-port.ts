@@ -5,7 +5,6 @@
 // `CreateWorkflow` / `AmendWorkflow` 的 `subagent_model` 要把用户说的模型名解析成一次
 // workflow run 的子代理选型，而 core 看不见 provider 注册表。本模块把「有哪些模型」这件宿主
 // 事实递过去，解析本身留在 core 的纯函数里。
-//
 // 与 provider-registry-selection.ts 的 `listRegistryBackedModels` 是同一份注册表的**两张脸**：
 // 那边产出 GUI picker 的 `ZCodeModelOption`（带 label / maxOutputTokens / 格式属性），这边产出
 // 工具层要的窄条目。刻意不共用一个投影函数——两张脸的字段集与在场规则各自独立，硬要合并只会

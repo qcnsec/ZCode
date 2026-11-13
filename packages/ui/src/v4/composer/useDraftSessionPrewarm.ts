@@ -1,6 +1,5 @@
 /* oxlint-disable eslint(max-lines) -- draft prewarm 的创建、复用、回收和首帧 ModelSelection 必须共享同一 owner 状态机；拆到多文件会让 StrictMode/transport 换代清理时序更难审计。 */
 // 草稿态 v4 draft session 预热。
-//
 // 背景：草稿态没有任何 session 在册时，配置面被迫走 workspace-default 旧 RPC，
 // 其回包 buildWorkspaceState 每次临建完整 app（140-798ms/次）；首发也要现场
 // createSession。v4 协议本就保留 phase=draft 会话实体（「pane 绑 draft
@@ -8,7 +7,6 @@
 // draft session 作预热载体：配置写走 v4 CAS 命令直达会话、首发 sendText 复用、
 // 未使用则清理。纯内存不落盘，CLI 重启即消失；gateway isDraftSession 过滤保证
 // 它不会以「新任务」漏进 sessions-index 侧栏。
-//
 // 结构：生命周期收敛在纯控制器 startDraftSessionPrewarm（可单测，无 React 依赖），
 // useDraftSessionPrewarm 只做 effect 接线与 owner-scoped binding 暴露。
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";

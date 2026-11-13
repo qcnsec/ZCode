@@ -1,10 +1,8 @@
 // 用户面产物在观察面的合成规则（docs/dynamic-workflow/authoring.md）：
 // `artifactsOf` 与终态快照上的 `artifacts` 键。
-//
 // ⚠ 术语：本文件里的 artifact 是脚本经 `artifact.*` **发布给用户看的产出**（journal
 // `kind = "artifact"` 的行），不是 `RunSettlement.artifact`（脚本顶层返回值，快照上叫
 // `output`）。同一个词两个义，spec 的「术语」表是唯一消歧处——两者在本文件的断言里并列出现。
-//
 // 端口的两条查询（`listArtifactRows` / `listArtifactItems`）不在引擎的 JournalStorePort 上，
 // 所以生产路径靠能力探测接上；这里用一个带 / 不带那个方法的内存 journal 把两支都跑到。
 import { describe, expect, it, vi } from "vitest";

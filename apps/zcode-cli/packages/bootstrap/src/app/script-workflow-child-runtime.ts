@@ -214,7 +214,6 @@ function createRuntimeDeps(
     // 直播通道（照 subagent 同款）：原始子会话事件只**通知**父 runtime 的外部 sink 集，
     // 保留子 sessionId 让协议层按 detached live session 路由；父侧不再 append，
     // 所以共享 store 里每条事件恰好一份。
-    //
     // 必须在**构造期**装：`ensureSessionPersistedForExternalActivity` 把 SessionTitleUpdated
     // 写成 sequenceNumber 1，而 v4 网关只排水连续 seq——构造之后才挂的订阅从 seq 2 起，
     // 会永远等一个再也不会来的 seq 1（这正是旧 subscribeEvents 通道从未直播成功的原因）。

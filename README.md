@@ -4,14 +4,14 @@
   <img src="public/logo/icons/1024x1024.png" alt="ZCode" width="128" height="128" />
 </div>
 <p align="center">
-  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=47ag983c-8fcb-4d6d-814b-5395193a712c&amp;qr_code=true">飞书社群</a> ·
-  <a href="https://discord.gg/z9aBcQXZQ3">Discord</a>
-</p>
-<p align="center">
   简体中文 | <a href="README.en.md">English</a>
 </p>
 
 ZCode 是 AI 编程工作台，提供桌面应用、浏览器界面和终端 Agent。本仓库包含客户端、后端服务、共享 UI，以及 Agent CLI 与运行时源码。
+
+## 增强功能
+
+基于官方 v3.17.2，补充常驻用量条、桌面端设置分区、代理连通性测试、模型上下文来源追踪、模型扫描，以及删除会话后的残留清理。
 
 ## 更新
 

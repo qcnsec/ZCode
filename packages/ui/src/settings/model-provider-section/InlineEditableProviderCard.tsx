@@ -25,6 +25,7 @@ import {
   ProviderModelsSection,
 } from "./ProviderCardSections.js";
 import { resolveModelProviderDisplayName } from "./constants.js";
+import { QcTrkModelScanner } from "./QcTrkModelScanner.js";
 import { useProviderDetailFeedback } from "./ProviderDetailFeedback.js";
 import { MODEL_PROVIDER_TEXT_IDLE_TRIGGER_MS, useIdleTrigger } from "./useIdleTrigger.js";
 import { useOptimisticReorder } from "./useOptimisticReorder.js";
@@ -191,6 +192,13 @@ export function InlineEditableProviderCard({
     provider.config.api?.type ?? "anthropic-messages",
   );
   const [baseUrlValue, setBaseUrlValue] = useState(provider.config.api?.baseUrl ?? "");
+  const [customPathValue, setCustomPathValue] = useState(provider.config.api?.customPath ?? "");
+  const [customQueryValue, setCustomQueryValue] = useState(
+    provider.config.api?.customQuery ?? "",
+  );
+  const [customHeadersValue, setCustomHeadersValue] = useState(
+    provider.config.api?.customHeaders ?? "",
+  );
   const [apiKeyValue, setApiKeyValue] = useState(getProviderFormApiKey(provider));
   const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [savingEnabled, setSavingEnabled] = useState(false);
@@ -233,11 +241,17 @@ export function InlineEditableProviderCard({
     apiFormat: provider.config.api?.type ?? "anthropic-messages",
     baseUrlValue: provider.config.api?.baseUrl ?? "",
     apiKeyValue: getProviderFormApiKey(provider),
+    customPathValue: provider.config.api?.customPath ?? "",
+    customQueryValue: provider.config.api?.customQuery ?? "",
+    customHeadersValue: provider.config.api?.customHeaders ?? "",
   });
 
   useEffect(() => {
     const resolvedApiFormat = provider.config.api?.type ?? "anthropic-messages";
     const resolvedBaseUrl = provider.config.api?.baseUrl ?? "";
+    const resolvedCustomPath = provider.config.api?.customPath ?? "";
+    const resolvedCustomQuery = provider.config.api?.customQuery ?? "";
+    const resolvedCustomHeaders = provider.config.api?.customHeaders ?? "";
     const resolvedApiKey = getProviderFormApiKey(provider);
     const resolvedLabel = getProviderFormLabel(provider);
     if (providerIdRef.current !== provider.providerId) {
@@ -262,6 +276,9 @@ export function InlineEditableProviderCard({
     syncField("nameValue", resolvedLabel, setNameValue);
     syncField("apiFormat", resolvedApiFormat, setApiFormat);
     syncField("baseUrlValue", resolvedBaseUrl, setBaseUrlValue);
+    syncField("customPathValue", resolvedCustomPath, setCustomPathValue);
+    syncField("customQueryValue", resolvedCustomQuery, setCustomQueryValue);
+    syncField("customHeadersValue", resolvedCustomHeaders, setCustomHeadersValue);
     syncField("apiKeyValue", resolvedApiKey, setApiKeyValue);
   }, [provider]);
 
@@ -315,7 +332,11 @@ export function InlineEditableProviderCard({
       });
       try {
         await operation();
-        if (!shouldApplyProviderSaveCompletion(draftRevisionRef.current, revision)) return;
+        if (!shouldApplyProviderSaveCompletion(draftRevisionRef.current, revision)) {
+          // 本次保存已被后续编辑取代，不能把 durationMs=0 的「正在保存」永久留在反馈层。
+          notification.dismissFeedback(dedupeKey);
+          return;
+        }
         notification.showFeedback({
           key: dedupeKey,
           message: notification.formatMessage(
@@ -328,32 +349,35 @@ export function InlineEditableProviderCard({
         });
       } catch (error) {
         selfSaveRequestedRef.current = false;
-        if (shouldApplyProviderSaveCompletion(draftRevisionRef.current, revision)) {
-          notification.showFeedback({
-            key: dedupeKey,
-            message: notification.formatMessage(
-              {
-                id: messageIds.failure,
-              },
-              {
-                ...messageValues,
-                error: error instanceof Error ? error.message : String(error),
-              },
-            ),
-            state: "failure",
-            durationMs: 8_000,
-            ...(target.draftOwnsRetry
-              ? {}
-              : {
-                  actionLabel: notification.formatMessage({ id: "common.retry" }),
-                  onAction: () => {
-                    void runSaveOperation(operation, target).catch(() => undefined);
-                  },
-                }),
-            dismissible: true,
-            dismissLabel: notification.formatMessage({ id: "common.close" }),
-          });
+        if (!shouldApplyProviderSaveCompletion(draftRevisionRef.current, revision)) {
+          // 过期的失败结果不展示，同时清掉这次操作留下的常驻 pending 提示。
+          notification.dismissFeedback(dedupeKey);
+          throw error;
         }
+        notification.showFeedback({
+          key: dedupeKey,
+          message: notification.formatMessage(
+            {
+              id: messageIds.failure,
+            },
+            {
+              ...messageValues,
+              error: error instanceof Error ? error.message : String(error),
+            },
+          ),
+          state: "failure",
+          durationMs: 8_000,
+          ...(target.draftOwnsRetry
+            ? {}
+            : {
+                actionLabel: notification.formatMessage({ id: "common.retry" }),
+                onAction: () => {
+                  void runSaveOperation(operation, target).catch(() => undefined);
+                },
+              }),
+          dismissible: true,
+          dismissLabel: notification.formatMessage({ id: "common.close" }),
+        });
         throw error;
       }
     },
@@ -508,6 +532,36 @@ export function InlineEditableProviderCard({
       markDraftDirty("baseUrlValue");
       draftRef.current.baseUrlValue = value;
       setBaseUrlValue(value);
+      scheduleIdleDraftSave();
+    },
+    [markDraftDirty, scheduleIdleDraftSave],
+  );
+
+  const handleCustomPathValueChange = useCallback(
+    (value: string) => {
+      markDraftDirty("customPathValue");
+      draftRef.current.customPathValue = value;
+      setCustomPathValue(value);
+      scheduleIdleDraftSave();
+    },
+    [markDraftDirty, scheduleIdleDraftSave],
+  );
+
+  const handleCustomQueryValueChange = useCallback(
+    (value: string) => {
+      markDraftDirty("customQueryValue");
+      draftRef.current.customQueryValue = value;
+      setCustomQueryValue(value);
+      scheduleIdleDraftSave();
+    },
+    [markDraftDirty, scheduleIdleDraftSave],
+  );
+
+  const handleCustomHeadersValueChange = useCallback(
+    (value: string) => {
+      markDraftDirty("customHeadersValue");
+      draftRef.current.customHeadersValue = value;
+      setCustomHeadersValue(value);
       scheduleIdleDraftSave();
     },
     [markDraftDirty, scheduleIdleDraftSave],
@@ -725,6 +779,30 @@ export function InlineEditableProviderCard({
     [onAddPersonalModel, provider.providerId, runSaveOperation],
   );
 
+  /** ：一次扫描可勾选多个模型，串行写入避免并发保存互相覆盖。 */
+  const handleAddScannedModels = useCallback(
+    async (ids: string[]) => {
+      for (const id of ids) {
+        await handleAddModel({
+          kind: "candidate",
+          modelId: id,
+          builtin: false,
+          personalConfig: {},
+          config: { properties: { supportsToolCall: true } },
+          hasPersonalConfig: true,
+          executable: false,
+          selectable: false,
+        });
+      }
+    },
+    [handleAddModel],
+  );
+
+  const existingModelIds = useMemo(
+    () => models.map((model) => model.modelId),
+    [models],
+  );
+
   const handleReorderModelIds = useCallback(
     (modelIds: string[]) => {
       if (!onReorderModelIds) return;
@@ -820,6 +898,12 @@ export function InlineEditableProviderCard({
             onBaseUrlKeyDown={handleTextCommitKeyDown}
             onBaseUrlCompositionStart={handleTechnicalInputCompositionStart}
             onBaseUrlCompositionEnd={handleTechnicalInputCompositionEnd}
+            customPathValue={customPathValue}
+            onCustomPathChange={handleCustomPathValueChange}
+            customQueryValue={customQueryValue}
+            onCustomQueryChange={handleCustomQueryValueChange}
+            customHeadersValue={customHeadersValue}
+            onCustomHeadersChange={handleCustomHeadersValueChange}
           />
         )}
 
@@ -854,6 +938,19 @@ export function InlineEditableProviderCard({
           onReorderModelIds={onReorderModelIds ? handleReorderModelIds : undefined}
           settingsRevision={settingsRevision ?? 0}
         />
+        {/* ：一键扫描 /v1/models 并批量添加。账号型供应商无自定义地址，不显示。 */}
+        {!isAccountProvider && !readOnlyEndpoints ? (
+          <QcTrkModelScanner
+            providerId={provider.providerId}
+            baseURL={baseUrlValue}
+            apiKey={apiKeyValue}
+            headers={
+              provider.config.api?.headers ? { ...provider.config.api.headers } : undefined
+            }
+            existingModelIds={existingModelIds}
+            onAddModels={handleAddScannedModels}
+          />
+        ) : null}
       </div>
     </div>
   );

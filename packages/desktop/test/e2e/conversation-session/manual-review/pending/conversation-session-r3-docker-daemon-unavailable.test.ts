@@ -1,7 +1,6 @@
 // R3A-TRN-02：本机 Docker daemon 不可用（socket 不存在、socket 没有权限）时连接 Docker 容器。
 // 连接屏报“连接失败”，详细信息保留 docker CLI 原因；不报容器环境检查失败或没有容器写入权限。
 // daemon 恢复后同一容器正常进入安装确认，说明成功路径不受影响。
-//
 // 只改应用 HOME 下的 docker context：WDIO 与应用共用隔离的 E2E HOME，不影响本机其他 docker 调用。
 import { execFile } from "node:child_process";
 import { chmod, mkdir, rm, writeFile } from "node:fs/promises";

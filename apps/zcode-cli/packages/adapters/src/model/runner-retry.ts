@@ -204,7 +204,7 @@ function modelFailureSource(
   }
 
   // SSE 已创建并进入 response body 后，即使 provider 没有返回 status/code，
-  // 也已经有明确的上游边界事实；仅按 status/provider error 判断会误把这类未知失败归为 runtime。
+  // 也已经有明确的 边界事实；仅按 status/provider error 判断会误把这类未知失败归为 runtime。
   if (
     additionalContext?.streamFailurePhase === "response_body" ||
     additionalContext?.errorPhase === "response" ||
@@ -215,7 +215,7 @@ function modelFailureSource(
   }
 
   // invalid_request/unknown 同时覆盖请求前的本地配置校验和 provider 响应失败；
-  // 只按 reason 归因会把尚未发出网络请求的错误也记到 provider。缺少上游证据时归 runtime。
+  // 只按 reason 归因会把尚未发出网络请求的错误也记到 provider。缺少 证据时归 runtime。
   if (
     reason === ModelFailureReason.InvalidRequest ||
     reason === ModelFailureReason.ProviderNotConfigured ||

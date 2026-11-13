@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { classifyLintDiagnostics, parseLintCommand } from "../cli-lint-admission.mjs";
 
-test("只接纳原样上游的行数诊断，其他错误与修改过的文件仍阻断", () => {
+test("只接纳原样 的行数诊断，其他错误与修改过的文件仍阻断", () => {
   const diagnostics = [
     { filename: "src/original.ts", code: "eslint(max-lines)", severity: "error" },
     { filename: "src/edited.ts", code: "eslint(max-lines)", severity: "error" },

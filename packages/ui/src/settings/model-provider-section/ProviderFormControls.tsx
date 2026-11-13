@@ -12,6 +12,12 @@ import { formatModelContextWindowLabel } from "@/lib/tokenNumberFormat.js";
 import type { ModelConfigResolution, ProviderConfigObject } from "@zcode/provider";
 import { shouldShowModelVisionBadge } from "@/lib/modelVisionBadge.js";
 import { useProviderDetailFeedback } from "@/settings/model-provider-section/ProviderDetailFeedback.js";
+import { useOptionalPlatform } from "@/hooks/usePlatform.js";
+import {
+  resolveQcTrkModelContextSource,
+  type QcTrkModelContextSource,
+} from "@zcode/shared";
+import { useQcTrkModelContextSources } from "@/hooks/useQcTrkModelContextSources.js";
 
 export function ModelRowInput({
   model,
@@ -237,9 +243,21 @@ export function ModelRowInput({
     model.config.properties?.contextWindow ?? 0,
     locale,
   );
-  const contextWindowAccessibleLabel = intl.formatMessage(
-    { id: "settings.modelProvider.contextWindowBadgeLabel" },
-    { value: contextWindowLabel },
+  // 显示上下文窗口大小的来源（下发 / 智能计算 / 手动设置）。
+  const modelContextSources = useQcTrkModelContextSources(useOptionalPlatform()?.qctrk);
+  const contextSource: QcTrkModelContextSource = resolveQcTrkModelContextSource({
+    sources: modelContextSources,
+    providerId,
+    modelId: model.modelId,
+    personalContextWindow: model.personalConfig?.properties?.contextWindow ?? null,
+    effectiveContextWindow: model.config.properties?.contextWindow ?? null,
+  });
+  const contextSourceLabel = intl.formatMessage({
+    id: `settings.modelProvider.contextWindowSource.${contextSource}`,
+  });
+  const contextSourceAccessibleLabel = intl.formatMessage(
+    { id: "settings.modelProvider.contextWindowSourceBadgeLabel" },
+    { source: contextSourceLabel, value: contextWindowLabel },
   );
 
   return (
@@ -253,9 +271,17 @@ export function ModelRowInput({
             {model.modelId}
           </span>
           <span
+            data-qctrk-context-source={contextSource}
+            className="inline-flex h-5 shrink-0 items-center rounded-md border border-border bg-surface px-1.5 text-ui-sm text-foreground-subtle"
+            aria-label={contextSourceAccessibleLabel}
+            title={contextSourceAccessibleLabel}
+          >
+            {contextSourceLabel}
+          </span>
+          <span
             className="inline-flex h-5 max-w-20 shrink-0 items-center truncate rounded-md border border-border bg-surface px-1.5 font-mono text-ui-sm text-foreground-subtle"
-            aria-label={contextWindowAccessibleLabel}
-            title={contextWindowAccessibleLabel}
+            aria-label={contextSourceAccessibleLabel}
+            title={contextSourceAccessibleLabel}
           >
             {contextWindowLabel}
           </span>

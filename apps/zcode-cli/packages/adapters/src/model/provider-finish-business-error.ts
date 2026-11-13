@@ -171,7 +171,7 @@ function readProviderCode(record: Record<string, unknown>): string | undefined {
     normalizeProviderCode(record.error_code) ??
     normalizeProviderCode(errorRecord?.error_code) ??
     // ProviderBusinessError 二次进入 AI SDK chunk 时，外层 code 是包装类型；
-    // 真实上游码在 providerCode/嵌套 body 中，不能让包装码提前截断扫描。
+    // 真实 码在 providerCode/嵌套 body 中，不能让包装码提前截断扫描。
     normalizeProviderCode(record.code) ??
     normalizeProviderCode(errorRecord?.code) ??
     normalizeProviderCode(contextRecord?.code) ??

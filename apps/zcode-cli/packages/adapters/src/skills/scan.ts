@@ -7,12 +7,10 @@
 // 避免把单个技能误当集合而静默漏扫。
 // 插件发现链路（countSkillFiles / collectSkillComponents）是同步代码，技能 adapter 走
 // fs/promises，因此提供 sync/async 两个变体，规则只写一份、由各自实现遵循。
-//
 // 错误契约：只吞「常态缺失」——路径不存在（ENOENT）或不是目录时返回空数组；其余错误
 // （如 EACCES 权限、EMFILE）必须向上抛，由调用方决定发 skill_scan_failed 诊断还是
 // 优雅降级。外层 catch 不能吞掉一切错误：权限错误会退化为静默空、skill_scan_failed
 // 诊断成为死代码，重新引入了静默失败路径。
-//
 // 信任边界：plugin-scope 内容不可信，符号链接（含 Windows
 // junction——Dirent.isSymbolicLink/lstat 对两者均返回 true）可指向插件根外的任意
 // 目录或文件（目录级 skills/evil-link -> ../../outside、文件级 SKILL.md -> ~/.aws/

@@ -2,12 +2,10 @@
 // 确认窗里调整的两项 run 设置（CreateWorkflow / AmendWorkflow 共用）
 // ============================================================
 // docs/dynamic-workflow/launch.md「Adjusting the settings in the window」。
-//
 // 三件事，一处实现：
 //   1. `resolveInput` 回填的 `adjustable_settings` 块（告诉确认窗这个 agent 会应用窗里改的值）；
 //   2. 批准之后把应答里的改动落进入参（executor 经 `ToolEntry.applyInputAdjustments` 调这里）；
 //   3. 结果文案里那句「批准之前，用户在确认窗里调整了设置」。
-//
 // 落进入参之后的形状与 `resolveInput` 的产物完全相同——「一个规范形或没有」「一个数或没有」——所以
 // handler、run 端口与 journal 都不需要知道调整发生过；只有模型面的那句话需要。
 

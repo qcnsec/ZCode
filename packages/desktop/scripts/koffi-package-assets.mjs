@@ -1,5 +1,4 @@
 // Koffi native runtime staging for the bundled CUA MCP server.
-//
 // The CUA server externalizes koffi because esbuild cannot bundle its
 // platform-dispatching `.node` requires. The installed agent has no hoisted
 // node_modules, so keep only the target binary beside the plugin.

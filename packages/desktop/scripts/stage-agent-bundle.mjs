@@ -1,6 +1,5 @@
 // Agent bundle 的暂存动作：把 apps/zcode-cli/packages/cli/dist/zcode.cjs 放进
 // bundled-agents/<平台>/glm，并写 meta。
-//
 // dev 与打包**必须**用同一份暂存实现。
 // 只有打包链（prepare-agent-node-bundle.mjs）会暂存是不够的，dev 链
 // （scripts/build-desktop-agent-cli.mjs）不会；而 dev 未打包时的 agent 二进制由

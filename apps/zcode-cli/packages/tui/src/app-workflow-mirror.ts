@@ -4,7 +4,6 @@
 // 单时钟：运行态**只**由共享 reducer 逐事件归约维护（@zcode/shared 的
 // workflow-runs-reducer，与 v4 投影同一份实现），外加冷启动/恢复时的一次性补种。
 // 没有轮询、没有 setInterval——legacy workflow 面板每秒全量重拉是反面教材。
-//
 // 镜像比协议状态键多两样东西，都是刻意的：
 //   1. `logTailByRunId`：log 事件**不在** workflowRuns schema 里（它们只进 journal 事件日志），
 //      但展开详情要显示 log 尾，所以 TUI 自己留最近若干条（有界）。

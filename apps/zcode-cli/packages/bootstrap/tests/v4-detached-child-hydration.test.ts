@@ -1,5 +1,4 @@
 // detached live child（dwf workflow actor / subagent child）的首次订阅 hydration。
-//
 // Bug 根因（本文件的存在理由）：这类子会话没有自己的 bootstrap record——事件经
 // ingestDetachedLiveSession 走父 record 的 sink 路由。旧 loadPersistedEvents 用
 // context.sessions.get(childSessionId) 直取，取不到就返回 synthesized:false，
@@ -7,7 +6,6 @@
 // 从不执行：只有本次 live 事件进入投影，任何**不以 live 事件形态出现**的持久正文全部丢失。
 // amend-resume 正是这种形态——它把前驱 actor 的 transcript 前缀直接复制进 session store
 // 来播种新 actor 会话（apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md），侧栏于是只剩本轮增量。
-//
 // 覆盖面：
 //   1. child 无 record + 持久 parentID 指向 live 父 record → 播种前缀与 live 增量同时在投影里
 //   2. child 既无 record 又无法经 parentID 落到任何 record → 维持修复前行为（空、非合成）

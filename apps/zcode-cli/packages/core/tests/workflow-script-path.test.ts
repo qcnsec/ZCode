@@ -1,9 +1,7 @@
 // 脚本文件的模型面写法（docs/dynamic-workflow/launch.md「Script files」）。
-//
 // 一个纯函数被单独钉住，是因为三个模型面（终态通知、GetWorkflowRun、工具响应）都要说出
 // **同一个**路径：模型读到什么，下一次 `Edit` 和 `AmendWorkflow` 的 `path` 就是什么。相对化
 // 的判据一旦飘了，模型就会去编辑一个不存在的文件，或者收到一个它读不懂的绝对路径。
-//
 // 全部路径都用 `path.join` / `path.resolve` 拼，所以这组用例在 POSIX 与 Windows 上钉的是
 // 同一条规则（分隔符与盘符由 node:path 自己给出）。
 

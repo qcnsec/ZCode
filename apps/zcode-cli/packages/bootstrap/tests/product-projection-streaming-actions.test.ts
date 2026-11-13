@@ -1,5 +1,4 @@
 // 流式追加不重算命令 actions（docs/v4-refactor/02-projection.md「命令 actions 的物化时机」）。
-//
 // 钉住两件事：
 // 1. 哪些事件跳过 materializeCommandRowActions：对已打开流式行的追加，且本事件归约结果只有
 //    row.delta 或为空；附带其他增量（如清除 apiRetry 的 state.updated）的追加照常物化。

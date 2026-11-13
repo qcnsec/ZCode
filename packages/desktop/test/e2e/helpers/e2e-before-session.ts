@@ -25,7 +25,7 @@ export async function runE2EBeforeSessionSetup(options: E2EBeforeSessionSetupOpt
   await options.configureCodingPlanTeamMockForSpecs(options.specs);
   await options.startUpstreamHttpIfNeeded(options.specs);
   // 混合批次的 ToolSearch 不能关闭其他 worker 的账号数据面回放；代理在当前
-  // worker 的上游网络配置完成后启动，避免被通用 replay 初始化恢复成直连。
+  // worker 的 网络配置完成后启动，避免被通用 replay 初始化恢复成直连。
   await options.startCodingPlanDataPlaneProxyIfNeeded(options.specs);
   await options.startCodingPlanUpgradeMockIfNeeded(options.specs);
   await options.startPluginCdnZipFixtureIfNeeded(options.specs);

@@ -4,7 +4,6 @@ import type { ZCodePersistedMessage, ZCodePersistedMessagePart } from "./zcode-t
 // 老 task projection 模型每个 turn 只有一条 assistant，UI 也按这个模型设计（一条 assistant → 一个"已工作 X 秒"块）。
 // 这里把映射后相邻的 assistant 合并回一条，恢复"一个 turn 一条 assistant"的不变式；
 // 旧投影数据本身就是严格交替的，对它来说是 no-op。
-//
 // 顺便把 turnIndex 显式按 user 计数赋值，修掉 `toTaskChatMessages` 的兜底
 // `Math.floor(index / 2)` 在多 assistant 时算错的次要 bug。
 export function coalesceConsecutiveZCodeAssistants(

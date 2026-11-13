@@ -48,6 +48,11 @@ interface AiSdkProviderConfig {
   headers?: Record<string, string>;
   providerOptions?: Record<string, unknown>;
   name?: string;
+  // 自定义请求路径 / 查询参数 / 额外请求头（供应商设置增强）。
+  // customPath：覆盖 SDK 默认 operation path；customQuery：追加到请求 URL；customHeaders：每行 `Key: Value`。
+  customPath?: string;
+  customQuery?: string;
+  customHeaders?: string;
 }
 
 export interface AiSdkModelExecutionConfig {
@@ -329,12 +334,21 @@ export class AiSdkModelExecution {
           })
         : fetch;
 
+    // 自定义请求路径 / 查询参数 / 额外请求头：仅在该 Provider 显式配置了任意一项时才改写请求，
+    // 未配置的 Provider 走原生 optionFetch，零行为变化（不破坏内置/账号型供应商）。
+    const rewrittenFetch = createCustomProviderRequestRewriteFetch({
+      fetch: optionFetch,
+      customPath: providerConfig.customPath,
+      customQuery: providerConfig.customQuery,
+      customHeaders: providerConfig.customHeaders,
+    });
+
     switch (providerConfig.kind) {
       case "openai": {
         const provider = createOpenAI({
           apiKey,
           baseURL: providerConfig.baseURL,
-          fetch: createOpenAIResponsesJsonCompatFetch(optionFetch),
+          fetch: createOpenAIResponsesJsonCompatFetch(rewrittenFetch),
           headers,
         });
         return provider.responses as LanguageModelFactory;
@@ -344,7 +358,7 @@ export class AiSdkModelExecution {
         const provider = createAnthropic({
           apiKey,
           baseURL: normalizeAnthropicBaseURL(providerConfig.baseURL),
-          fetch: createAnthropicCompatFetch(optionFetch),
+          fetch: createAnthropicCompatFetch(rewrittenFetch),
           headers: withAnthropicAuthorizationHeader(apiKey, headers),
         });
         return provider as LanguageModelFactory;
@@ -355,7 +369,7 @@ export class AiSdkModelExecution {
           name: providerConfig.name ?? providerId,
           baseURL: providerConfig.baseURL,
           apiKey,
-          fetch: optionFetch,
+          fetch: rewrittenFetch,
           headers,
           // OpenAI Compatible 流式 usage 需要显式请求，Usage 是执行结果的一部分。
           includeUsage: true,
@@ -410,6 +424,9 @@ function toAiSdkProviderConfig(
     ...(config.api.headers ? { headers: { ...config.api.headers } } : {}),
     providerOptions: { apiFormat: config.api.type },
     access: config.access,
+    customPath: config.api.customPath ?? undefined,
+    customQuery: config.api.customQuery ?? undefined,
+    customHeaders: config.api.customHeaders ?? undefined,
   };
   switch (config.api.type) {
     case "anthropic-messages":
@@ -420,6 +437,88 @@ function toAiSdkProviderConfig(
       return { kind: "openai-compatible", name: providerId, ...common };
   }
   throw new Error(`Unsupported Provider API type: ${String(config.api.type)}`);
+}
+
+/**
+ * 自定义供应商请求改写：把 `customPath` / `customQuery` / `customHeaders` 注入到实际 HTTP 请求。
+ * 仅当 Provider 显式配置了任意一项时才改写；其余 Provider 直接透传 `fetch`，零行为变化。
+ *
+ * - customPath：以实际请求 URL 为基准解析，覆盖 SDK 默认 operation path
+ *   （例如 SDK 请求 `https://host/v1/chat/completions` + customPath `/v1/messages` → `https://host/v1/messages`）。
+ * - customQuery：合并到查询参数，不覆盖 SDK 已带参数。
+ * - customHeaders：每行 `Key: Value`（忽略空行与 `#` 注释），合并到请求头，不覆盖已有头。
+ */
+function createCustomProviderRequestRewriteFetch(input: {
+  fetch: ProviderFetch;
+  customPath?: string;
+  customQuery?: string;
+  customHeaders?: string;
+}): ProviderFetch {
+  const { fetch, customPath, customQuery, customHeaders } = input;
+  if (!customPath && !customQuery && !customHeaders) {
+    return fetch;
+  }
+  const parsedHeaders = parseExtraHeaders(customHeaders);
+  return async (requestInput, init) => {
+    let url: URL;
+    let method: string | undefined;
+    let headersFromRequest: HeadersInit | undefined;
+    let body: BodyInit | null | undefined;
+    if (typeof requestInput === "string" || requestInput instanceof URL) {
+      url = new URL(requestInput.toString());
+      method = init?.method;
+      headersFromRequest = init?.headers;
+      body = init?.body;
+    } else {
+      url = new URL(requestInput.url);
+      method = requestInput.method;
+      headersFromRequest = requestInput.headers;
+      body = init?.body ?? requestInput.body;
+    }
+
+    if (customPath) {
+      try {
+        url = new URL(customPath, url.href);
+      } catch {
+        // 非法路径忽略，保持原请求 URL。
+      }
+    }
+    if (customQuery) {
+      try {
+        const extra = new URLSearchParams(customQuery);
+        for (const [key, value] of extra.entries()) {
+          if (!url.searchParams.has(key)) {
+            url.searchParams.append(key, value);
+          }
+        }
+      } catch {
+        // 非法查询串忽略。
+      }
+    }
+    const mergedHeaders = new Headers(headersFromRequest);
+    for (const [key, value] of Object.entries(parsedHeaders)) {
+      if (!mergedHeaders.has(key)) {
+        mergedHeaders.set(key, value);
+      }
+    }
+    return fetch(url, { ...init, method, headers: mergedHeaders, body });
+  };
+}
+
+/** 解析「每行 `Key: Value`」格式的自定义请求头文本（忽略空行与 `#` 注释）。 */
+function parseExtraHeaders(raw?: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  if (!raw) return result;
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const idx = trimmed.indexOf(":");
+    if (idx <= 0) continue;
+    const key = trimmed.slice(0, idx).trim();
+    const value = trimmed.slice(idx + 1).trim();
+    if (key) result[key] = value;
+  }
+  return result;
 }
 
 function applyModelRequestAuth(
@@ -679,7 +778,7 @@ export function readProviderBusinessFailureFromBody(body: unknown):
     toProviderCode(record.error_code) ??
     toProviderCode(errorRecord?.error_code) ??
     // 二次包装后的外层 code 是 ZCode 自己的 PROVIDER_BUSINESS_ERROR，
-    // 真实上游码在 providerCode；只有没有 providerCode 时才退回读取 code。
+    // 真实 码在 providerCode；只有没有 providerCode 时才退回读取 code。
     toProviderCode(record.code) ??
     toProviderCode(errorRecord?.code);
   const providerMessage = readProviderMessage(record);

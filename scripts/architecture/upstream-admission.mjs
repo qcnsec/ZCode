@@ -27,7 +27,7 @@ async function requireMergedCommit(cwd, commit) {
         // 多父合并逐个核对，不能把任意本地提交当作已合入。
       }
     }
-    throw new Error(`上游准入 commit 必须存在且已合入 HEAD 或当前 MERGE_HEAD：${commit}`, {
+    throw new Error(` 准入 commit 必须存在且已合入 HEAD 或当前 MERGE_HEAD：${commit}`, {
       cause,
     });
   }
@@ -56,8 +56,8 @@ export async function pristineUpstreamFiles(cwd, admissions, snapshotPath = null
 }
 
 /**
- * 固定上游只接纳原样引入的文件，不改变实际 push 的比较范围。
- * 同时比暂存区和工作区：只比工作区会把“暂存修改后恢复文件”的提交误判为上游原样。
+ * 固定 只接纳原样引入的文件，不改变实际 push 的比较范围。
+ * 同时比暂存区和工作区：只比工作区会把“暂存修改后恢复文件”的提交误判为 原样。
  */
 export async function applyUpstreamAdmission(
   cwd,
@@ -103,7 +103,7 @@ export async function applyUpstreamAdmission(
       // 首次推送后不再是新增路径，后续编辑仍须退出存量准入并登记模块。
       if (changed.has(file)) required.add(file);
     }
-    // 后续上游可原样更新先前引入的路径；仍只对准入历史中的新增路径开放，不扩张到普通旧文件。
+    // 后续 可原样更新先前引入的路径；仍只对准入历史中的新增路径开放，不扩张到普通旧文件。
     for (const file of files) if (!different.has(file)) accepted.add(file);
   }
   return [...required].filter(

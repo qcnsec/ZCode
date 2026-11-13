@@ -393,15 +393,18 @@ export function ModelProviderSectionDetail({
   }, [selectedItemKey]);
 
   if (!selectedNavItem) {
-    return <ModelProviderLoadingCard loadingLabel={loadingLabel} />;
+    // 首屏数据未就绪（family/provider 仍在加载）时，右侧详情区保持空白而非转圈，
+    // 等导航与选中项解析完成后再渲染具体内容，避免把"还在加载"误读成异常。
+    return null;
   }
 
   if (selectedNavItem.type === "preset") {
     if (!selectedNavItem.provider) {
       // 首屏慢网时预置供应商配置尚未返回，之前这里会直接展示“尚未同步，请先完成 OAuth 登录”，
-      // 用户会把“还在下载”误判成“当前账号未登录”。首刷期间改为明确显示 loading，等请求结束后再决定是否展示未同步占位。
+      // 用户会把“还在下载”误判成“当前账号未登录”。首刷期间改为保持空白（不转圈），
+      // 等请求结束后再决定展示内容或“尚未同步”占位。
       if (presetLoading) {
-        return <ModelProviderLoadingCard loadingLabel={loadingLabel} />;
+        return null;
       }
 
       return <PresetProviderPlaceholderCard displayName={selectedNavItem.displayName} />;
@@ -819,9 +822,6 @@ export function ModelProviderSectionDetail({
               displayName={selectedNavItem.providerName}
               messageId="settings.modelProvider.accountProviderConfigMissing"
             />
-          ) : !selectedNavItem.provider ||
-            selectedNavItem.provider.providerId !== selectedNavItem.presetId ? (
-            <ModelProviderLoadingCard loadingLabel={loadingLabel} />
           ) : null}
           {planSupplementalContent}
         </div>

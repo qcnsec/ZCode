@@ -4,7 +4,6 @@
 // `node-progress` 的 `lastTool.target` 回答的是「它正在动哪儿」：文件类工具给路径，Bash 给命令头，
 // 搜索类给 pattern。它**不是入参**——入参可以装下一整个 patch、一段 base64、一份文件正文，而这条
 // 事件会被主代理读进上下文、被 GUI 画在卡片上，所以只取一个有界的标量键，其余一律当作「认不出」。
-//
 // 按**键名**而不是按工具名认：工具名会变、MCP 工具的名字根本不在我们手里，而 `file_path` / `command`
 // 这几个键名是本仓库工具入参的既成约定（contracts 的 read/edit/write/bash/glob/grep schema）。
 // 认不出就缺席——合成一个「(unknown)」占位串只会让读者以为那是真的目标。

@@ -1,7 +1,6 @@
 // 输入预测 sidecar（手机远控 ghost hint）：按会话近期上下文 + 可选草稿生成候选，
 // 供 v4 只读查询 v4/conversation/inputPrediction 使用。规格见
 // docs/web-remote-control/mobile-input-prediction.md。
-//
 // 本文件只放提示词、纯函数和一个编排壳；模型执行面由调用方注入
 // （bootstrap 经 app.generateWorkspaceText，querySource=input_prediction），单测不依赖 runtime。
 import {

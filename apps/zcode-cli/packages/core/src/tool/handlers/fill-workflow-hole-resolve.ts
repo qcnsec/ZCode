@@ -2,7 +2,6 @@
 // FillWorkflowHole：确认之前的一切（resolveInput 与它的结构化失败）
 // ============================================================
 // docs/dynamic-workflow/launch.md「The `FillWorkflowHole` tool」→「Input and output」「Approval」。
-//
 // 从 fill-workflow-hole.ts 拆出（与 amend-workflow-resolve.ts 同一条分法）：那边是 handler 与工具
 // 声明，这里是**全流程唯一一次读端口**——把模型的入参归一成「将要发生的执行事实」：函数体的字节
 // （内联或读文件）、留白是不是这个 run 正在等的、它归不归本会话、草稿在哪。此后权限、确认窗与

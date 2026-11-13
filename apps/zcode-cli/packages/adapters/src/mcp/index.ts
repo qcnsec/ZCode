@@ -1034,7 +1034,6 @@ class NodeMcpAdapter implements McpPort {
 
     // stdio 没有 url，origin 由宿主给出而非插件声明。isTrusted 在此退化为恒真断言，但仍要调用：
     // 它同时校验 https、拒绝带 username/password 的 URL，并让 dev loopback 开关继续生效。
-    //
     // 这两步原来裸调用。origin 解析依赖 settings / 运行时环境，isTrusted 是
     // 注入的实现，两者都可能抛。异常裸冒泡会绕过整个失败分类：插件收不到 `{ok:false, reason}`，
     // 而 reason 是跨 adapter / host / UI 的契约（决定提示文案与是否重试）。因此统一映射为

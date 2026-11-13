@@ -1,9 +1,12 @@
 import { app, BrowserWindow, Notification } from "electron";
 import type { IpcMainEvent, IpcMainInvokeEvent } from "electron";
-import type { TaskNotificationPayload } from "@zcode/shared";
+import type { TaskNotificationPayload, QcTrkNotifyEventKind } from "@zcode/shared";
 import { formatZodError, PlatformChannels, taskNotificationPayloadSchema } from "@zcode/shared";
+import { forwardQcTrkTaskNotification } from "./qctrk/handlers.js";
 
-const TASK_NOTIFICATION_DEDUPE_WINDOW_MS = 3000;
+// 产物中 dedupe 常量为 1e4，
+// 去重窗由官方 3 秒放宽到 10 秒，避免同一请求在多个窗口重复打扰。
+const TASK_NOTIFICATION_DEDUPE_WINDOW_MS = 10_000;
 const MAX_ACTIVE_TASK_NOTIFICATIONS = 100;
 const recentTaskNotificationTimestamps = new Map<string, number>();
 const activeTaskNotifications = new Set<Notification>();
@@ -14,33 +17,47 @@ function isAnyAppWindowFocused() {
   );
 }
 
-function shouldSuppressDuplicateTaskNotification(
-  taskId: string,
-  status: TaskNotificationPayload["status"],
-  requestId?: string,
-) {
-  const now = Date.now();
+const QCTRK_TASK_NOTIFICATION_EVENT: Record<
+  TaskNotificationPayload["status"],
+  QcTrkNotifyEventKind
+> = {
+  completed: "completed",
+  failed: "failed",
+  // 取消是独立终态，不再当成 completed 推送。
+  cancelled: "cancelled",
+  permission_request: "permission_required",
+  elicitation_request: "permission_required",
+  feedback_update: "permission_resolved",
+};
 
+function buildTaskNotificationDedupeKey(
+  status: TaskNotificationPayload["status"],
+  taskId: string,
+  requestId?: string,
+): string {
+  // elicitation_request 和 permission_request 一样代表一次具体的人机阻塞请求。
+  // 如果仍按 taskId 去重，同一任务连续 AskUserQuestion/计划确认会在窗口内漏掉第二条通知。
+  const dedupeTarget =
+    status === "permission_request" || status === "elicitation_request"
+      ? requestId?.trim() || taskId
+      : taskId;
+  return `${status}:${dedupeTarget}`;
+}
+
+function isDuplicateTaskNotification(dedupeKey: string): boolean {
+  const now = Date.now();
   for (const [key, timestamp] of recentTaskNotificationTimestamps) {
     if (now - timestamp > TASK_NOTIFICATION_DEDUPE_WINDOW_MS) {
       recentTaskNotificationTimestamps.delete(key);
     }
   }
-
-  // elicitation_request 和 permission_request 一样代表一次具体的人机阻塞请求。
-  // 如果仍按 taskId 去重，同一任务连续 AskUserQuestion/计划确认会在 3 秒内漏掉第二条通知。
-  const dedupeTarget =
-    status === "permission_request" || status === "elicitation_request"
-      ? requestId?.trim() || taskId
-      : taskId;
-  const dedupeKey = `${status}:${dedupeTarget}`;
   const lastTimestamp = recentTaskNotificationTimestamps.get(dedupeKey);
-  if (lastTimestamp != null && now - lastTimestamp < TASK_NOTIFICATION_DEDUPE_WINDOW_MS) {
-    return true;
-  }
+  return lastTimestamp != null && now - lastTimestamp < TASK_NOTIFICATION_DEDUPE_WINDOW_MS;
+}
 
-  recentTaskNotificationTimestamps.set(dedupeKey, now);
-  return false;
+/** 只有真正送达才记账，失败不占用去重窗口。 */
+function recordTaskNotification(dedupeKey: string): void {
+  recentTaskNotificationTimestamps.set(dedupeKey, Date.now());
 }
 
 function retainTaskNotification(notification: Notification) {
@@ -124,7 +141,8 @@ export function dispatchTaskNotification(options: {
     return false;
   }
 
-  if (shouldSuppressDuplicateTaskNotification(taskId, status, requestId)) {
+  const dedupeKey = buildTaskNotificationDedupeKey(status, taskId, requestId);
+  if (isDuplicateTaskNotification(dedupeKey)) {
     return false;
   }
 
@@ -162,6 +180,16 @@ export function dispatchTaskNotification(options: {
   });
 
   notification.show();
+  recordTaskNotification(dedupeKey);
   options.event.sender.send(PlatformChannels.TaskNotificationSound);
+
+  // 系统通知与钉钉/飞书推送共用同一份事件开关；只有系统通知真正展示后才转发，
+  // 避免同一请求重复打扰（「不重复打扰」规则）。
+  void forwardQcTrkTaskNotification({
+    event: QCTRK_TASK_NOTIFICATION_EVENT[status],
+    title: notificationTitle,
+    summary: notificationBody,
+    isRemote: Boolean(result.data.workspaceIdentity?.startsWith("remote:")),
+  }).catch(() => undefined);
   return true;
 }

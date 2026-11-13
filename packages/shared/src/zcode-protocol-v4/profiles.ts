@@ -1,7 +1,6 @@
 // Delivery profile 过滤纯函数。
 // 通道层 flush 管线的第一步：filter → coalesce → 打帧。恢复回放走同一函数
 // （「先过该订阅者的 profile 过滤器再 coalesce」），保证断线重连的确定性重投递。
-//
 // 收口不变量（进黄金测试）：被 profile 过滤的事件必须最终被某个不可过滤的事件收口——
 // row.delta(inputText) 被滤掉后，工具输入定稿时的 row.upserted 必须携带完整 inputText，
 // 否则 replayable 订阅者终态缺数据。任何 reducer 改动破坏该不变量会撞

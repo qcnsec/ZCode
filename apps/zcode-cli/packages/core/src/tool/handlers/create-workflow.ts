@@ -4,12 +4,10 @@
 // Typechecks a dynamic-workflow script against the facade, and — once the user has
 // confirmed at the gate — starts the run in the background through
 // `DynamicWorkflowRunPort`.
-//
 // 两条路径，由端口是否注入决定：
 //   1. 端口在场（生产接线）：clean compile + Allow → port.submit → 输出
 //      {status:"backgrounded", backgroundTaskId: runId}，结果经后台通知管线回到主 agent。
 //   2. 端口缺席（未接线的宿主、单测）：保持接线前的占位行为——只回诊断与因果图，什么都不执行。
-//
 // 坏脚本路径与端口无关且完全不变：`prepareApproval` 裁掉弹窗，handler 直接回诊断，
 // 不启动、不建 run（让用户批准一段编不过的代码，只会用一个无效果的决策打断 agent 自己的
 // 改错重试回路）。
@@ -434,7 +432,6 @@ export const createWorkflowToolEntry: ToolEntry = {
     // 每次仍要确认，理由有两条更硬的：运行一次
     // 要花钱且有真实副作用；而保存的文件在批准之后随时可能被改动（手改、git pull、别人提交），
     // 所以"上次批准过这个名字"根本不能推出"这次要跑的还是那段代码"。**持久**确认永不减免。
-    //
     // 放开的是**会话作用域**：用户看过并批准了本会话第一个脚本之后，
     // 可以选「Always allow in this session」让本会话后续的 CreateWorkflow 免确认。授权只活在
     // PermissionService 实例的内存里，重启 / 冷恢复 / `/new` 都从零开始。

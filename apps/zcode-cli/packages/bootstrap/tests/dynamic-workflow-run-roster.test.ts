@@ -1,6 +1,5 @@
 // 情势截面（docs/dynamic-workflow/launch.md「`GetWorkflowRun`」）的规则层：阶段表、子代理花名册、
 // 健康三组字段从「journal 事件 + 节点行 + actor 行 + 归约状态」派生出来的那一套判定。
-//
 // 这里刻意不碰 SQLite、不起引擎：规则密度高（状态词的判定顺序、缺席的读法、时间的唯一来源），
 // 而真取数面在测试里贵得离谱。事件与行都手搓，归约状态则走生产那条铸造链（toProgressPayload →
 // reduceWorkflowRunsState）——它是 run 面板与冷回放共用的那一个，不另起一份。接线是否通了由

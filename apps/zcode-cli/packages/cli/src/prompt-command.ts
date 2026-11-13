@@ -288,7 +288,6 @@ export const runPrompt = async (
     }
 
     // 按**可解析性**分流，不按拼写。
-    //
     // 自定义命令解析出来一律是 `type === "unknown"`，过去因此全部早退进
     // command-center；那条路径自己 submit 完就 return，于是只挂在下面普通 prompt 路径上
     // 的三件机制全被跳过——dwf 结算等待、常驻事件订阅的单一写者、`response` 取最后一个
@@ -317,11 +316,9 @@ export const runPrompt = async (
     // 事件的**单一写者**。常驻订阅跨回合存活，所以完成通知驱动的回合（core 自驱，
     // `runtime-command-queue.ts:336`）的事件也在内；per-turn `onEvent` 则在 submitPrompt
     // 的 finally 里就被摘掉（`input-facade.ts:361-372`），看不到那些回合。
-    //
     // 两者**绝不同时装**：同一条事件被两个 sink 各写一次就是一行重复的 NDJSON。
     // 这里用「二选一」而不是「双装 + 按 id 去重」，因为前者让恰好一次成为结构性事实，
     // 不依赖任何 sink 的调用顺序。
-    //
     // 挂载点刻意在 command-center 分支**之后**：`/expert`、`/goal` 走不到 submitPrompt，
     // 过去也从不透出事件行，在这里挂就会给那条路径凭空加出 NDJSON 行。
     const subscribeEvents = readRuntimeEventSubscriber(app.runtime);
@@ -497,7 +494,6 @@ async function isResolvableCustomCommand(deps: RunDependencies, name: string): P
   // custom-command-prompt.ts` 的 resolveZCodeCustomCommandPrompt 开头）。判据必须是同一个：facade 对保留名
   // 直接返回 undefined、不做展开，所以这里若把一个保留名判成"可解析"，它就会以字面文本
   // `/compress …` 被当成普通 prompt 提交给模型——静默走错路，没有任何报错。
-  //
   // 探测只用「保留名检查 + load」这一对（load 只读文件），完整展开留给 facade 做一次。
   if (await isReservedSlashCommandName(deps, name)) return false;
   try {

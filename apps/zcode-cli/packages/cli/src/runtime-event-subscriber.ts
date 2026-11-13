@@ -1,5 +1,4 @@
 // runtime 上「跨回合会话事件订阅」的能力读取。
-//
 // 单独成模块是因为消费者有两个且不同venue：headless（`prompt-command.ts`）与 TUI
 // （`tui-prompt-handler.ts` → `tui-session-event-relay.ts`）。能力读取器需要独立于任何
 // venue：若放在 headless 专属模块里，TUI 侧就得从一个名为 headless 的模块 import 一个

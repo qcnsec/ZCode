@@ -1,6 +1,5 @@
 // run 侧板状态头上的「保存 / 再次运行」接线（docs/dynamic-workflow/transcript-and-notifications.md
 // 「Saving the run, and running it again」）。
-//
 // 与完成卡共用同一个控制器（经 `WorkflowRunSaveSlotsBoundary` 挂载），因此同一个 run 在两处说
 // 同一句话；侧板这边只多两件事：候选从**父会话**的行窗口建，那条用户消息也发进父会话。
 // 这里只造宿主描述，不直接调用槽位 hook：控制器要查 agent，没有服务上下文的宿主不该挂它。

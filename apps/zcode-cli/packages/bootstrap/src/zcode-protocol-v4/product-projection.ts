@@ -4,7 +4,6 @@ import { PERMISSION_FULL_ACCESS_OPTION_ID } from "@zcode/shared/zcode-protocol-v
 // 输入：CLI 事件日志（SessionEvent，权威事实源）；输出：ConversationDelta[]。
 // 快照推进复用协议规范 apply（applyConversationDeltas）——投影演进与 delta 流
 // 逐字节一致是构造保证，黄金测试再用独立重放交叉验证。
-//
 // 覆盖：session/turn 生命周期、流式文本/思考、tool call 状态机、
 // 权限交互、turn-steer 队列、usage、错误态、迟到终态拒收、
 // compact marker、goal 状态机、fork marker。传输外壳（TopicFrame/subscribe）在后续片。
@@ -377,7 +376,7 @@ function modelRetryReasonCode(
   switch (reason) {
     case "rate_limited":
       return "fault.provider.rateLimited";
-    // off-peak 排队（429/3105）语义上就是"上游让我们等"，UI 归入限流可恢复形态。
+    // off-peak 排队（429/3105）语义上就是" 让我们等"，UI 归入限流可恢复形态。
     case "offpeak_queued":
       return "fault.provider.rateLimited";
     case "provider_overloaded":
@@ -4760,7 +4759,6 @@ export class ProductProjection {
   // ── dwf 实时运行态：DynamicWorkflowRunProgress → workflowRuns 状态键 ──
   // 一条引擎 RunEvent 一条会话事件，归约成键级整体替换的权威态。走 reducer 而不是侧通道，
   // 所以持久、可回放、冷恢复免费（先例：subagents 键）。
-  //
   // 归约本体在 @zcode/shared 的 workflow-runs-reducer（与状态 schema 同居）：TUI 镜像要用
   // 同一份归约，两处各写一份就是两个时钟（docs/dynamic-workflow/launch.md「The inline card」）。
   // 留在这里的只有投影的非纯部分——从事件信封取载荷、把新旧状态之差发成键级增量。

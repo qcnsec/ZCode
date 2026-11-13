@@ -5,7 +5,6 @@
 // fix the accumulator param never received the callback's return taint (the per-pass
 // callbackReturn was fresh at bind time), so the ask -> ask chain was dropped. The
 // reduce body reaches an ask, so the candidate also promotes to a fan-out.
-//
 // Expected edges:
 //   source -> world-read#1                     (items drive the loop)
 //   world-read#1 -> fan-out#1                   (iterated collection into the fan-out)

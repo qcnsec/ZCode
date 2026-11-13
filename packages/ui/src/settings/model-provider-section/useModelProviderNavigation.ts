@@ -183,31 +183,37 @@ export function useModelProviderNavigation({
         id: "preset",
         title: intl.formatMessage({ id: "settings.modelProvider.presetTitle" }),
         items: [
-          ...presetProviders.map(({ id, displayName, provider }) => {
-            const statusProvider = resolvePresetFamilyStatusProvider({
-              presetId: id,
-              provider,
-              connectionModeItems: connectionModeCodingPlanItems,
-              connectionSelections,
-              modelProviders,
-            });
-            return {
-              key: createPresetProviderNodeKey(id),
-              type: "preset" as const,
-              presetId: id,
-              label: displayName,
-              logo: modelProviders.find(
-                (candidate) =>
-                  candidate.providerId ===
-                  resolveModelProviderFamilySpecByProviderId(id)?.individualCodingPlanProviderId,
-              )?.config.logo,
-              provider,
-              displayName,
-              statusProvider,
-              statusActive: statusProvider?.executable === true,
-            };
-          }),
-          ...codingPlanItems.filter((item) => isStartPlanModelProviderId(item.presetId)),
+          ...presetProviders
+            .map(({ id, displayName, provider }) => {
+              const statusProvider = resolvePresetFamilyStatusProvider({
+                presetId: id,
+                provider,
+                connectionModeItems: connectionModeCodingPlanItems,
+                connectionSelections,
+                modelProviders,
+              });
+              return {
+                key: createPresetProviderNodeKey(id),
+                type: "preset" as const,
+                presetId: id,
+                label: displayName,
+                logo: modelProviders.find(
+                  (candidate) =>
+                    candidate.providerId ===
+                    resolveModelProviderFamilySpecByProviderId(id)?.individualCodingPlanProviderId,
+                )?.config.logo,
+                provider,
+                displayName,
+                statusProvider,
+                statusActive: statusProvider?.executable === true,
+              };
+            })
+            // 品牌入口（Z.ai / BigModel）未登录/未开通（无可用执行身份）时隐藏，
+            // 与 Start Plan 项的处理保持一致，可用项自然落在合并列表顶部。
+            .filter((item) => item.statusActive),
+          ...codingPlanItems.filter(
+            (item) => isStartPlanModelProviderId(item.presetId) && item.statusActive,
+          ),
         ],
       },
       {

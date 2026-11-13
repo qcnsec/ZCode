@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu.js";
 import { ControlHintTooltip } from "@/ControlHintTooltip.js";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
+import { useOptionalPlatform } from "@/hooks/usePlatform.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import {
   collectArchivedTaskDeletion,
@@ -37,6 +38,7 @@ export function DeleteAllArchivedTasksButton({
   onRefresh?: () => Promise<void>;
 }) {
   const { intl } = useZCodeIntl();
+  const platform = useOptionalPlatform();
   const confirmDialog = useConfirmDialog();
   const inFlight = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -76,7 +78,16 @@ export function DeleteAllArchivedTasksButton({
         confirmVariant: "destructive",
       });
       if (!confirmed) return;
-      const result = await deleteArchivedTaskSelection(selection, onDeleted);
+      const result = await deleteArchivedTaskSelection(selection, (target) => {
+        onDeleted(target);
+        // 与归档单删一致：显式走 main 侧清理，确保旧客户端「可清理的会话」不再列出该行。
+        void platform?.qctrk?.purgeTask(target.taskId)?.catch((error) => {
+          logger.warn("[ArchivedTaskDeletion] 清理任务索引残留失败", {
+            taskId: target.taskId,
+            error,
+          });
+        });
+      });
       setResultMessage(
         [
           intl.formatMessage(

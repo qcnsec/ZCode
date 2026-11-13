@@ -69,7 +69,6 @@ function parseLine(line: string): Rect | null {
   if (!Array.isArray(parsed)) return null;
 
   // 取面积最大的 layer-0 窗口，而不是 z-order 上的第一个。
-  //
   // 拖拽落地后系统设置会弹一个模态提示（"…may not be able to record
   // the contents of your screen until it is quit…"），它同属 System Settings 进程、同样是
   // layer 0，而且 z-order 比主窗更靠前。取第一个会让浮窗吸附到提示框底部，把自己塞到它下面。

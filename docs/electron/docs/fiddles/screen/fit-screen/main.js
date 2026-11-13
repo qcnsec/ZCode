@@ -1,5 +1,4 @@
 // Retrieve information about screen size, displays, cursor position, etc.
-//
 // For more info, see:
 // https://www.electronjs.org/docs/latest/api/screen
 

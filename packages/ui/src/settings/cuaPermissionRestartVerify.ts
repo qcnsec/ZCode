@@ -1,9 +1,7 @@
 // 重启 Helper 后的 accessibility 验证:吸收 tccd 传播 lag + 决定是否升级到"重启 ZCode"兜底。
-//
 // 背景:macOS Accessibility 授权后,运行中 Helper 的 AXIsProcessTrusted 被进程级缓存,必须重启 Helper
 // (出新进程)才能吃到。restartHelper 返回时新 Helper 的 broker socket 已健康,但 AX 状态可能仍读 stale
 // (tccd 传播有几秒 lag)。若只 refresh 一次,很可能又读到 stale,让用户以为重启无效。
-//
 // 本 helper 在重启后轮询 accessibility:脱离 stale(granted/denied/unknown)即视为"已解决"返回 false;
 // 直到超时仍 stale(或一直 unavailable/抛错)才返回 true,触发 UI 升级到"重启 ZCode"兜底。
 import { isCuaPermissionStatusAvailable, type CuaPermissionStatusResult } from "@zcode/services";

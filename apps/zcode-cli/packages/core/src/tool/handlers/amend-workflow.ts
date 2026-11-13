@@ -1,7 +1,6 @@
 // ============================================================
 // AmendWorkflow Tool Handler
 // ============================================================
-//
 // 与 CreateWorkflow 的差别只有两处：resolveInput 解析的是**前驱 run**而不是保存的文件（省略的
 // 脚本、并发上界与子代理模型都从前驱沿用，见 amend-workflow-resolve.ts；脚本的三条来路见
 // amend-workflow-source.ts），handler 调的是

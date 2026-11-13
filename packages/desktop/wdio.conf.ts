@@ -391,7 +391,7 @@ const OUTPUT_LIMIT_CONTINUE_MARKDOWN_PROTOCOLS_SPEC =
 const SUBAGENT_PROVIDER_REGISTRY_AGENT_NAME = "e2e-provider-registry-reviewer";
 const TOOL_ERROR_SURFACE_STALE_AGENT_NAME = "e2e-stale-error-reviewer";
 const TOOL_ERROR_SURFACE_HEALTHY_AGENT_NAME = "e2e-healthy-error-reviewer";
-// 上游供应商地址由 E2E_PROVIDER_BASE_URL 提供，仓库不写死任何供应商；只有 capture 模式访问真实上游时需要。
+// 供应商地址由 E2E_PROVIDER_BASE_URL 提供，仓库不写死任何供应商；只有 capture 模式访问真实 时需要。
 // 回放模式使用本地回放服务器，实际生效的地址经 E2E_PROVIDER_RUNTIME_BASE_URL 传给各测试进程。
 const E2E_PROVIDER_UPSTREAM_BASE_URL = process.env.E2E_PROVIDER_BASE_URL?.trim() ?? "";
 const E2E_PROVIDER_REPLAY_API_KEY = "e2e-fixture-key";
@@ -768,7 +768,7 @@ function appendRequestedE2ESpecs(specs: Set<string>, value?: string) {
 
   // 修复原因：`pnpm test:e2e -- --spec <file>` 下 WDIO 仍会先加载配置；
   // 如果配置只读 ZCODE_E2E_SPEC，实际会回落到全量 spec，多个 worker 轮流重置
-  // .e2e-home 后就会把 上游 flash 选择冲掉。
+  // .e2e-home 后就会把 flash 选择冲掉。
   for (const spec of value.split(",")) {
     const trimmed = spec.trim();
     if (trimmed) {
@@ -843,7 +843,7 @@ function readE2EProviderPresetName(): E2EProviderPresetName {
   const configured =
     process.env.E2E_PROVIDER_PRESET?.trim() || process.env.LLM_E2E_PROVIDER_PRESET?.trim();
   if (!configured) {
-    // 默认使用环境变量配置的上游供应商（E2E_PROVIDER_BASE_URL / API_KEY / MODEL）；
+    // 默认使用环境变量配置的 供应商（E2E_PROVIDER_BASE_URL / API_KEY / MODEL）；
     // 修复原因：rebase 后默认曾落到 GLM highspeed，会请求 open.bigmodel.cn 且人工验收链路不一致。
     return "env";
   }
@@ -1134,7 +1134,7 @@ function assertUpstreamCaptureConfig() {
   }
 
   // 修复原因：默认 e2e 已切成 fixture replay；只有显式 capture 才会访问真实
-  // 上游。采集 fixture 时必须提前校验真实 key，避免把失败响应固化进仓库。
+  // 。采集 fixture 时必须提前校验真实 key，避免把失败响应固化进仓库。
   throw new Error(
     `E2E_PROVIDER_HTTP_MODE=capture with ${e2eProviderPresetName} requires one of: ${e2eProviderPreset.apiKeyEnvNames.join(", ")}.`,
   );
@@ -1246,7 +1246,7 @@ async function startCodingPlanTeamMockIfNeeded(specs: string[] = []) {
       {
         logger: createServiceLogger("e2e-offpeak-team", { isDebugEnabled: false }),
         resolveUpstream: async () => {
-          throw new Error("Team E2E 不允许访问真实上游");
+          throw new Error("Team E2E 不允许访问真实 ");
         },
       },
       {
@@ -2424,7 +2424,7 @@ async function startUpstreamCaptureProxy(specs: readonly string[]) {
   process.env.E2E_PROVIDER_API_KEY = apiKey;
   upstreamE2EBaseUrl = e2eProviderPreset.baseUrl;
 
-  // 修复原因：capture 模式用于更新固定 fixture，需要真实上游响应和请求抓包；
+  // 修复原因：capture 模式用于更新固定 fixture，需要真实 响应和请求抓包；
   // 默认 replay 模式不会走这里，避免固定回归受网络、余额、限流影响。
   for (const [key, value] of Object.entries(upstreamCaptureProxy.env)) {
     process.env[key] = value;
@@ -2542,7 +2542,7 @@ async function startOffPeakE2EMock(specs: string[] = []): Promise<void> {
       )
     ) {
       // 绑定会话复用已有固定文本响应，保留 queued 编辑窗口；capture 模式会继续
-      // 转发上游，不适合作为此例的离线应答。fixture 只匹配一个 child marker，不创建子任务。
+      // 转发 ，不适合作为此例的离线应答。fixture 只匹配一个 child marker，不创建子任务。
       process.env.ZCODE_OFFPEAK_MOCK_SCENARIO = "foreground-subagents";
     } else {
       delete process.env.ZCODE_OFFPEAK_MOCK_SCENARIO;
@@ -4337,7 +4337,7 @@ This child must fail before sending a provider request when the Team scope is un
 async function seedUpstreamE2EModelConfig(specs: string[] = []) {
   if (isOAuthCredentialRecoverySpec(specs) || usesProviderReadinessColdStartFixture(specs)) {
     // Bugfix: OAuth 凭据恢复及 provider-readiness 冷启动 fixture 必须保持
-    // 无可用本地模型配置，避免默认 上游 回放 provider 绕过登录/执行门禁。
+    // 无可用本地模型配置，避免默认 回放 provider 绕过登录/执行门禁。
     return;
   }
 
@@ -4350,7 +4350,7 @@ async function seedUpstreamE2EModelConfig(specs: string[] = []) {
   }
 
   // 修复原因：固定 e2e 默认回放真实采集 fixture，capture 模式才访问线上
-  // 上游；baseURL 必须在每个 session 重置前跟随当前 HTTP 模式写入配置。
+  // ；baseURL 必须在每个 session 重置前跟随当前 HTTP 模式写入配置。
   const anthropicBaseURL = buildUpstreamE2EAnthropicBaseUrl();
   const modelProviderListFilteringSpec = specs.some((spec) =>
     spec.includes("conversation-session-model-provider-list-filtering.test.ts"),
@@ -4673,7 +4673,7 @@ export const config: WebdriverIO.Config = {
     },
   ],
   specs: configuredE2ESpecs,
-  // 修复原因：上游 provider e2e 需要真实上游 key，默认全量 e2e 不应启动一个“跳过但仍占用浏览器”的 worker。
+  // 修复原因： provider e2e 需要真实 key，默认全量 e2e 不应启动一个“跳过但仍占用浏览器”的 worker。
   // 否则它会和 smoke 共用并重置 .e2e-home，表现为临时测试窗口白屏或一直等不到默认工作区。
   exclude: [
     ...(upstreamProviderSpecRequested ? [] : [UPSTREAM_PROVIDER_SPEC]),
@@ -4710,7 +4710,7 @@ export const config: WebdriverIO.Config = {
     ...(process.env.ZCODE_E2E_MOCHA_GREP?.trim()
       ? { grep: process.env.ZCODE_E2E_MOCHA_GREP.trim() }
       : {}),
-    // 修复原因：真实模型配置 + 首次会话预热可能超过 30s，保留更宽的单 case 上限，避免还没收到上游响应就被 Mocha 截断。
+    // 修复原因：真实模型配置 + 首次会话预热可能超过 30s，保留更宽的单 case 上限，避免还没收到 响应就被 Mocha 截断。
     // 真实 GitHub Archive smoke 会下载 Claude 官方市场和目标插件；E2E 抓包代理还会
     // 记录完整二进制响应，不能沿用只覆盖本地 fixture 的 120 秒上限。
     // WPL-011 会经过 SSH asset、marketplace 镜像、远端安装与 runtime refresh；

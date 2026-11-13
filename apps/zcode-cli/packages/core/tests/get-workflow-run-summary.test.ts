@@ -1,5 +1,4 @@
 // GetWorkflowRun 的摘要拼装与「多久以前」这把尺（docs/dynamic-workflow/launch.md「`GetWorkflowRun`」）。
-//
 // 这两件东西被单独钉住，是因为模型面上每一句话都建立在它们之上：摘要是确定性的（同一份
 // 快照永远同一句话），年龄是对 `generatedAt` 算的（一次输出一把尺）。任何一处飘了，
 // 整段情势报告就开始说一些它并不知道的事。

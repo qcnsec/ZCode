@@ -57,6 +57,7 @@ import type {
   WSLDistro,
   UpdateCheckResultPayload,
   UpdateStatePayload,
+  ExportLogsProgressPayload,
   OpenInEditorOptions,
 } from "@zcode/shared";
 
@@ -244,6 +245,8 @@ declare global {
       ): () => void;
       /** 注册 main 进程触发新建任务的回调，返回 disposer */
       onNewTask(handler: () => void): () => void;
+      /** 注册托盘/原生菜单触发日志导出的进度回调，返回 disposer */
+      onExportLogsProgress?(handler: (payload: ExportLogsProgressPayload) => void): () => void;
       /** 注册 main 进程触发打开工作区的回调，返回 disposer */
       onOpenWorkspace?(handler: () => void): () => void;
       /** 注册 main 进程通过 deep link 直接打开本地工作区目录的回调，返回 disposer */
@@ -400,6 +403,8 @@ declare global {
       getSystemLocale?(): Promise<Locale>;
       /** 同步标题栏亮暗色 */
       setTitleBarTheme(theme: DesktopTitleBarTheme): Promise<void>;
+      /** 新增能力的聚合 API；非主 preload 不提供 */
+      qctrk?: import("@zcode/shared").QcTrkPlatformApi;
     };
   }
 }

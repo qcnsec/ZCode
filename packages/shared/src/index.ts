@@ -88,6 +88,19 @@ export {
 export * from "./rendererActionTrace.js";
 export * from "./validation.js";
 export * from "./api.js";
+export {
+  ZCODE_GITHUB_OWNER,
+  ZCODE_GITHUB_REPO,
+  ZCODE_GITHUB_REPO_URL,
+  ZCODE_GITHUB_ISSUES_URL,
+  ZCODE_GITHUB_NEW_ISSUE_URL,
+  ZCODE_GITHUB_NEW_FEATURE_URL,
+  ZCODE_GITHUB_DISCUSSIONS_URL,
+  ZCODE_GITHUB_WIKI_URL,
+  ZCODE_GITHUB_RELEASES_URL,
+  ZCODE_GITHUB_RELEASES_LATEST_API,
+  ZCODE_VULNERABILITY_REPORT_URL,
+} from "./zcodeGitHub.js";
 export * from "./zcode-protocol/index.js";
 export * from "./account-provider-state.js";
 // re-home：旧协议承重面的幸存文件（消费者继续走 barrel，零感知）
@@ -130,6 +143,7 @@ export interface ICredentialStore {
 
 export * from "./test-ids-workflow.js";
 export * from "./channels.js";
+export * from "./qctrk/index.js";
 export * from "./storage.js";
 export * from "./oauth.js";
 export * from "./desktopMenu.js";

@@ -3,7 +3,6 @@
 // ============================================================
 // 见端口 `DynamicWorkflowRunPort.resolveQuestion`
 // （interfaces/dynamic-workflow-run.port.ts）。
-//
 // 只收 qid 而不收 `(run_id, question_id)` 对：qid 全局唯一（跨 run），多 run 并发时让模型
 // 自己配对是错配的温床。失败走 ToolHandlerFailure（core 侧），所以本输出只有成功形。
 

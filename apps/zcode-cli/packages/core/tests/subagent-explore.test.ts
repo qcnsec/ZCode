@@ -990,7 +990,6 @@ describe("Explore subagent", () => {
 
   // docs/dynamic-workflow/launch.md「Gray release」：父会话关着灰度时，Agent 工具不能成为
   // 绕过它的后门；父会话开着（或根本不参与灰度）时子代理照旧拿得到。
-  //
   // 这里刻意用**显式声明 tools 的自定义 agent profile**：默认 agent 的子工具面是「父
   // registry 里现存工具名」的交集，父会话已经被剃过，子代理自然也没有——那条路径挡得住，
   // 但挡住它的不是灰度门。profile 显式写 `tools: [...]` 时 resolveSubagentToolAllowlist

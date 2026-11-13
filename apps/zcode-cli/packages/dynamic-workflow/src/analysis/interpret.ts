@@ -69,7 +69,6 @@ function mintCore(
   // one of a visit, and across visits (a helper called from several fan-outs) the first in
   // source order. A step inside a callback thereby belongs to the fan-out that passed the
   // callback: the helper's activation inlined only that one.
-  //
   // 修复原因：此前按词法 span 闭包算 `within`——从 fan-out 的 body 出发，沿神谕在其中每个调用点
   // 应用过的函数一路并入 span。共享 helper 里的 `fn()` 应用过所有调用者的回调，于是别的 fan-out
   // 乃至顶层的 ask 都被算进第一个 fan-out（图里把顶层步骤画成了它的一条 lane），而且该闭包是

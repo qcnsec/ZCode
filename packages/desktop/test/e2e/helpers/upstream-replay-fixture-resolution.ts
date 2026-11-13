@@ -89,7 +89,7 @@ export function resolveUpstreamE2EHttpModeForWorker({
   }
   return resolveUpstreamE2EHttpMode({
     explicitReplayFixture,
-    // Upstream provider smoke 与缺 fixture 的 manual-review 验证真实上游；已有确定性
+    // Upstream provider smoke 与缺 fixture 的 manual-review 验证真实 ；已有确定性
     // case-local fixture 的 pending case 使用 replay，避免真实模型形态破坏精确断言。
     manualReview: captureFlags.has(true),
     requestedMode,

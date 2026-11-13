@@ -51,7 +51,7 @@ describe("子智能体右侧 tabs manual review", () => {
     await clickRunningSubagentTrigger();
     expect(await countVisibleSubagentTabs()).toBe(1);
 
-    // 先观察运行中 tab 的去重，再释放上游流，避免依赖固定 sleep 的抢时序。
+    // 先观察运行中 tab 的去重，再释放 流，避免依赖固定 sleep 的抢时序。
     await releaseControlledReplay("side-tab-child-background");
     await waitForV4AssistantMessageContaining(BACKGROUND_PARENT_DONE);
   });

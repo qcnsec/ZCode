@@ -1,4 +1,24 @@
 import type { WebRemoteControlAuthStateChange } from "./web-remote-control.js";
+import type {
+  QcTrkAutocontConfig,
+  QcTrkBalanceConfig,
+  QcTrkBalanceResult,
+  QcTrkBalanceTarget,
+  QcTrkDeletedTask,
+  QcTrkErrorReport,
+  QcTrkModelContextSourceInput,
+  QcTrkModelContextSourcesResult,
+  QcTrkNotifyConfig,
+  QcTrkNotifyForwardPayload,
+  QcTrkNotifyTestResult,
+  QcTrkProxyConfig,
+  QcTrkProxyTestResult,
+  QcTrkPurgeTaskRequest,
+  QcTrkScanModelsResult,
+  QcTrkUpdateState,
+  QcTrkUsageReport,
+  QcTrkUsageSnapshot,
+} from "./qctrk/index.js";
 /* eslint-disable max-lines -- 通信频道和请求响应映射必须集中定义，避免跨进程 channel 字符串散落。 */
 import type {
   ResourceUsageSnapshot,
@@ -324,6 +344,8 @@ export const PlatformChannels = {
   BrowserViewSuspend: "zcode:browser-view-suspend",
   /** Main → Renderer：为 suspended shell 重新挂载 guest。 */
   BrowserViewRestore: "zcode:browser-view-restore",
+  /** Main → Renderer：托盘/原生菜单触发日志导出时的进度，用于显示「正在导出日志中」提示 */
+  ExportLogsProgress: "zcode:export-logs-progress",
   /** Main → Renderer：菜单触发新建任务 */
   NewTask: "zcode:new-task",
   /** Main → Renderer：菜单触发打开工作区 */
@@ -526,9 +548,53 @@ export const PlatformChannels = {
   MigrateLegacyCommonMcp: "zcode:migrate-legacy-common-mcp",
   /** Renderer → Main：获取当前设备的稳定标识符（deviceMid） */
   GetDeviceId: "zcode:get-device-id",
+
+  // --------------------------------------------------------------------------
+  // 新增通道（qctrk 前缀）
+  // 与安装包 out/preload/index.cjs 中的白名单逐字对齐。
+  // --------------------------------------------------------------------------
+  QcTrkUsage: "zcode:qctrk-usage",
+  /** Renderer → Main：回写当前会话的逐轮 token 用量（分屏隔离） */
+  QcTrkUsageReport: "zcode:qctrk-usage-report",
+  QcTrkUsageInvalidate: "zcode:qctrk-usage-invalidate",
+  QcTrkErrors: "zcode:qctrk-errors",
+  QcTrkBalanceGet: "zcode:qctrk-balance-get",
+  QcTrkBalanceSet: "zcode:qctrk-balance-set",
+  QcTrkBalanceQuery: "zcode:qctrk-balance-query",
+  QcTrkBalanceAuto: "zcode:qctrk-balance-auto",
+  QcTrkProxyGet: "zcode:qctrk-proxy-get",
+  QcTrkProxySet: "zcode:qctrk-proxy-set",
+  QcTrkProxyTest: "zcode:qctrk-proxy-test",
+  QcTrkNotifyGet: "zcode:qctrk-notify-get",
+  QcTrkNotifySet: "zcode:qctrk-notify-set",
+  QcTrkNotifyTest: "zcode:qctrk-notify-test",
+  QcTrkNotifyForward: "zcode:qctrk-notify-forward",
+  QcTrkAutocontGet: "zcode:qctrk-autocont-get",
+  QcTrkAutocontSet: "zcode:qctrk-autocont-set",
+  QcTrkUpdateGet: "zcode:qctrk-update-get",
+  QcTrkUpdateCheck: "zcode:qctrk-update-check",
+  QcTrkUpdateDownload: "zcode:qctrk-update-download",
+  QcTrkUpdateCancel: "zcode:qctrk-update-cancel",
+  QcTrkUpdateOpen: "zcode:qctrk-update-open",
+  /** Main → Renderer：更新状态变化（事件通道，非 invoke） */
+  QcTrkUpdateChanged: "zcode:qctrk-update-changed",
+  QcTrkDeletedTasks: "zcode:qctrk-deleted-tasks",
+  QcTrkPurgeTask: "zcode:qctrk-purge-task",
+  QcTrkScanModels: "zcode:qctrk-scan-models",
+  // 新增：模型上下文窗口大小来源追踪
+  QcTrkModelContextSourcesGet: "zcode:qctrk-model-context-sources-get",
+  QcTrkModelContextSourcesSet: "zcode:qctrk-model-context-sources-set",
 } as const;
 
 export type PlatformChannelName = (typeof PlatformChannels)[keyof typeof PlatformChannels];
+
+/** 托盘/原生应用菜单触发日志导出时，main 向 renderer 广播的进度。 */
+export interface ExportLogsProgressPayload {
+  phase: "start" | "end";
+  /** 结束阶段的结果；失败时 renderer 会展示错误文案。 */
+  success?: boolean;
+  error?: string;
+}
 
 // ============================================================================
 // 内置 WebView 频道 —— 固定 guest preload ↔ embedder renderer
@@ -1380,5 +1446,59 @@ export interface PlatformChannelMap {
   [PlatformChannels.SetTitleBarTheme]: {
     request: DesktopTitleBarTheme;
     response: void;
+  };
+
+  // 新增通道的 request/response 类型（见 qctrk/index.ts）
+  [PlatformChannels.QcTrkUsage]: {
+    request: string | undefined;
+    response: QcTrkUsageSnapshot;
+  };
+  [PlatformChannels.QcTrkUsageReport]: { request: QcTrkUsageReport; response: void };
+  [PlatformChannels.QcTrkUsageInvalidate]: {
+    request: string | undefined;
+    response: void;
+  };
+  [PlatformChannels.QcTrkErrors]: { request: void; response: QcTrkErrorReport };
+  [PlatformChannels.QcTrkBalanceGet]: { request: void; response: QcTrkBalanceConfig };
+  [PlatformChannels.QcTrkBalanceSet]: { request: QcTrkBalanceConfig; response: void };
+  [PlatformChannels.QcTrkBalanceQuery]: {
+    request: string | undefined;
+    response: QcTrkBalanceResult[];
+  };
+  [PlatformChannels.QcTrkBalanceAuto]: { request: void; response: QcTrkBalanceTarget[] };
+  [PlatformChannels.QcTrkProxyGet]: { request: void; response: QcTrkProxyConfig };
+  [PlatformChannels.QcTrkProxySet]: { request: QcTrkProxyConfig; response: void };
+  [PlatformChannels.QcTrkProxyTest]: { request: void; response: QcTrkProxyTestResult };
+  [PlatformChannels.QcTrkNotifyGet]: { request: void; response: QcTrkNotifyConfig };
+  [PlatformChannels.QcTrkNotifySet]: { request: QcTrkNotifyConfig; response: void };
+  [PlatformChannels.QcTrkNotifyTest]: {
+    request: "dingtalk" | "feishu";
+    response: QcTrkNotifyTestResult;
+  };
+  [PlatformChannels.QcTrkNotifyForward]: { request: QcTrkNotifyForwardPayload; response: void };
+  [PlatformChannels.QcTrkAutocontGet]: { request: void; response: QcTrkAutocontConfig };
+  [PlatformChannels.QcTrkAutocontSet]: { request: QcTrkAutocontConfig; response: void };
+  [PlatformChannels.QcTrkUpdateGet]: { request: void; response: QcTrkUpdateState };
+  [PlatformChannels.QcTrkUpdateCheck]: { request: void; response: QcTrkUpdateState };
+  [PlatformChannels.QcTrkUpdateDownload]: { request: void; response: void };
+  [PlatformChannels.QcTrkUpdateCancel]: { request: void; response: void };
+  [PlatformChannels.QcTrkUpdateOpen]: { request: void; response: void };
+  [PlatformChannels.QcTrkUpdateChanged]: { request: QcTrkUpdateState; response: void };
+  [PlatformChannels.QcTrkDeletedTasks]: { request: void; response: QcTrkDeletedTask[] };
+  [PlatformChannels.QcTrkPurgeTask]: {
+    request: string | QcTrkPurgeTaskRequest;
+    response: void;
+  };
+  [PlatformChannels.QcTrkScanModels]: {
+    request: { baseURL: string; apiKey: string; headers?: Record<string, string> };
+    response: QcTrkScanModelsResult;
+  };
+  [PlatformChannels.QcTrkModelContextSourcesGet]: {
+    request: void;
+    response: QcTrkModelContextSourcesResult;
+  };
+  [PlatformChannels.QcTrkModelContextSourcesSet]: {
+    request: { entries: QcTrkModelContextSourceInput[] };
+    response: QcTrkModelContextSourcesResult;
   };
 }

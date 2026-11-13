@@ -4,7 +4,6 @@
 // docs/dynamic-workflow/launch.md「The `FillWorkflowHole` tool」；引擎文档「Holes」→「The fill
 // service's checks」。这是 `DynamicWorkflowRunPort.fillHole` 的实现体，与 `retuneConcurrency`
 // 同一姿态、与三条启动入口分居：它一个 run 都不铸，只对着已经在飞的那个说一句话。
-//
 // 顺序就是全部的语义，且**拒绝即零副作用**（留白照旧在等）：
 //   1. 找 run（journal 行 ∪ 注册表）→ `run_not_found`；不在本进程飞 → `hole_not_waiting`；
 //   2. 读 run 此刻的脚本，收集站点表，按站点 id 找到那处开放的留白 → 不在 / 已补 → `hole_not_waiting`；
@@ -18,7 +17,6 @@
 //      `hole_not_waiting`；
 //   6. 引擎收下之后才动宿主侧：注册表条目换成有效脚本的事实，草稿**就地**改写，`scriptPath`
 //      不变。草稿写失败不撤销补全——journal 已经是真相，草稿只是把手。
-//
 // 唯一在引擎之前落盘的是**没有草稿的 run 的那份新草稿**：它的路径要随 `hole-filled` 进 journal
 // （冷读面靠它在重启后找到这份草稿），而事件是引擎在同一个同步步骤里记的，所以只能先铸。引擎
 // 随后拒绝（竞态：刚结算 / 没在等）时把这个本次刚铸的文件删掉——「什么都不删草稿」说的是模型

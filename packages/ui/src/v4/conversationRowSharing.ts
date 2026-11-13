@@ -1,5 +1,4 @@
 // Conversation row 结构共享（docs/performance/conversation-row-structural-sharing.md）。
-//
 // Bug 原因：store 收到整份 snapshot / row.upserted 时换上新反序列化的行对象，历史
 // snapshot 之间零共享；SessionPane 闭包链又会留住上百份历史 snapshot，同一个 200KB
 // 工具 inputText 因此在 heap 里存了一百多份。这里在 UI store 层把“值深相等”的部分换回

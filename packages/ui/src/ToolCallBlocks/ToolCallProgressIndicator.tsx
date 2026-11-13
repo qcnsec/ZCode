@@ -11,7 +11,7 @@ export function readToolCallProgress(raw: unknown): ToolProgress | null {
 }
 
 /**
- * 工具摘要行里的细进度条（）：有 fraction 用 determinate，否则 indeterminate 扫光；
+ * 工具摘要行里的细进度条：有 fraction 用 determinate，否则 indeterminate 扫光；
  * message 跟在后面。颜色只用 brand / surface token，遵守 DESIGN.md。
  */
 export function ToolCallProgressIndicator({ progress }: { progress: ToolProgress }) {

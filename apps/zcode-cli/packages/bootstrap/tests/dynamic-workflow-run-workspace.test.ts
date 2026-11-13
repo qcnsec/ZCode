@@ -1,6 +1,5 @@
 // 工作区 transcript 的读面（docs/dynamic-workflow/transcript-and-notifications.md）：
 // 授权链（run 属于本会话）、清单的行映射、正文的保形有界化。
-//
 // 与 run service 的产物读面测试同一取向：负例逐条断言「什么都没放行」，而不是只看正例。
 // 存储层用一个带 `listWorldNodes` 的内存 journal 替身——它的形状就是 adapters 的
 // `DwfRunIntrospectionQueries.listWorldNodes`（那边的 SQL 在 adapters 的测试里钉）。

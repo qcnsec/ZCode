@@ -6,7 +6,6 @@
 // LAST iteration issues ask#1 and then exits: the head await of iteration k+1 never runs,
 // so that instance is still pending when ask#2 issues. A certain settle here would emit
 // `ask#1 -> ask#2 seq always`, asserting a post-loop ordering the final instance violates.
-//
 // The loop is a literal-bounded `for` ON PURPOSE. Edges inherit the weaker certainty of
 // their endpoints, so inside a `while` (never provably entered) ask#1 would be `maybe` and
 // drag the edge to `maybe` whatever the settle claimed — the fixture would pass either way

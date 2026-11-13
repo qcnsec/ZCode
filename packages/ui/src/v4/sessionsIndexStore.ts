@@ -659,7 +659,7 @@ export class SessionsIndexStore {
     if (this.runtimeRestartReconnectTimer) {
       clearTimeout(this.runtimeRestartReconnectTimer);
     }
-    // runtimeRestarted 不能每到一条就立即 connect。若上游异常地连续发布
+    // runtimeRestarted 不能每到一条就立即 connect。若 异常地连续发布
     // restart，subscribe 会反向触发更多 runtime 启动，形成无上限重连风暴。这里将 burst
     // 合并为一次 fresh subscribe，并按连续次数指数退避；稳定 30 秒后恢复首跳立即重连。
     this.runtimeRestartReconnectTimer = setTimeout(() => {

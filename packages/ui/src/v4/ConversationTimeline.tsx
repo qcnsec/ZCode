@@ -427,7 +427,6 @@ function ConversationTimelineImpl({
   const headerSlotRef = useRef<HTMLDivElement>(null);
   // headerSlot 高度参与虚拟窗口换算（scrollMargin），必须随内容与宽度变化实时跟进，
   // 否则只读块加载完成或窗口变宽换行后，虚拟行会整体错位。
-  //
   // 依赖必须是「有没有 slot」而不是 headerSlot 本身：后者是 ReactNode，宿主传的是内联 JSX，
   // 每次渲染都是新对象，会让 ResizeObserver 在流式输出期间每帧重建。
   const hasHeaderSlot = Boolean(headerSlot);
@@ -2296,7 +2295,6 @@ function ConversationTimelineImpl({
                     <ConversationBackToBottomButton
                       // 分屏下 composer 属于滚动视口内的 sticky dock；按钮若挂在
                       // timeline 外层 absolute bottom，会相对整个 pane 落到 input 下方。
-                      //
                       // 圆钮采用自己的居中定位；`pointer-events-auto` 保留：
                       // 它是"按钮点得动"唯一可断言的契约。
                       className="pointer-events-auto absolute bottom-full left-1/2 z-30 mb-2 -translate-x-1/2 shadow-sm"

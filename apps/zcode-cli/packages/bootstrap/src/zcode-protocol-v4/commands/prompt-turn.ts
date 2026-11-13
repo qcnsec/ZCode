@@ -1,6 +1,5 @@
 import { OFF_PEAK_EXECUTION_TOOL_DENYLIST } from "@zcode/shared";
 // 原生 prompt turn 运行器。
-//
 // Core admission 只负责接受输入并建立 session-scoped reservation；本文件不再拥有
 // activeAbortController，也不等待 projection commit。这样 TurnStarted 之后的任意 Core
 // starting/active 状态都会继续挡住同一 session 的第二次 start。

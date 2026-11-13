@@ -109,7 +109,7 @@ describe("desktop E2E container presets", () => {
   );
 });
 
-// 用假的 docker 记录参数，验证容器脚本透传给容器的上游供应商配置；取最后一次 docker run（前面一次是驱动预取）。
+// 用假的 docker 记录参数，验证容器脚本透传给容器的 供应商配置；取最后一次 docker run（前面一次是驱动预取）。
 function runContainerScriptWithFakeDocker(env: Record<string, string>) {
   const dir = mkdtempSync(join(tmpdir(), "zcode-e2e-container-"));
   try {
@@ -149,7 +149,7 @@ function runContainerScriptWithFakeDocker(env: Record<string, string>) {
 }
 
 describe.skipIf(process.platform === "win32")("desktop E2E container upstream provider env", () => {
-  it("capture 模式把上游地址、模型与 preset 透传给容器", () => {
+  it("capture 模式把 地址、模型与 preset 透传给容器", () => {
     const result = runContainerScriptWithFakeDocker({
       E2E_NETWORK_MODE: "capture",
       E2E_PROVIDER_API_KEY: "test-key",
@@ -168,7 +168,7 @@ describe.skipIf(process.platform === "win32")("desktop E2E container upstream pr
     expect(result.runArgs).toContain("E2E_PROVIDER_PRESET=env");
   });
 
-  it("capture 模式缺少上游地址时在启动容器前失败", () => {
+  it("capture 模式缺少 地址时在启动容器前失败", () => {
     const result = runContainerScriptWithFakeDocker({
       E2E_NETWORK_MODE: "capture",
       E2E_PROVIDER_API_KEY: "test-key",

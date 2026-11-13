@@ -1,5 +1,4 @@
 // CreateWorkflow 的确认 gate 旁路（docs/dynamic-workflow/launch.md「The approval bypass」）。
-//
 // 两条硬断言：旁路**不渲染审批面板**，且**不持久化任何权限规则**。第二条是关键——
 // 带上 permissionUpdates 就会把「跳过一次确认」变成真的授权，而 spec 的裁定是
 // 「gate 旁路不等于权限旁路」：run 里的 actor 仍继承会话的权限 profile。

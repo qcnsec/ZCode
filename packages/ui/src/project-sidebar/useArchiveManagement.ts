@@ -8,6 +8,7 @@ import { resolveRemoteWorkspaceSessionIdForTarget } from "@/hooks/useResolvedRem
 import { useRemoteWorkspaceSessionStore } from "@/store/remoteWorkspaceSessionStore.js";
 import { useZCodeSessionStore } from "@/store/zcodeSessionStore.js";
 import { useConfirmDialog } from "@/hooks/useConfirmDialog.js";
+import { useOptionalPlatform } from "@/hooks/usePlatform.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { logger } from "@/logger.js";
 
@@ -17,6 +18,7 @@ export function useArchiveManagement() {
   const { zcodeTaskService: service, windowControllerService: controller } =
     useBaseWorkspaceServices();
   const removeTaskState = useZCodeSessionStore((s) => s.removeTaskState);
+  const platform = useOptionalPlatform();
   const confirm = useConfirmDialog();
   const { intl } = useZCodeIntl();
   const [busy, setBusy] = useState(false);
@@ -71,8 +73,14 @@ export function useArchiveManagement() {
             operation === "delete" ? { kind: "delete" } : { kind: "archive", archived: false },
             remoteSessionId,
           );
-          if (operation === "delete")
+          if (operation === "delete") {
             removeTaskState(task.workspacePath, task.taskId, task.workspaceIdentity);
+            // 删除即彻底删除：显式走 main 侧清理（与旧版「彻底删除」按钮同一条已验证链路）。
+            // Host 的 purgeAfterDelete 与 Main 是两个进程、环境变量可能不同，这里再做一次兜底。
+            void platform?.qctrk?.purgeTask(task.taskId)?.catch((error) => {
+              logger.warn("[archive-management] 清理任务索引残留失败", { taskId: task.taskId, error });
+            });
+          }
           counts.succeeded++;
         } catch (error) {
           counts.failed++;

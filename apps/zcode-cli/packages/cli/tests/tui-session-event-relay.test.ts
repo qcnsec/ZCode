@@ -1,5 +1,4 @@
 // TUI 常驻会话事件中继：换 app 时必须重挂（docs/dynamic-workflow/launch.md「The inline card」）。
-//
 // 这条性质的失效是安静的：/new、/resume、/fork 之后订阅还挂在旧 runtime 上，TUI 就再也收不到
 // 出回合事件（dwf 进度、后台通知驱动的回合），而界面看起来完全正常。所以它必须有测试。
 import assert from "node:assert/strict";

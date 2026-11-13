@@ -3,7 +3,6 @@
 // ListSavedWorkflows / ListModels）的工具卡 display 载荷
 // ============================================================
 // 照 create-workflow-display.ts 的先例单独成模块（特性级 schema 不堆进 toolDisplay.ts）。
-//
 // ⚠ 与 apps/zcode-cli/packages/contracts/src/tools/workflow-observation-display.ts 的
 // toolResultDisplayPayloadSchema 成员必须同步——两侧都是 strict，少一侧整条 row/display
 // 校验失败、工具卡退化成文本（create_workflow display 注释记录过同款坑）。

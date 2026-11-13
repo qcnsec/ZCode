@@ -3,12 +3,10 @@
 // ============================================================
 // 恢复一个 stopped 的 dwf run（模型侧入口；可恢复集 = `stopped`，不论 reason）。见端口契约
 // `DynamicWorkflowRunPort.resume`（contracts/src/interfaces/dynamic-workflow-run.port.ts）。
-//
 // handler 刻意**很薄**：门（可恢复集判定）、注册表替换、compileOnce/scriptHash 重验全部在
 // port.resume 服务端，这里只做三件事：取端口、透传 run_id、把结果投影成契约形状。
 // 输出的 backgrounded 形状让 executor 走 CreateWorkflow 同一条自动追踪
 // （call-runner → trackBackgroundTask），快照/等待/取消/通知零新代码。
-//
 // resume 被 scriptHash
 // 钉死在 submit 时已获批准的同一脚本上，与 UI Resume 按钮同一风险档，模型调用直接执行；
 // PreToolUse deny 与项目 deny 规则仍可拦截。也不设 prepareApproval：无同步手段校验 runId，

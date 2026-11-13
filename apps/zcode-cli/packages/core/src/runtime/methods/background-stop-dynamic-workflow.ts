@@ -1,7 +1,6 @@
 // ============================================================
 // workflow run 的后台停止分支（runtime.stopBackgroundTask 的 local_dynamic_workflow 分派）
 // ============================================================
-//
 // 这是**唯一一条取消路径**的末端。两个入口汇到同一个实现：
 //   1. GUI：v4 `cancelBackgroundWork {workId}` → `app.cancelBackgroundTask`
 //      → `runtime.cancelBackgroundTask` → `runtime.stopBackgroundTask`（lenient）
@@ -9,7 +8,6 @@
 //      （runtime-tools.ts 把它绑定到同一个 `runtime.stopBackgroundTask`，strict: true）
 // 两者只在 strict 上不同（strict 让已终结的任务返回 not_running 而不是宽松的成功），
 // 分派与本模块之后的行为完全一致——不存在第二条 cancel 语义。
-//
 // 单独成模块是为了限制 background.ts 的规模，避免继续增加分支复杂度。
 // background.ts 侧只保留一个 import 与一行分派。
 

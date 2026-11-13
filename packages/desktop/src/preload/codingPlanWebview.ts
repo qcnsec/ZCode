@@ -21,7 +21,6 @@ import {
 // - 官网页主世界拿不到 Node / ipcRenderer 原语，只暴露业务函数。
 // 参照 embeddedBrowserJavaScriptDialog.ts 的 contextBridge.executeInMainWorld 模式
 // （sandbox=true + contextIsolation=true 下可用，已有先例）。
-//
 // 注入时机：Electron webview 在 will-attach-webview 钩子里按 params.src 判断为官网购买页时，
 // 把 webPreferences.preload 切到本文件（见 desktopWindowChrome.ts）。
 

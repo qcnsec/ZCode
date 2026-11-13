@@ -1,10 +1,8 @@
 // 从一次 run 出发的两个方法（docs/dynamic-workflow/transcript-and-notifications.md
 // 「Saving the run, and running it again」）：把这次 run 跑过的脚本存成定义，以及回答
 // 「这次 run 对应哪个已保存工作流」。
-//
 // 与 saved-workflows.ts 同一条纪律（解析器、序列化器、名字规则与类型检查器都只从 @zcode/core 取，
 // 不变式 3），分文件只为守住 400 行的门。
-//
 // 为什么保存**不收脚本**只收 runId：要写下去的正文是这次 run 实际执行的那一份，而它在 journal
 // 里（`scriptText`）。经由调用方转一圈有两处会坏：修订过的 run 该存**结算它的**那一份，而工具行
 // 入参被快照裁成预览的老对话里，调用方手上根本没有完整脚本。

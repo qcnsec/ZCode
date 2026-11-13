@@ -282,7 +282,7 @@ export function toProtocolError(error: unknown): {
       code: -32603,
       // ModelProtocolError 等业务错误的 code 需要跨 JSON-RPC 保留给 UI。
       // 外层仍是 JSON-RPC internal error，稳定业务 code 放在 data.code 供横幅本地化。
-      // 不透传 error.context：上游上下文不保证 JSON-safe，错误响应不能因诊断信息二次失败。
+      // 不透传 error.context： 上下文不保证 JSON-safe，错误响应不能因诊断信息二次失败。
       data: {
         name: error.name,
         stack: error.stack,

@@ -3,7 +3,6 @@
 // ============================================================
 // docs/dynamic-workflow/launch.md「Changing only the parallelism of a live run」；引擎与驱动侧
 // 怎么接住新上界见 docs/dynamic-workflow/concurrency.md「Retuning a live run」。
-//
 // 一次「只带 `run_id` 与 `max_concurrency`、前驱还活着」的调用**不是修订**：它就地挪一个数，
 // run 保住自己的 id、子代理、转录与在飞的 ask，什么都不停、什么都不替代、一个窗都不弹。
 // 从 amend-workflow.ts 拆出来的理由与 amend-workflow-source.ts 同一条（400 行纪律 + 各管一段）：

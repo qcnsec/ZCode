@@ -58,7 +58,7 @@ const PROVIDER_CODE_FAILURE_REASONS: Readonly<Record<string, string>> = {
   "429": "rate_limited",
 };
 
-// provider 包装可能只保留上游业务码，未带 adapter 的标准 reason；
+// provider 包装可能只保留 业务码，未带 adapter 的标准 reason；
 // 这些 code 的拒绝语义有明确证据，只在 telemetry 边界补为低基数 invalid_request。
 const GENERIC_PROVIDER_INVALID_REQUEST_CODES = new Set(["BAD_REQUEST"]);
 
@@ -236,7 +236,7 @@ export function resolveControlledUnknownMessageAttribution(
     /codex responses websocket stream error/iu.test(message) ||
     /engine protocol predict request failed:\s*fetch failed/iu.test(message) ||
     /the model provider encountered a streaming error/iu.test(message) ||
-    /上游流式响应长时间无数据/iu.test(message) ||
+    / 流式响应长时间无数据/iu.test(message) ||
     /(?:^|\n)stream_read_error(?:\n|$)/iu.test(message)
   ) {
     return {

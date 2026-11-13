@@ -65,14 +65,12 @@ export function registerRuntimeBackgroundTask(
   // **身份面**维持 existing??new 不动（agentId/agentType/parentToolCallId/turnId/description/
   // startedAt）——parentToolCallId 是「工具卡 → 详情页链路跨 resume 保持」的锚，换成本次
   // 重臂的描述子 id 会把 join 打断。
-  //
   // 复位必须以**重臂为界**：只有 dwf 分派名会跨 resume 复用同一
   // runId 在终态条目上再启动新生命周期（重臂），此时上一轮的 notified 属于旧生命周期、
   // 必须作废。Bash/Agent 等单生命周期任务的 task id 一轮即弃，但 tracker 晚挂载时
   // register 同样会撞上已认领（notified:true）的终态条目——那是**同一**生命周期的认领
   // 令牌，无差别复位会让同一终态的模型通知被二次入队。「缺陷名字无关」指可达路径
   // （v4 命令路径同样经 CreateWorkflow 名重臂），而非任何 register 都该复位。
-  //
   // outputFile 有意**不**随结算面复位：workflow run 从不写 outputFile，existing 兜底仅为产物
   // 外部化预留的透传；外部化落地时应随其语义重新裁决（勿顺手清空、也勿顺手扩大语义）。
   const rearm = isDynamicWorkflowRunDispatchToolName(toolCall.name);

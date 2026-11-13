@@ -136,7 +136,6 @@ export function listRuns(db: DatabaseSync, query: DwfListRunsQuery): DwfRunListI
   // 空状态集合的语义是「不匹配任何状态」而不是「不过滤」：把它当成后者，等于让一个显式
   // 传下来的过滤器静默失效。同理 limit ≤ 0 是空页（listEvents 的 `limit -1` 全量惯用法
   // 在这条查询上不适用——枚举面永远是有界的）。
-  //
   // 地板在这里，天花板**不在**：调用方合法地传「工具面上限 + 1」当截断探测行，加一个
   // `Math.min(50, …)` 会让 truncated 在恰好 limit = 50 时永久缺席。见 {@link DwfListRunsQuery.limit}。
   if (query.statuses !== undefined && query.statuses.length === 0) return [];

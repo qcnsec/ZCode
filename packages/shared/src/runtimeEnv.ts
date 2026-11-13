@@ -26,6 +26,27 @@ export const ZCODE_CUA_NODE_REPL_HOST_ENV_KEY = "ZCODE_CUA_NODE_REPL_HOST";
 // main→host 边界删除，不能用于 signed release 的 runtime override。
 export const ZCODE_CUA_DEV_MODE_ENV_KEY = "ZCODE_CUA_DEV_MODE";
 
+/**
+ * 代理 scheme 别名归一化。
+ *
+ * 部分客户端（Chromium proxyRules、Node fetch/undici 的 EnvHttpProxyAgent、axios）只认识
+ * http/https/socks4/socks5；传入它们不认识的 scheme 会静默退回直连，用户以为配了代理其实没生效。
+ * - socks5h:// / socks4a:// 携带「远端解析 DNS」语义，标准 env 代理 agent 会忽略，归一化为 socks5/socks4。
+ * - 裸 socks:// 在不少客户端不是合法显式 scheme，归一化为 socks5://。
+ *
+ * 桌面端 Chromium 会话代理与 agent 子进程 env 注入共用这一份，避免两处各自维护漂移。
+ */
+export const PROXY_SCHEME_ALIASES: Record<string, string> = {
+  "socks5h:": "socks5:",
+  "socks4a:": "socks4:",
+  "socks:": "socks5:",
+};
+
+export function normalizeProxyScheme(scheme: string): string {
+  const lower = scheme.toLowerCase();
+  return PROXY_SCHEME_ALIASES[lower] ?? lower;
+}
+
 export type ZCodeRuntimeEnv = "development" | "production" | "test";
 
 type EnvRecord = Record<string, string | undefined>;
@@ -159,7 +180,7 @@ function captureZCodeCuaBrokerCredentials(env: Record<string, string | undefined
   const pluginAuthority = env[ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]?.trim();
   const refreshMarker = env["ZCODE_CUA_PERMISSION_BROKER_REFRESH_MARKER"]?.trim();
   // 连接没有口令：socket + authority（config-provenance 随机数）同批出现才构成有效凭据组；
-  // 半组说明上游注入不完整或正在轮换。
+  // 半组说明 注入不完整或正在轮换。
   if (socket && pluginAuthority) {
     capturedCuaBrokerCredentials = Object.freeze({
       socket,
@@ -169,7 +190,7 @@ function captureZCodeCuaBrokerCredentials(env: Record<string, string | undefined
     return;
   }
   if (socket || pluginAuthority) {
-    // 发现半组凭据说明上游注入不完整或正在轮换；清掉旧快照并 fail-closed，不能复用另一半。
+    // 发现半组凭据说明 注入不完整或正在轮换；清掉旧快照并 fail-closed，不能复用另一半。
     capturedCuaBrokerCredentials = undefined;
   }
 }

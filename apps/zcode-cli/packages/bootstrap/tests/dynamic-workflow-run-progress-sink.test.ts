@@ -1,6 +1,5 @@
 // dwf run 进度汇的三条降级路径 + 身份闸门。
 // 见 apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「How progress and completion reach the app and the main agent」。
-//
 // 这个文件存在的理由：run 在飞时观察面出的任何问题都不能打挂 run（run 的真相在 journal），
 // 而"事件落进哪个会话"是一条静默错就很难查的不变式——错了不报错，只是事件出现在别人的对话里。
 import { describe, expect, it, vi } from "vitest";

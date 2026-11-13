@@ -68,7 +68,6 @@ const JUSTIFIED_BY: Partial<Record<OrderKind, ReadonlySet<OrderKind>>> = {
   // This is what kills the phantom producer→sink edges the actor projection emitted
   // through relays, and what keeps `scan → judge` alive against the incidental
   // `scan → plan → review → judge`.
-  //
   // Bug: `data` originally yielded to `data` alone, which kept every data fact that a
   // control edge already implied. In a refine-until-approved loop that is most of the
   // picture — `initial plan → revision` reads as a second arrow on top of

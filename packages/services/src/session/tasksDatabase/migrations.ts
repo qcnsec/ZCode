@@ -100,7 +100,7 @@ const definitions = [
     touchedTables: ["automations", "off_peak_tasks"],
     checksumInput: [executionColumns, "nullable-text-v1"],
     apply: (db: DatabaseSync) => {
-      // 原因：调度器可独立打开 Repo，不能等待项目归属转换，也不能把新列写进上游冻结 schema。
+      // 原因：调度器可独立打开 Repo，不能等待项目归属转换，也不能把新列写进 冻结 schema。
       for (const [table, column] of executionColumns) {
         if (
           !db

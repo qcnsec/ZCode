@@ -4,12 +4,10 @@
 // 一个 run 的 `files.*` / `git.*` / `world.run` 调用，在侧板上以工具卡片的形式回放。
 // 权威在 journal 的 `dwf_node` 行（`kind ∈ {world-read, world-run}`）：`input_json`
 // （迁移 0030）给出 op 与实参，`result_json` 给出正文。
-//
 // 两条 v4 查询，照用户面产物的 ①/③ 拆法：
 //   Workspace  轻行清单（op / args / 状态 / 摘要 / 时刻），**不带正文**；
 //              活投影的 `lastEventSequence` 抬升时重查
 //   NodeResult 一个节点的正文，按 maxBytes 保形有界化；展开时才取，按 tab 缓存
-//
 // 分层：正文永远不进清单；清单上的「多大 / 退出码 / 几条」由存储层用 SQLite 的 JSON 函数
 // 在库内算出。与 workflowRunEvents 同族：只读、无状态、超时重发安全，刻意不是 v4 command，
 // 不带 atSeq / atLogEpoch（读的是 journal，没有陈旧可防）。新方法天然偏斜安全。

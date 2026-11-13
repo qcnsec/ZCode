@@ -14,7 +14,6 @@ import {
 // 选项以上是**唯一**的纵向滚动区，选项与确认钉在下面；说明折叠到 4 行、实参折叠到 8 行、脚本默认
 // 收起，展开只把同一个滚动区变长。保存窗只由模型调用 SaveWorkflow 打开，所以走合成回放：一次
 // 超长载荷的 tool_use。
-//
 // 文件名带 `gray-always-on`：配置 mock 网关按文件名下发 alwaysOn，工作流工具才在工具集里
 // （与 …-gray-always-on-user-choice 同一个借道）。
 // 先真实加载 dynamic-workflows Skill，再调用 SaveWorkflow；否则工具在审批前就会拒绝。

@@ -2,7 +2,6 @@
 // g.call(null, extra) invokes it. At runtime BOTH topic (captured) and extra
 // (positional) flow into ask#1. Probes that the captured flow survives .call
 // (placeholder through the summary) while the positional one is misaligned.
-//
 // The snapshot also carries a SOUND extra edge `extra(ask#3) -> sink` (not a bug): on the
 // first fixpoint pass make's summary is not yet computed, so `g` carries no `.fns` and
 // `g.call(null, extra)` is analyzed as an unknown call — which correctly returns the union

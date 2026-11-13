@@ -1,5 +1,4 @@
 // 冷启动 / 恢复会话时的镜像回放、补种与 interrupted notice。
-//
 // 三条纪律：
 //   1. 运行态**只**从回放来：`replayWorkflowRuns` 交出的是 journal 按 sequence 顺序铸出的、与 live
 //      同一种进度信封，逐条喂给共享 reducer——有序的真实事件重放不会让相位回退（禁令针对的是

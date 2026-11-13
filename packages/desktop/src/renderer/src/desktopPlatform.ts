@@ -13,6 +13,7 @@ export function createDesktopPlatform(options: {
   isLocalDevelopmentRuntime: boolean;
 }): IPlatformService {
   return {
+    qctrk: window.zcode.qctrk,
     canSelectFilePath: true,
     canOpenLocalFiles: true,
     pluginSandbox: createDesktopPluginSandboxPlatform(),
@@ -147,6 +148,8 @@ export function createDesktopPlatform(options: {
       window.zcode.browserViewScreenshotSurfaceReady?.(payload),
     ...desktopBrowserPlatformBridge,
     onNewTask: (handler) => window.zcode.onNewTask(handler),
+    onExportLogsProgress: (handler) =>
+      window.zcode.onExportLogsProgress?.(handler) ?? (() => {}),
     onOpenWorkspace: (handler) => {
       // 开发态或升级后的旧窗口可能仍运行未暴露 onOpenWorkspace 的 preload，
       // renderer 直接调用会在启动时崩溃。这里和 activateOrSetWorkspace 一样做兼容兜底，

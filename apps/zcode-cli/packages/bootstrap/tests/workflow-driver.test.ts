@@ -533,7 +533,6 @@ describe("workflow driver — resume 会话身份互证", () => {
 // ————————————————————————————————————————————————————————————————
 // amend-resume 的 driver 半身：ask 边界记账 + 转录截断
 // 见 apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「Amend-resume」「转录截断（driver）」两行。
-//
 // 这两族**必须走真库**：被测的正是「数的与抄的是不是同一批消息」，而消息只有接上真实
 // session store 才会真的落库。用一个只会返回固定数字的替身，等于把被测语义换成复制品。
 // ————————————————————————————————————————————————————————————————
@@ -981,7 +980,6 @@ describe("workflow driver — 转录截断（会话种子）", () => {
 });
 
 // ── ask 质量尾注（docs/dynamic-workflow/authoring.md「Each ask」）──
-//
 // 每个 ask 的指令后面都跟一段内容标准；typed 时 schema 尾注紧随其后。两段都在 scheduler 算完
 // inputHash 之后追加，所以缓存身份不变——这里顺带钉住 journal 里的 inputHash 与原始指令一致。
 describe("workflow driver — quality epilogue on every ask", () => {

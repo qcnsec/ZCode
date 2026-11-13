@@ -1,16 +1,13 @@
 // The REPETITION CARVE-OUT in the phase copies' temporal admission, pinned.
-//
 // Admission normally asks "does some issue of the head in its phase sit after the first
 // issue of the tail in its phase". Inside a loop that question has a second answer: the
 // two sites share an enclosing iteration region, so iteration k's producer really does
 // feed iteration k+1's consumer even though the consumer's position is EARLIER. The
 // carve-out is what admits that, and it is mirrored from `realizableCarry` rather than
 // re-derived — one relation, one answer.
-//
 // Here the shared `probe` site is claimed by `open` (position first in every round) and by
 // `close`; the scout's pick, issued in `close`, is what the NEXT round's `open` probe reads
 // through `hint`. So:
-//
 //   ask#1 -> world-read#1~phase#1   SURVIVES ONLY VIA THE CARVE-OUT — the open copy is
 //     issued before ask#1 in walk order, and drop the shared-iteration clause and this
 //     edge dies, taking a real loop-carried data dependency with it and leaving the two

@@ -370,7 +370,6 @@ describe("node_repl MCP server", () => {
     //   const shot = await app.getScreenshot(); await nodeRepl.emitImage(shot);
     // getScreenshot 已经经 emitStructuredResult 投过「图 + 权威」，于是结果里两张图，
     // exact-raster 门按「每个结果只允许一张最终 raster」把整帧原子否决。
-    //
     // 门不能放宽（frame_id 绑定像素坐标），但逐字节相同的那份是纯冗余，丢掉即可，
     // 冗余调用不再连累整帧被否决。
     const authority = JSON.stringify({
@@ -632,7 +631,7 @@ describe("node_repl MCP server", () => {
   });
 
   it("derives screenshot indices from what the browser proxy saw, end to end", async () => {
-    // 真实 MCP server + 浏览器代理 broker + 假的上游浏览器 broker：可信的截图下标只来自代理在
+    // 真实 MCP server + 浏览器代理 broker + 假的 浏览器 broker：可信的截图下标只来自代理在
     // 主线程记下的截图（20-node-repl-call-ledger.md「结果组装」）。
     const upstreamPath =
       process.platform === "win32"
@@ -686,7 +685,7 @@ describe("node_repl MCP server", () => {
       expect(result._meta).toMatchObject({
         [ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY]: [0],
       });
-      // 上游收到的是上游 token 与本次调用来自 core 的会话信息。
+      // 收到的是 token 与本次调用来自 core 的会话信息。
       expect(upstreamRequests).toHaveLength(1);
       expect(upstreamRequests[0]).toMatchObject({
         op: "execute",
@@ -704,7 +703,7 @@ describe("node_repl MCP server", () => {
   });
 
   it("marks runtime calls that reach the real brokers, end to end, and nothing else", async () => {
-    // 真实 MCP server + 两个 broker：浏览器上游拒绝命令、CUA runtime 抛错，cell 也都接住了错误；
+    // 真实 MCP server + 两个 broker：浏览器 拒绝命令、CUA runtime 抛错，cell 也都接住了错误；
     // 口径是真实尝试，两个 key 照样写出（session-features-header.md「BUA/CUA 标签的补充规则」）。
     const upstreamPath =
       process.platform === "win32"

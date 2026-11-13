@@ -2,7 +2,6 @@
 // awaits its own work before the next marker. This script really is sequential, and the two
 // fixtures' goldens must DIFFER — under the old single settled set they were byte-identical,
 // which is what made the defect invisible to every downstream view.
-//
 // Expected:
 //   core — the same `strand` flags on the three fan-out regions, but two separate barriers:
 //     `settle ask#1 in=seq#1 joins=fanout#1` before B's marker and

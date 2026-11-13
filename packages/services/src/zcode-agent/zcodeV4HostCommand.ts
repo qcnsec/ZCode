@@ -1,5 +1,4 @@
 // host（services 层）侧的 v4 命令信封构造与 ACK 收口共用件（send/交互回执收敛）。
-//
 // 与 renderer 的 packages/ui/src/v4/commandFactory.ts 平行：renderer 走浏览器
 // localStorage 持久化 clientId；host 进程用进程内稳定 clientId（host 重启 = 新提交端，
 // 幂等表以 commandId 为键不受影响）。不合并成一个实现的原因：ui 包不能被 services 反向依赖。

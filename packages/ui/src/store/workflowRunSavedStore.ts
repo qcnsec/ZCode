@@ -1,6 +1,5 @@
 // 「这次 run 对应哪个已保存工作流」的读缓存（docs/dynamic-workflow/transcript-and-notifications.md
 // 「Which workflow a run is saved as」）。
-//
 // 判定住在 agent（`workflows/forRun`）：两份事实——run 的 journal 记录与磁盘上的定义——都在那边，
 // 而卡片上什么都不记。这里只是个缓存：完成卡挂在虚拟列表里，滚动一次就重挂一次，不能每次重挂都
 // 发一次 RPC。与中枢的读缓存同一条纪律（savedWorkflowStore）：磁盘仍是唯一权威，变更后一律作废。

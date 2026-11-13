@@ -132,12 +132,19 @@ export class ProviderApiConfig extends ConfigOverlay<ProviderApiConfig> {
   readonly type?: ProviderApiConfigInput["type"];
   readonly baseUrl?: ProviderApiConfigInput["baseUrl"];
   readonly headers?: ProviderApiConfigInput["headers"];
+  // 自定义请求路径 / 查询参数 / 额外请求头（供应商设置增强）。
+  readonly customPath?: ProviderApiConfigInput["customPath"];
+  readonly customQuery?: ProviderApiConfigInput["customQuery"];
+  readonly customHeaders?: ProviderApiConfigInput["customHeaders"];
 
   constructor(input: ProviderApiConfigInput = {}) {
     super();
     this.type = input.type;
     this.baseUrl = input.baseUrl;
     this.headers = input.headers ? Object.freeze({ ...input.headers }) : input.headers;
+    this.customPath = input.customPath?.trim() || undefined;
+    this.customQuery = input.customQuery?.trim() || undefined;
+    this.customHeaders = input.customHeaders?.trim() || undefined;
     Object.freeze(this);
   }
 
@@ -146,6 +153,9 @@ export class ProviderApiConfig extends ConfigOverlay<ProviderApiConfig> {
       type: this.overlayValue(this.type, next.type),
       baseUrl: this.overlayValue(this.baseUrl, next.baseUrl),
       headers: this.overlayValue(this.headers, next.headers),
+      customPath: this.overlayValue(this.customPath, next.customPath),
+      customQuery: this.overlayValue(this.customQuery, next.customQuery),
+      customHeaders: this.overlayValue(this.customHeaders, next.customHeaders),
     });
   }
 
@@ -159,6 +169,9 @@ export class ProviderApiConfig extends ConfigOverlay<ProviderApiConfig> {
       type: this.type,
       baseUrl: this.baseUrl,
       headers: this.headers,
+      customPath: this.customPath,
+      customQuery: this.customQuery,
+      customHeaders: this.customHeaders,
     });
   }
 }

@@ -197,7 +197,6 @@ export function projectCausalityGraph(core: AnalysisCore, site: SiteGraph): Caus
     if (chainIsCertain(event.regions)) unconditional.add(event.step);
     // Await barriers: every step already settled precedes this issue. `data` upgrades
     // happen at dedup; `seq` is the residue — ordered only by where `await` sits.
-    //
     // `toPhases` records WHERE this barrier was witnessed: the phase current at THIS issue
     // event. It is the only fact kind that has a single witnessing issue, and phase copies
     // read it to keep an edge off the copies whose issue never saw the barrier. It is the
@@ -339,7 +338,6 @@ export function projectCausalityGraph(core: AnalysisCore, site: SiteGraph): Caus
     // (b) A step the region never awaits still cannot overlap its own next instance
     // when it runs on a FIXED actor — the mailbox serializes them. A lane family gets
     // a fresh actor per element, so its instances genuinely coexist and it stacks.
-    //
     // This branch is only correct when the region really does NOT await the step, which is
     // why the settle oracle matters here and not just for edge certainties. Without it, an
     // indirectly-awaited body (`await acc` over a reduce accumulator, `await p` over a

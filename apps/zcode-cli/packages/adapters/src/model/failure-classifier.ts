@@ -34,6 +34,10 @@ import {
 } from "./failure-provider-business-codes.js";
 import { isModelStreamIdleTimeoutError } from "./stream-idle-timeout.js";
 import { RuntimeHeadersRefreshError } from "./runner-runtime-headers.js";
+import {
+  isQcTrkRetryableInferenceInvalidMessage,
+  isQcTrkTransientStreamMessage,
+} from "./qctrk-transient-message.js";
 
 const PROVIDER_BUSINESS_ERROR_WRAPPER_CODE = "PROVIDER_BUSINESS_ERROR";
 
@@ -112,13 +116,19 @@ export function classifyModelFailure(
   }
 
   if (code === ModelErrorCode.InvalidModelRequest) {
+    const message =
+      unwrapped instanceof Error ? unwrapped.message : "Model request configuration is invalid.";
+    // 中转站偶发的「inference request is invalid」是临时故障， 按可重试处理；
+    // 上下文超限、参数错误、鉴权、欠费等由判定函数的排除正则挡住，仍不可重试。
+    const retryable = isQcTrkRetryableInferenceInvalidMessage(message);
     return {
       code: ModelErrorCode.InvalidModelRequest,
-      message:
-        unwrapped instanceof Error ? unwrapped.message : "Model request configuration is invalid.",
-      reason: ModelFailureReasonValue.InvalidRequest,
+      message,
+      reason: retryable
+        ? ModelFailureReasonValue.NetworkError
+        : ModelFailureReasonValue.InvalidRequest,
       retryReason: ModelRetryReasonValue.NetworkError,
-      retryable: false,
+      retryable,
       statusCode,
     };
   }
@@ -302,14 +312,30 @@ export function classifyModelFailure(
     };
   }
 
-  const retryable = isProviderMarkedRetryable(unwrapped);
+  // 断流自愈： 流被中断、连接提前关闭、socket hang up 等以前需要手动重试的故障，
+  // 由 的瞬时错误判定接管。取消、上下文超限、鉴权、欠费等已在上方分支返回，
+  // 不会被这里的兜底重新变成可重试。
+  const message = unwrapped instanceof Error ? unwrapped.message : undefined;
+  const transientRetryable = isQcTrkTransientStreamMessage(message);
+  const providerRetryable = isProviderMarkedRetryable(unwrapped);
+  const retryable = providerRetryable || transientRetryable;
+
+  let failureMessage = "Model request failed.";
+  let reason: ModelFailureReason = ModelFailureReasonValue.Unknown;
+  let retryReason: ModelRetryReason = ModelRetryReasonValue.NetworkError;
+  if (transientRetryable) {
+    failureMessage = message ?? "Model stream was interrupted.";
+    reason = ModelFailureReasonValue.NetworkError;
+  } else if (providerRetryable) {
+    failureMessage = "Provider marked the model request as retryable.";
+    reason = ModelFailureReasonValue.ServerError;
+    retryReason = ModelRetryReasonValue.ServerError;
+  }
   return {
     code: ModelErrorCode.ModelRequestFailed,
-    message: retryable
-      ? "Provider marked the model request as retryable."
-      : "Model request failed.",
-    reason: retryable ? ModelFailureReasonValue.ServerError : ModelFailureReasonValue.Unknown,
-    retryReason: retryable ? ModelRetryReasonValue.ServerError : ModelRetryReasonValue.NetworkError,
+    message: failureMessage,
+    reason,
+    retryReason,
     retryable,
     retryAfterMs,
     statusCode,

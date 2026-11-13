@@ -5,9 +5,7 @@
 // 编译一次 → 注册 AbortController → 启动引擎（fire-and-forget，执行体在
 // dynamic-workflow-run-launch.ts）→ 把 run 的观察面（快照 / 等待 / 取消 / 恢复 / 枚举 /
 // 事件分页）经窄端口交出去。
-//
 // 七条不变式，违反任何一条都会以「离成因很远」的方式表现，所以写在文件头：
-//
 //   1. **引擎独占 createRun**。本服务绝不预插 dwf_run 行。预先存在的行会把引擎构造函数翻进
 //      resume 分支（engine.ts）：节点计数按已完结记录重算、预算从记录恢复、状态被
 //      updateRunStatus 覆写。一个全新的 run 走 resume 分支不报错，只会静默从一份空 journal

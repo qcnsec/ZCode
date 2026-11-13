@@ -2,7 +2,6 @@
 // 子代理模型的选择面：「配置」弹层与确认窗共用
 // ============================================================
 // docs/dynamic-workflow/presentation.md「The settings popover」「The confirmation window」。
-//
 // 从 WorkflowRunSettingsPopover.tsx 提出来：两处选同一件事（子代理跑在哪个模型上），就该是同一份
 // 清单（composer 的模型菜单，会话模型排第一）、同一个触发器文案、同一条「换模型取默认思考档」规则。
 // 各写一份的话，总有一天确认窗里能选的模型与弹层里能选的不一样。

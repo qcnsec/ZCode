@@ -1,9 +1,7 @@
 // 主会话闸门（WP-F，user directive 2026-08-23）。
-//
 // actor / 子会话的原始事件会经 notifyExternalChildSessionEvent 投进**父 runtime 的同一个
 // 外部 sink 集**，并保留子自己的 sessionId。TUI 的常驻订阅与 per-turn onEvent 都挂在那个集合上，
 // 所以不过滤就会把 actor 的流式增量、工具调用、submit_result、turn_complete 画进主转写。
-//
 // 同时必须证明**没有过滤过头**：dwf 进度是父会话事件，工具卡与结算完成回合要照常活着。
 import assert from "node:assert/strict";
 import test from "node:test";

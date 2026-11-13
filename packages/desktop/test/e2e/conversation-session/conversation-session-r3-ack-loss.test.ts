@@ -99,7 +99,7 @@ interface Pair {
   generation: number;
 }
 
-/** 可按连接代际 hold 上游回包的 SSH TCP 代理：hold 期间上游→Desktop 的字节暂存，release 后一次性冲出。 */
+/** 可按连接代际 hold 回包的 SSH TCP 代理：hold 期间 →Desktop 的字节暂存，release 后一次性冲出。 */
 async function createHoldingProxy(target: { host: string; port: number }): Promise<{
   port: number;
   holdCurrent(): number;
@@ -128,7 +128,7 @@ async function createHoldingProxy(target: { host: string; port: number }): Promi
     upstream.once("error", cleanup);
     client.once("close", cleanup);
     upstream.once("close", () => {
-      // hold 期间上游关闭也不向 Desktop 传递 FIN，模拟"旧回包/旧 close 迟到"。
+      // hold 期间 关闭也不向 Desktop 传递 FIN，模拟"旧回包/旧 close 迟到"。
       if (!pair.holding) cleanup();
     });
   });

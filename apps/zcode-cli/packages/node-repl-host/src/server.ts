@@ -356,7 +356,7 @@ function browserBrokerUpstreamFromEnvironment(
 }
 
 /**
- * Worker 的环境去掉上游浏览器 broker 的地址和 token：只有主线程代理需要它们，Worker 只拿本次调用的
+ * Worker 的环境去掉 浏览器 broker 的地址和 token：只有主线程代理需要它们，Worker 只拿本次调用的
  * token。这只是缩小暴露面，不是可信边界——cell 仍可能从进程的初始环境读到它们，那样绕过代理的调用
  * 只会少记、不会多记（20-node-repl-call-ledger.md「可信边界」）。
  */

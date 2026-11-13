@@ -52,7 +52,7 @@ export async function saveBrowserFile(payload: SaveFileRequest): Promise<SaveFil
   try {
     const data = payload.data ?? (await readDownloadBytes(payload.sourceUrl));
     if (data.byteLength > MAX_DOWNLOAD_BYTES) throw new Error("file_too_large");
-    // 文件名来自上游产物；去掉路径和平台非法字符，避免浏览器把它当作目标目录。
+    // 文件名来自 产物；去掉路径和平台非法字符，避免浏览器把它当作目标目录。
     const leafName = payload.suggestedName.split(/[\\/]/).pop() || "download";
     const filename =
       Array.from(leafName, (character) =>

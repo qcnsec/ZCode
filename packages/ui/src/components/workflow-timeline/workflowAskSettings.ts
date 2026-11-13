@@ -3,7 +3,6 @@
 // ============================================================
 // docs/dynamic-workflow/launch.md「Adjusting the settings in the window」；外观见
 // docs/dynamic-workflow/presentation.md「The confirmation window」。
-//
 // 与「配置」弹层是同一份草稿、同一条「改了什么」的判断（workflowRunSettings.ts），差别只在起点与出口：
 // 起点读的是**这次调用的入参**（CLI resolveInput 归一化过的值），出口是 Allow 应答的 `content`，用工具
 // 自己的字段名与三态——agent 侧据此只有一套解析（contracts 的 WorkflowSettingsAdjustmentSchema）。

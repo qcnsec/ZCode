@@ -1,11 +1,9 @@
 // 虚拟滚动核心：v4 timeline 行高缓存（纯数据结构，无 DOM/React 依赖）。
-//
 // 为什么需要它：@tanstack/react-virtual 自身的 measurementsCache 按 itemKey 缓存，
 // 行在窗口内卸载/重挂不丢测量；但流式行高度持续增长时，virtualizer 重置
 // （rows 数组重建、组件 StrictMode 重挂、error 态 ↔ timeline 切换）会把缓存清回
 // estimateSize 的固定值，导致滚动条跳动与底部锚定抖动。这里以 render unit 的稳定
 // key（turnId）为键做一层组件实例内持久缓存，保证「行卸载重挂保测高缓存」。
-//
 
 /** 未测量行的兜底估计高度（与旧 ConversationTimeline 的 ROW_ESTIMATE_PX 一致）。 */
 export const DEFAULT_ROW_HEIGHT_ESTIMATE_PX = 72;

@@ -12,7 +12,6 @@ import { getLatestUpstreamToolResultByToolCallId } from "#e2e/helpers/conversati
 // 留白（docs/dynamic-workflow/presentation.md「Holes on the timeline」、docs/dynamic-workflow/launch.md
 // 「The `FillWorkflowHole` tool」、docs/dynamic-workflow/transcript-and-notifications.md「The hole row's live state」）
 // 的三条桌面链路：run 卡上的留白站与等待态、通知行的三态、补全之后卡与侧板长出新的站。
-//
 // case-local 回放只决定模型调用；真实 Skill、工作流编译、审批、留白通知与补全仍走产品链路。
 // 第一处留白的等待态检查完成后，再发送真实补全指令，避免自动回复抢先消除待验证的 UI 状态。
 const RUN_DIGEST = `[data-testid^="${TID_CHAT_WORKFLOW_RUN_DIGEST}"]`;

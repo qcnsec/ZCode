@@ -1,9 +1,7 @@
 // 已保存工作流的 GUI 中枢：workspace 级、无会话的方法。
-//
 // 与 skills/referenceCatalog 同一条先例：不带 sessionId，每次调用现扫目录——挂载时快照会漏掉
 // 用户手改 / 模型刚 SaveWorkflow 落盘的文件。
 // 解析器与序列化器只从 @zcode/core 取：这里不解析 frontmatter，也不拼 YAML。
-//
 // 全局作用域：五个方法的 params 收可选 `scope`（缺省
 // `project`）。`global` 时改按本机全局根（`~/.zcode/workflows/`）操作，`workspace` 只是**载体**——
 // 处理器对全局档不读它的路径。`workflows/move` 把全局档搬回 `workspace` 项目（只此一向）。

@@ -4552,7 +4552,7 @@ function mapCompactTimelinePayload(
     ...(inputId ? { inputId } : {}),
     ...(messageId ? { messageId } : {}),
     // compact lifecycle 是结构化状态事件，不是 assistant 正文。
-    // 即使上游误带 text，也不能把内部 summary/prompt 投影到聊天区。
+    // 即使 误带 text，也不能把内部 summary/prompt 投影到聊天区。
     content: "",
     zcodeTimeline: timeline,
   };

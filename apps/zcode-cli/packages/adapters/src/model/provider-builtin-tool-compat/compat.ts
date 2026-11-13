@@ -1,5 +1,4 @@
 // Provider 内置工具（GLM 的 analyze_image / webReader 等）的 Anthropic 线协议兼容。
-//
 // 服务端执行内置工具后，把多轮结果合成一个 assistant message 下发：
 //   text(「**🌐 …」markdown) → server_tool_use(未知名) → text(「**Output:** …」markdown) → 裸 tool_result → 下一轮
 // AI SDK 只认识固定名单的 server_tool_use，也不接受裸 tool_result，两者都会被丢弃，

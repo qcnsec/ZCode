@@ -277,7 +277,7 @@ export const ModelConfigSelect = memo(function ModelConfigSelectComponent({
   // 闲时任务白名单只有一层模型值；只要存在 group 就强制展示 provider 层的话，
   // 下方已有的扁平模型分支永远不可达，也无法复用 New Task 模型选择器。
   const shouldShowProviderLevel = showProviderLevel ?? shouldShowModelProviderLevel(modelGroups);
-  // 模型名和上游占位值可能大小写敏感，强制大写会把 `<synthetic>` 改成 `<SYNTHETIC>` 这类非原始值。
+  // 模型名和 占位值可能大小写敏感，强制大写会把 `<synthetic>` 改成 `<SYNTHETIC>` 这类非原始值。
   const triggerDisplayLabel = triggerLabel;
   const renderedTriggerDisplayLabel =
     formatTriggerLabel?.(triggerDisplayLabel) ?? triggerDisplayLabel;

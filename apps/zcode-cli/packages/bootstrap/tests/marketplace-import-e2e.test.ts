@@ -1,10 +1,8 @@
 // E2E: 验证「自定义市场导入」最新 commit (feat: add custom marketplace source import popover)
 // 触达的真实 agent 链路。
-//
 // UI 侧链路：AddMarketplacePopover -> PluginsSection.onAddMarketplace
 //   -> pluginManagementStore.addMarketplace(source) -> agentService.addPluginMarketplace
 //   -> 协议 plugins/marketplace/add -> server.ts dispatch -> 本文件验证的 facade。
-//
 // 本测试直接驱动 agent 侧 facade addZCodePluginMarketplace，喂入 popover 会原样下发的「自由文本字符串」，
 // 覆盖 parseMarketplaceSourceInput -> loadMarketplaceFromSource(读 manifest / 真实 git clone) -> 落盘，
 // 再用 getZCodePluginsOverview 复核（等价 popover 关闭后 UI refresh 能看到新市场）。

@@ -10,7 +10,6 @@ import { describe, expect, it } from "vitest";
 // 所以 dist 里剩下的每条 `from "…"` 都是运行时依赖），断言可达文件里没有一条 import 裸
 // 说明符 "typescript"。任何一次把投影模块接到 causality-order.ts 之类带编译器的模块上的
 // 改动，都会在这里第一时间炸出来，并列出泄漏的文件。
-//
 // 依赖 dist：turbo 的 test 任务 dependsOn build；在包目录里裸跑 `pnpm test` 前请先
 // `pnpm run build`，否则这里检查的是上一次构建的产物。
 const distDir = resolve(dirname(fileURLToPath(import.meta.url)), "..", "dist");

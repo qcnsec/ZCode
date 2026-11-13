@@ -154,7 +154,6 @@ export function lowerWorkflow(workflow: WorkflowProgram, table: SiteTable): Lowe
       // `args` 与 `run` 是 facade 里仅有的**值**而不是可调用物，所以只有它们走标识符级改写：
       // 读它们不是一个等待点，没有站点、不进因果图。判定按 checker 解析结果（与站点
       // 身份同一机制），所以脚本自己声明的局部 `args` / `run` 解析到脚本文件的符号，原样保留。
-      //
       // 刻意**不**改用「在包装函数体里注入 `const args = ...`」：用户脚本里再声明一个
       // `args` 会变成重复声明的运行期 SyntaxError，而编译期完全看不出来。
       if (

@@ -3,7 +3,7 @@
 // ============================================================
 // Worker 里的浏览器 bridge 原来直接连 ZCode 主进程的浏览器 broker，主线程看不到这些请求，截图下标
 // 只能由 Worker 自报。这里在主线程转发一跳：按本次调用的 token 找到账本条目，用条目里来自 core 的
-// 会话信息改写请求、换成上游 token，并把成功的截图记进账本。
+// 会话信息改写请求、换成 token，并把成功的截图记进账本。
 
 import { randomUUID } from "node:crypto";
 import { rm } from "node:fs/promises";
@@ -16,11 +16,11 @@ import type { NodeReplCallLedger, NodeReplCallLedgerEntry } from "./ledger.js";
 
 const MAX_REQUEST_BYTES = 1024 * 1024;
 const MAX_RESPONSE_BYTES = 32 * 1024 * 1024;
-// 文案与原来 Worker 侧 bridge、上游 broker 的报错一致，cell 看到的错误不变。
+// 文案与原来 Worker 侧 bridge、 broker 的报错一致，cell 看到的错误不变。
 const UNAUTHORIZED_MESSAGE = "Node REPL browser broker request is not authorized";
 const UNAVAILABLE_MESSAGE = "Browser control is unavailable for this node_repl session";
 const UPSTREAM_CLOSED_MESSAGE = "Browser broker closed before returning a response";
-// 超限文案按方向沿用原说法：请求超限原由上游 broker 报，响应超限原由 Worker 侧 bridge 报（MR !3219 评审 SG-03）。
+// 超限文案按方向沿用原说法：请求超限原由 broker 报，响应超限原由 Worker 侧 bridge 报（MR !3219 评审 SG-03）。
 const REQUEST_TOO_LARGE_MESSAGE = "Node REPL browser broker request exceeded 1 MiB";
 const RESPONSE_TOO_LARGE_MESSAGE = "Browser broker response exceeded the 32 MiB limit";
 /** 会话信息只由代理按账本条目填写，Worker 自报的同名字段一律丢弃。 */
@@ -104,7 +104,7 @@ async function handleSocket(
       respondError(UNAUTHORIZED_MESSAGE);
       return;
     }
-    // 会话能力标签 browser_use 按「真实尝试」记：记在检查上游和转发之前，上游报错也算
+    // 会话能力标签 browser_use 按「真实尝试」记：记在检查 和转发之前， 报错也算
     // （session-features-header.md「BUA/CUA 标签的补充规则」）。
     if (payload.op === "list" || payload.op === "execute") entry.facts.browserUse = true;
     if (!input.upstream) {
@@ -124,7 +124,7 @@ async function handleSocket(
   }
 }
 
-/** 把一行请求转发给上游，读回一行响应。Worker 一侧先断开时关闭上游连接（上游视为取消）。 */
+/** 把一行请求转发给 ，读回一行响应。Worker 一侧先断开时关闭 连接（ 视为取消）。 */
 async function forward(
   client: Socket,
   upstreamPath: string,

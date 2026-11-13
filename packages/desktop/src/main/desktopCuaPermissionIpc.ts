@@ -456,7 +456,6 @@ export function registerCuaPermissionIpcHandlers(options: {
 
     // 惰性创建：浮窗只在 macOS 的实际引导流程里有意义，且必须逐会话新建/销毁（不做单例，
     // 避免上一会话的残留窗口被下一会话复用）。非 darwin 保持 null，全部调用点用 ?. 短路。
-    //
     // 必须包 try/catch：浮窗创建要解析二进制路径、起 watcher 子进程、建 BrowserWindow，
     // 任何一步抛异常都不该击穿整个授权引导 —— 那样用户连设置页都打不开，而没有浮窗时
     // 设置页仍可用（用户能自己从 Finder 拖 .app 进列表）。降级 > 全盘失败。

@@ -136,7 +136,6 @@ export function waitForEventMatch(
 }
 
 // Usage example from actual debugging session:
-//
 // BEFORE (flaky):
 // ---------------
 // const messagePromise = agent.sendMessage('Execute tools');
@@ -145,7 +144,6 @@ export function waitForEventMatch(
 // await messagePromise;
 // await new Promise(r => setTimeout(r, 50));  // Hope results arrive in 50ms
 // expect(toolResults.length).toBe(2);         // Fails randomly
-//
 // AFTER (reliable):
 // ----------------
 // const messagePromise = agent.sendMessage('Execute tools');
@@ -154,5 +152,4 @@ export function waitForEventMatch(
 // await messagePromise;
 // await waitForEventCount(threadManager, threadId, 'TOOL_RESULT', 2); // Wait for results
 // expect(toolResults.length).toBe(2); // Always succeeds
-//
 // Result: 60% pass rate → 100%, 40% faster execution

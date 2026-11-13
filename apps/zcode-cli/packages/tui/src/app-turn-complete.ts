@@ -1,5 +1,4 @@
 // turn_complete 的处理：用量/缓存统计 + 结果兜底。
-//
 // 两件事放一起是因为它们同源于一条事件；顺带让 app-events.ts 的 switch 留在 max-lines 之内。
 import type React from "react";
 import type { ModelUsageSummary } from "@zcode/contracts";

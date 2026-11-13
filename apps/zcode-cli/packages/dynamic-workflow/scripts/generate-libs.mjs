@@ -4,7 +4,6 @@
 // cannot read lib.es2022.d.ts (and its /// <reference lib> chain) from the
 // typescript package the way ts.createCompilerHost does. We snapshot that exact
 // closure at build time instead.
-//
 // Idempotent: if libs.generated.ts already matches the installed typescript
 // version, exit without rewriting so watch/test loops stay fast.
 

@@ -4,14 +4,14 @@
   <img src="public/logo/icons/1024x1024.png" alt="ZCode" width="128" height="128" />
 </div>
 <p align="center">
-  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=47ag983c-8fcb-4d6d-814b-5395193a712c&amp;qr_code=true">Feishu community</a> ·
-  <a href="https://discord.gg/z9aBcQXZQ3">Discord</a>
-</p>
-<p align="center">
   <a href="README.md">简体中文</a> | English
 </p>
 
 ZCode is an AI coding workspace with desktop, browser, and terminal interfaces. This repository contains the clients, backend services, shared UI, and Agent CLI and runtime source code.
+
+## Enhancements
+
+Based on the official v3.17.2, this release adds a persistent usage bar, desktop settings sections, proxy connectivity testing, model context-source tracking, model scanning, and residual cleanup after deleting sessions.
 
 ## Updates
 

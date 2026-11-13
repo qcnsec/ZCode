@@ -42,10 +42,8 @@ export const TID_WORKFLOW_META_DISCARD = "workflow-meta-discard";
 export const TID_WORKFLOW_RUN_ROW = "workflow-run-row";
 
 // 用户面产物的四个表面。
-//
 // ⚠ 术语：这里的 artifact 是脚本经 `artifact.*` **发布给用户看**的产出（文件 / markdown /
 // 看板），不是引擎内部 `RunSettlement.artifact` 那个「脚本顶层返回值」的同名词。
-//
 // 只有**入口级**的四样进这里（区、卡、tab 根、chip）：它们是桌面 e2e 的落脚点，两处各写一遍
 // 字面量迟早漂移。区内部的版本步进器、正文各 kind、头部动作仍是组件内的字面量，与 run 详情页
 // 其余分区（`workflow-run-questions` 等）保持同一习惯。

@@ -4,7 +4,7 @@ import type { ToolEntry } from "../src/tool/types.js";
 /**
  * v2 common contract 的逐条断言，与 tool-contracts.test.ts 的全量循环同源。
  *
- * 抽出来是因为那个循环用 `expect` 在第一处不一致就中止：任何一个上游工具的既有偏差都会把
+ * 抽出来是因为那个循环用 `expect` 在第一处不一致就中止：任何一个 工具的既有偏差都会把
  * 它后面所有工具的这份检查永久遮住。新工具在自己的用例里再钉一遍，才能保证它是真的被检查过。
  */
 export function expectV2CommonContract(entry: ToolEntry): void {

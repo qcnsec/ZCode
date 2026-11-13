@@ -134,7 +134,7 @@ export async function createFirstConnectionStallingSSHProxy(
       // 第一个 TCP connection 故意不转发 SSH 握手，稳定保留 pending cancel 窗口。
       // Bug 原因：只挂 close 监听不读取 socket，连接会一直停在 paused 状态，客户端
       // banner 与随后的 FIN 都留在内核缓冲里，end/close 永不触发，取消后的关闭事实
-      // 就观测不到。这里 resume() 丢弃客户端数据（不转发上游），只为让 FIN 可被观测。
+      // 就观测不到。这里 resume() 丢弃客户端数据（不转发 ），只为让 FIN 可被观测。
       client.resume();
       markFirstConnectionAccepted();
       client.once("error", () => client.destroy());

@@ -68,6 +68,12 @@ export const completeProviderApiDataSchema = z
     type: providerApiTypeDataSchema,
     baseUrl: nonBlankRequiredString.pipe(z.string().url()),
     headers: z.record(z.string(), z.string()).readonly().nullable().optional(),
+    // 自定义请求路径 / 查询参数 / 额外请求头（供应商设置增强）。
+    // customPath：追加到 baseURL 之后的路径后缀，覆盖 SDK 默认 operation path；
+    // customQuery：追加到请求 URL 的查询字符串；customHeaders：每行 `Key: Value` 的原始文本。
+    customPath: z.string().nullable().optional(),
+    customQuery: z.string().nullable().optional(),
+    customHeaders: z.string().nullable().optional(),
   })
   .strict();
 export const providerApiDataSchema = z

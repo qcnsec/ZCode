@@ -478,7 +478,20 @@ export class BigModelCodingPlanSubscriptionProvider {
     if ((payload.code !== undefined && payload.code !== 0) || payload.success === false) {
       throw new Error("Request verification configuration is invalid");
     }
-    return readValidatedRequestVerificationConfig(payload.data?.configs);
+    const configs = payload.data?.configs;
+    const config = readValidatedRequestVerificationConfig(configs);
+    // 诊断日志落在 host（会随导出日志落盘），便于确认服务端真实下发的字段名。
+    // 只记录键名与布尔/枚举值，不记录任何 token、密钥或完整配置内容。
+    log.info(undefined, "request verification config resolved", {
+      configKeys:
+        configs && typeof configs === "object" ? Object.keys(configs as object).slice(0, 40) : [],
+      hasCaptcha: !!config,
+      hasSceneId: !!config?.sceneId,
+      hasPrefix: !!config?.prefix,
+      region: config?.region ?? null,
+      enabled: config?.enabled ?? null,
+    });
+    return config;
   }
 
   async getForceUpdateConfig(): Promise<ForceUpdateConfig | null> {

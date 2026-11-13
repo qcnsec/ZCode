@@ -1042,7 +1042,6 @@ describe("GetWorkflowRun model content", () => {
 
 // ————————————————————————————————————————————————
 // 停驻中的升级问题（apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md）。
-//
 // 这是模型侧**唯一**的发现面：升级通知有两条已知的丢弃路径（stale branch generation /
 // shutdown），而 `ResolveWorkflowQuestion` 只认 qid。spec 把「查询兜底」写成了那两条路径的
 // 安全网，`unknown_question` 的服务端文案与升级通知也都明确指向这里——所以这几条断言钉住的
@@ -1130,7 +1129,6 @@ describe("GetWorkflowRun handler — pending escalations", () => {
 
 // ————————————————————————————————————————————————
 // 情势截面（docs/dynamic-workflow/launch.md「`GetWorkflowRun`」）。
-//
 // 三个场景钉的是同一件事：这份输出能不能回答「run 在哪、谁在干什么、它还在动吗」。
 // 块序是契约，每一行的事实也是——所以这里既断言顺序，也断言那几行的字。
 // `summary` 用真正的拼装器铸出（不是手写一句），于是这三段文本就是端到端的真实渲染。

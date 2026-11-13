@@ -3,15 +3,12 @@
 // ============================================================
 // 规格：apps/zcode-cli/packages/dynamic-workflow/docs/execution-engine.md「Resuming after a quota
 // reset」。
-//
 // 问题：子代理撞上 1308 / 1310（5 小时、周 / 月额度用完）时整个 run 停成 stopped(provider)，
 // 要人或主代理在额度恢复后手动 ResumeWorkflowRun。实测（2026-10 一位重度用户的 20 天日志）22 个
 // run 撞额度停下，17 个是事后手动续跑的，5 个就此搁置。
-//
 // 做法：停止记录里已经有重置时刻（`failure.providerStop.resetAt`，adapters 的
 // inspectWorkflowModelFailure 从 Retry-After 或原文读出）。本模块在它之后
 // {@link WORKFLOW_QUOTA_RESUME_MARGIN_MS} 自动续跑。
-//
 //   - **唯一数据源是 journal 的 run 行**。定时器只是唤醒：到点重新读行，仍是同一个 quota 停止
 //     （resetAt 相同）才续跑。期间用户手动 Resume、AmendWorkflow 替换（superseded），或 run 停在
 //     了别的原因上，都以行为准，不续跑、不做内存与库的同步。
@@ -30,7 +27,6 @@
 //     按原样续不了，不补做。补做用完行仍是额度停止，下次冷启动扫描会再试。
 //   - **自愈不拖垮进程**：定时器与结算订阅里的 journal 读取都像冷启动扫描一样收口，读失败只记一条
 //     截断过的日志、本次不续跑，异常绝不从定时器回调或订阅回调里逃出去（MR !3072 评审 CR-01）。
-//
 // 续跑本身由调用方注入（create-app：统一执行边界 → port.resume → runtime 重臂追踪），与 UI 的
 // 「恢复」走同一条路，终态通知、后台任务条目与常驻护栏因此都在。
 

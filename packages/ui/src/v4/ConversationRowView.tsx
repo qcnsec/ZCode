@@ -2,6 +2,7 @@ import { getLocalTtftObserver } from "@/v4/telemetry/local-ttft/contract.js";
 import { GenUiMessageResponse } from "@/gen-ui/index.js";
 import { ConversationUserInputBubble } from "@/v4/ConversationUserInputBubble.js";
 import { expandTopicInputMessages } from "@/v4/topicInputMessages.js";
+import { QcTrkMessageModelBadge } from "@/v4/QcTrkMessageModelBadge.js";
 import { ConnectedBotGroupDeliveryAction } from "@/v4/BotGroupDeliveryAction.js";
 /* oxlint-disable eslint(max-lines) -- v4 逐行 row 渲染分发集中收口（每种 row 一个 memo 叶子 + timelineMarker 分隔线），拆分会打散行类型对照。 */
 import { useIsOfficeMode } from "@/hooks/useInterfaceMode.js";
@@ -1819,6 +1820,11 @@ const AssistantTextRowView = memo(function AssistantTextRowView({
           )}
         />
       ) : null}
+      {/* ：hover 时显示本条回复的模型 / 供应商 / 推理档位。 */}
+      <QcTrkMessageModelBadge
+        model={row.model}
+        modelSelectionView={context.modelSelectionView}
+      />
     </RowShell>
   );
 });

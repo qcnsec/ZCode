@@ -3,7 +3,6 @@
 // ============================================================
 // docs/dynamic-workflow/launch.md「Adjusting the settings in the window」「The options」；外观与键盘
 // 见 docs/dynamic-workflow/presentation.md「The confirmation window」。
-//
 // 从 PermissionDialog.tsx 拆出：那边是所有确认窗共用的选项列表，这里只放工作流确认窗多出来的
 // 三件事——改过的设置存在哪、哪些选项带着它走、Shift+Tab 从选项列表回到设置控件。
 

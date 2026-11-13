@@ -129,8 +129,9 @@ export function useProjectManagement() {
    * 逐个删除已移除本机项目的数据，期间显示常驻进度 toast。会话仍在运行而被保留、或有文件删不掉的
    * 项目算失败：它们保持软删除，可恢复，也可只重试这一步。
    */
-  const purgeRows = async (rows: readonly ProjectManagementRow[], totalBytes?: number) => {
-    const failed: { row: ProjectManagementRow; cause: unknown }[] = [];
+  type PurgeTarget = { project: { id: string; name: string } };
+  const purgeRows = async (rows: readonly PurgeTarget[], totalBytes?: number) => {
+    const failed: { row: PurgeTarget; cause: unknown }[] = [];
     let freed = 0;
     let done = 0;
     const progress = () => ({
@@ -175,16 +176,44 @@ export function useProjectManagement() {
   const purge = (rows: readonly ProjectManagementRow[]) =>
     exclusive(async () => {
       const { freed, failed } = await purgeRows(rows);
+      const failedIds = new Set(failed.map(({ row }) => row.project.id));
+      const retryRows = rows.filter((row) => failedIds.has(row.project.id));
       fail(
         "purge",
         failed.map(({ row, cause }) => ({ name: row.project.name, cause })),
-        () => purge(failed.map(({ row }) => row)),
+        () => purge(retryRows),
       );
       const succeeded = rows.length - failed.length;
       if (!succeeded) return;
       return () =>
         resultToast(
           formatCountMessage(intl, "projectManagement.data.deletedToast", succeeded, {
+            size: formatBytes(freed),
+          }),
+        );
+    });
+
+  /**
+   * 对「已移除」回收站里的项目做永久删除：复用 deleteProjectData（其内部已校验
+   * project.deleted 并 purgeProjectIfUnreferenced 删项目行），连同会话数据一起销毁。
+   */
+  const purgeRemoved = (projects: readonly VirtualProject[]) =>
+    exclusive(async () => {
+      const { freed, failed } = await purgeRows(
+        projects.map((project) => ({ project: { id: project.id, name: project.name } })),
+      );
+      const failedIds = new Set(failed.map(({ row }) => row.project.id));
+      const retryProjects = projects.filter((project) => failedIds.has(project.id));
+      fail(
+        "purge",
+        failed.map(({ row, cause }) => ({ name: row.project.name, cause })),
+        () => purgeRemoved(retryProjects),
+      );
+      const succeeded = projects.length - failed.length;
+      if (!succeeded) return;
+      return () =>
+        resultToast(
+          formatCountMessage(intl, "projectManagement.removed.purgedToast", succeeded, {
             size: formatBytes(freed),
           }),
         );
@@ -253,7 +282,8 @@ export function useProjectManagement() {
         const purged = local.length
           ? await purgeRows(local, options.deleteData.totalBytes)
           : { freed: 0, failed: [] };
-        const purgeFailed = purged.failed.map(({ row }) => row);
+        const purgeFailedIds = new Set(purged.failed.map(({ row }) => row.project.id));
+        const purgeFailed = local.filter((row) => purgeFailedIds.has(row.project.id));
         // 修复原因：两个横幅曾先后写入同一个 failure，移除失败覆盖了数据删除失败，后者再无重试入口。
         // 移除失败的横幅优先，它的重试在同一批里连同这些数据删除失败的项目一起重跑。
         if (failed.length)
@@ -361,6 +391,7 @@ export function useProjectManagement() {
     failure,
     remove,
     restore,
+    purgeRemoved,
     measureData,
     dismissFailure: () => setFailure(null),
   };
